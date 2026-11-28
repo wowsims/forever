@@ -9,8 +9,7 @@ import (
 )
 
 // What may go at the cursor: the statement's tokens up to the cursor read by a partial reader of the grammar
-// (SPEC.md §4), which stops where the tokens run out and says what it expected there. The parser reads whole
-// statements and reports errors; this reads a prefix and reports expectations.
+// (SPEC.md §4), which stops where the tokens run out and says what it expected there.
 
 // What is expected at the cursor; t says which, and the other fields what it is about.
 type want struct {

@@ -20,7 +20,7 @@ func (priest *Priest) registerDarkSacrifice(_ int32, rank *spelldata.Spell) {
 	ticks := float64(config.Hot.NumberOfTicks)
 	rowMana := manaPerTick * ticks
 	config.Hot.OnTick = func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
-		// The tooltip's ${$o2+$SPI}: the row's mana over the duration, and Spirit once, shared over the ticks.
+		// The tooltip's ${$o2+$SPI}: the spell's mana over the duration, and Spirit once, shared over the ticks.
 		priest.SpendHealth(sim, healthPerTick, dot.Spell.HealthMetrics(&priest.Unit))
 		priest.AddMana(sim, manaPerTick+priest.GetStat(stats.Spirit)/ticks, manaMetrics)
 	}

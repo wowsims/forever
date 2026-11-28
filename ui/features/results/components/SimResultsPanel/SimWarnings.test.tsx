@@ -17,7 +17,7 @@ const shown = () => !!zone();
 
 describe('SimWarnings', () => {
 	// Every warning judges gear and talents, which are empty until the sim loads, so an unready sim
-	// would warn about a setup nobody chose, for ~800ms on every page load.
+	// would warn about a setup nobody chose.
 	it('says nothing while the sim is not ready, however much the registry holds', () => {
 		render(<SimWarnings warnings={registryWith('an enchant needs a profession')} ready={false} />);
 

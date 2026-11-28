@@ -58,7 +58,7 @@ func TestMonocatStaysInCatForm(t *testing.T) {
 	}
 }
 
-// Without Predatory Discipline, Ferocious Bite spends the combo points only once a Rip would not tick out.
+// Without Predatory Discipline, Ferocious Bite uses the combo points only once a Rip would not tick out.
 func TestMonocatBitesOnlyAtTheEnd(t *testing.T) {
 	request := catPowershiftRequest(withFeralDigit(powershiftTalents, 12, '0'), defaultCatRotation(), false)
 	request.SimOptions.Debug = true
@@ -179,9 +179,7 @@ func catPowershiftRequest(talents string, rotation *proto.APLRotation, cannotShr
 	}
 }
 
-// Bleed Is Active sees the cat's own Rake and the assumed raid bleed. The APL claws while the target
-// bleeds and rakes while it does not: without the assumption Rake opens and Claw follows while it
-// ticks; with it the target bleeds from the pull and Rake is never cast.
+// Bleed Is Active sees the cat's own Rake and the assumed raid bleed.
 func TestBleedIsActiveSeesRakeAndTheAssumedBleed(t *testing.T) {
 	const rake, claw = 9904, 9850
 	bleeding := &proto.APLValue{Value: &proto.APLValue_DruidBleedIsActive{DruidBleedIsActive: &proto.APLValueDruidBleedIsActive{}}}
@@ -694,9 +692,8 @@ func catValidationRequest(rotation *proto.APLRotation) *proto.ComputeStatsReques
 	return &proto.ComputeStatsRequest{Raid: req.Raid, Encounter: req.Encounter}
 }
 
-// aplWarnings is what the APL editor marks with a warning or an error, by line: the priority list
-// line's index, "prepull", "uuid", or a group's name and line, such as "Cooldowns 1". Information
-// (the blue icon) is left out.
+// What the APL editor marks with a warning or an error, by line: the priority list line's index,
+// "prepull", "uuid", or a group's name and line, such as "Cooldowns 1".
 func aplWarnings(t *testing.T, preset *proto.APLRotation, req *proto.ComputeStatsRequest) map[string][]string {
 	t.Helper()
 	stats := core.ComputeStats(req).RaidStats.Parties[0].Players[0].RotationStats

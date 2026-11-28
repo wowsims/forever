@@ -1,9 +1,6 @@
 //go:build with_db
 
 // Which items and enchants the sim simulates an effect for, as a local baseline that is not tracked.
-// The generated registrations are a hundred lines of ids; the baseline answers the only question a
-// regeneration has to answer - what became live, and what stopped being live. A checkout without it
-// writes it on the first run.
 //
 // Needs the database: an effect registered for an item the game files do not ship is skipped, so
 // without it the list would name items no sim can equip.

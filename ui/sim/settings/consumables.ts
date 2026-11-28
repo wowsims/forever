@@ -1,6 +1,6 @@
 // Which consumables the settings offer a spec, and in which picker, from the fields db.json carries
 // for each. `Player.getConsumes(true)` sends the potions and conjured items this finds, so it sits
-// below the view layer; the pickers in the settings feature read the same functions.
+// below the view layer.
 import {
 	Class,
 	ConsumableType,
@@ -132,8 +132,7 @@ export function handTakesImbue(consumable: Consumable, item: Item | undefined): 
 	return maskAllows(consumable.weaponSubclassMask, clientWeaponSubclass(item)) && maskAllows(consumable.weaponInventoryTypeMask, clientInventoryType(item));
 }
 
-// The stats a spec weighs consumables by. Stamina brings health and the resistances with it, and
-// Attack Power the flat physical damage a Frenzy Potion or Bogling Root adds.
+// The stats a spec weighs consumables by.
 export function consumableStatsOf(specConfig: Pick<SpecConfigData<any>, 'epStats' | 'consumableStats'>): Set<Stat> {
 	const stats = new Set([...(specConfig.consumableStats ?? []), ...specConfig.epStats]);
 	if (stats.has(Stat.StatAttackPower)) stats.add(Stat.StatPhysicalDamage);
@@ -164,9 +163,8 @@ type EnchantRelevanceSpec = Pick<SpecConfigData<any>, 'epStats' | 'epPseudoStats
 
 const enchantRelevanceCache = new WeakMap<EnchantRelevanceSpec, StatSets>();
 
-// The consumables' rule on the stats the spec weighs: an enchant counts when it grants one of them or a percent the
-// spec shows or weighs, flat weapon damage counting as physical damage. One that grants none of these (a proc) counts.
-// Enchants are weighed by the spec's EP stats alone, not by its consumableStats.
+// Whether an enchant counts under the consumables' rule on the stats the spec weighs. Enchants are weighed by the
+// spec's EP stats alone, not by its consumableStats.
 export function isEnchantRelevantFor(enchant: Enchant, specConfig: EnchantRelevanceSpec): boolean {
 	const grantedStats: Stat[] = enchant.stats.flatMap((value, stat) => (value ? [stat] : []));
 	if (enchant.weaponDamage) grantedStats.push(Stat.StatPhysicalDamage);
@@ -244,9 +242,7 @@ export function consumableAllowed(consumable: Consumable, user: ConsumableUser):
 }
 
 // Whether the consumable does something for these stats: a stat among them, a percent among them, a
-// resource they spend, or, for a consumable that grants none of these, an effect of another kind
-// (damage, an absorb, a weapon enchant). A temporary enchant is checked against a hand with
-// handTakesImbue.
+// resource they use, or, for a consumable that grants none of these, an effect of another kind.
 function isConsumableRelevant(consumable: Consumable, db: SpellEffectSource, stats: Set<Stat>, pseudoStats: Set<PseudoStat>): boolean {
 	const { grantedStats, grantedPseudoStats, restores } = factsOf(consumable, db);
 	if (
@@ -335,10 +331,7 @@ export const consumableOrderOf = (player: Player<any>): ConsumableOrder => {
 export const CONSUMABLE_ORDER_FIELDS: ReadonlyArray<StoreField> = ['epWeights', 'encounter:targets'];
 
 // The items by the EP their consumables' stats and percents add at the order's weights, highest
-// first. A mob type stat counts against a target of one of its mob types. A zone stat always counts:
-// the sim takes every fight to be in the Natural flasks' zones. One that grants neither here (a proc,
-// a restore, damage, a stat against other mob types) comes after every one that does. Ties go by
-// required level, highest first, then by name.
+// first. A zone stat always counts: the sim takes every fight to be in the Natural flasks' zones.
 export function orderedByEp<T>(items: ReadonlyArray<T>, consumableOf: (item: T) => Consumable, { weights, playerClass, mobType }: ConsumableOrder): Array<T> {
 	return items
 		.map(item => {

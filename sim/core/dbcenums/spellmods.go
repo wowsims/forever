@@ -1,8 +1,8 @@
 package dbcenums
 
 // The misc value of A_ADD_FLAT_MODIFIER and A_ADD_PCT_MODIFIER: the spell property the modifier
-// changes. The game files ship no name list, so every op is declared under TrinityCore's names - its
-// 3.3.5 ones up to 30 and its current ones above - and checked against the talents that use them.
+// changes. The game files ship no name list, so every op is declared under TrinityCore's names (its
+// 3.3.5 ones up to 30 and its current ones above) and checked against the talents that use them.
 // The comment says what the op modifies where that is known, and names talents that use it.
 type SpellModOp int32
 
@@ -45,7 +45,7 @@ const (
 	SPELLMOD_JUMP_DISTANCE             SpellModOp = 35
 	SPELLMOD_AREATRIGGER_MAX_SUMMONS   SpellModOp = 36
 	SPELLMOD_MAX_AURA_STACKS           SpellModOp = 37 // maximum aura stacks
-	SPELLMOD_PROC_COOLDOWN             SpellModOp = 38 // internal cooldown between procs
+	SPELLMOD_PROC_COOLDOWN             SpellModOp = 38 // ICD between procs
 	SPELLMOD_COST3                     SpellModOp = 39
 	SPELLMOD_MAX_TARGETS               SpellModOp = 40 // maximum targets
 )

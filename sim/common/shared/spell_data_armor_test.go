@@ -8,10 +8,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// A spell built from its row ticks through all, a tenth or none of the target's armor as the row's
-// attributes say: the warrior's Rend sets both bits and ignores armor, a weapon's Rend sets only the
-// first and meets a tenth, and Wound and Bigger Rock to the Face set neither and meet it whole, a bleed
-// or not.
+// A spell built from the game files ticks through all, a tenth or none of the target's armor as its
+// attributes say.
 func TestPeriodicPhysicalRowsMeetTheArmorTheirAttributesName(t *testing.T) {
 	sim := newAuraSim(shaman("Wearer", nil))
 	character := auraTesterAt(sim, 0).GetCharacter()

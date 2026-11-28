@@ -1,6 +1,4 @@
-// The tail three importers share. Two things here are behaviour rather than plumbing: the class
-// guard, which now reaches the caller instead of becoming an unhandled rejection, and which of the
-// two closing toasts is shown.
+// The tail three importers share.
 import { APLRotation, APLRotation_Type } from '@generated/proto/apl';
 import { Class, EquipmentSpec, Profession, Race } from '@generated/proto/common';
 import { SimSettingCategories } from '@sim/constants/sim_settings';
@@ -69,8 +67,6 @@ describe('finishIndividualImport', () => {
 		expect(toasts).toEqual([{ variant: 'success', body: 'import.success' }]);
 	});
 
-	// A talent string indexes the exporter's trees by position, so applying one built for other
-	// trees would spend the points on different talents.
 	it('does not apply a talent string unless it is marked as built from these trees, and says so', async () => {
 		await finishIndividualImport(host, parsed({}));
 
@@ -93,8 +89,7 @@ describe('finishIndividualImport', () => {
 		expect(toasts.every(toast => toast.variant !== 'warning')).toBe(true);
 	});
 
-	// `--` is what an empty three-tree talent string looks like: the import carried no talents, so
-	// there is nothing to warn about either.
+	// `--` is what an empty three-tree talent string looks like.
 	it('says nothing when the export carried no talents at all', async () => {
 		await finishIndividualImport(host, parsed({ talentsStr: '--' }));
 

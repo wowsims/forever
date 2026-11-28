@@ -7,8 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// A proc's damage spell without a missile speed deals its damage without allocating: Fire Strike
-// 7712 on its one target, and Fiery Blaze 6297 on each of three.
+// A proc's damage spell without a missile speed deals its damage without allocating.
 func TestProcDamageWithoutAMissileSpeedDoesNotAllocate(t *testing.T) {
 	for _, tc := range []struct {
 		neckID, row int32
@@ -30,8 +29,8 @@ func TestProcDamageWithoutAMissileSpeedDoesNotAllocate(t *testing.T) {
 	}
 }
 
-// A proc's missile, Linken's Boomerang 15712 at one target, carries its result to the arrival in the
-// closure alone: the flight allocates the pending arrival, not a copy of the results.
+// The flight of a proc's missile, Linken's Boomerang 15712, allocates the pending arrival, not a copy
+// of the results.
 func TestProcDamageMissileAllocatesOnlyItsFlight(t *testing.T) {
 	neck, _ := listeningNeck(991132, core.CallbackOnSpellHitDealt, 15712)
 	sim, caster := newOnUseSimAgainst(t, NewSpellDataDamageOnUse, map[int32]*proto.ItemEffect{}, neck, 1)

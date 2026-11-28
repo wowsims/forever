@@ -48,8 +48,8 @@ func (qs *QueuedSpell) InitiateQueue(sim *Simulation, spell *Spell, target *Unit
 			qs.castFn = func(sim *Simulation) {
 				qs.spell.Unit.setRotationCastEntryPath(qs.entryPath)
 				qs.spell.castForRotation(sim, qs.target, qs.channelAction)
-				// The rotation goes on from a queued instant at once, as it does after one it casts itself, so
-				// an action off the GCD, such as a move, does not wait for the next GCD.
+				// The rotation goes on from a queued instant at once, so an action off the GCD does not
+				// wait for the next GCD.
 				if unit := qs.spell.Unit; unit.Hardcast.Expires <= sim.CurrentTime {
 					unit.SetRotationTimer(sim, sim.CurrentTime)
 				}
@@ -254,9 +254,7 @@ func (spell *Spell) aplEntrySuffix() string {
 
 // A cast by the rotation or a major cooldown: once it completes it restarts the wand's timer. The record
 // outlives the call only while the cast is still running. A press that starts counts one ManualCast on its
-// target; a cast that calls Cast directly (a proc, a swing, a spell another spell casts) counts none. A
-// press that queues another spell for the next swing, which the swing then casts directly, credits the
-// queued spell through CountManualCast.
+// target; a cast that calls Cast directly (a proc, a swing, a spell another spell casts) counts none.
 func (spell *Spell) castForRotation(sim *Simulation, target *Unit, channelAction *APLActionChannelSpell) {
 	unit := spell.Unit
 	unit.rotationCast = rotationCast{spell: spell, channelAction: channelAction}

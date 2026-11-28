@@ -291,8 +291,7 @@ func TestGetBulkSimStageMaxSurvivorsKeepsAtLeastTheTopResults(t *testing.T) {
 }
 
 // Thirty unpaired candidates at stdev 10 over 100 iterations, so each interval's half-width is 10 / 10 x 1.35 x
-// sqrt(log10 30) = 1.64. The leader sits at 1000, the next four at 990 down to 960, the sixth at 958 and the rest at 900
-// and below; the baseline trails them all.
+// sqrt(log10 30) = 1.64.
 func unpairedBulkSimSurvivors(topResults int) []int32 {
 	averages := []float64{1000, 990, 980, 970, 960, 958}
 	for idx := range 24 {
@@ -327,7 +326,7 @@ func TestSelectBulkSimSurvivorsCullsAgainstTheLastShownCandidateAtALargerCap(t *
 }
 
 // 120 unpaired candidates at stdev 10 over 100 iterations, so each interval's half-width is 10 / 10 x 1.35 x
-// sqrt(log10 120) = 1.95. The leader sits at 1000 and the rest at 900 - 0.03 x index, the last at 896.43.
+// sqrt(log10 120) = 1.95.
 func lowStageBulkSimSurvivorCount(t *testing.T, topResults int) int {
 	t.Helper()
 	low := BulkSimStageConfigs[0]

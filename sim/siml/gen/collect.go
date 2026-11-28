@@ -298,7 +298,7 @@ func fillMessages(m protoreflect.Message, depth int) {
 
 // Variants of the spec's options, each with every number of them at 1: one with nothing else changed, and one
 // for each value a bool or enum field can take besides its default. Those are the options that register more, such
-// as the warrior's use_battle_shout or the hunter's pet_type, which needs a pet_uptime above 0.
+// as the hunter's pet_type, which needs a pet_uptime above 0.
 func optionVariants(info siml.SpecInfo) []optionVariant {
 	var numbers, changes []optionVariant
 	var walk func(path []protoreflect.FieldDescriptor, md protoreflect.MessageDescriptor, depth int)
@@ -394,7 +394,7 @@ type build struct {
 	buffState int32            // The state every rank select holds with every buff; 0 reads as 1.
 
 	found   map[siml.Namespace]map[Identity]Registration // What the build registered.
-	icd     []int32                                      // The items whose effect the build lists only as an internal cooldown trigger.
+	icd     []int32                                      // The items whose effect the build lists only as an ICD trigger.
 	attempt int                                          // Which attempt succeeded: 0 with every buff, 1 without buffs, 2 without talents either; -1 when none did.
 	errors  []string                                     // Why each failed attempt failed.
 }
@@ -490,7 +490,7 @@ func computeStats(player *proto.Player, buffState int32, encounter *proto.Encoun
 	return result, nil
 }
 
-// The items whose effect the player lists only as an internal cooldown trigger, which only the ICD kinds find
+// The items whose effect the player lists only as an ICD trigger, which only the ICD kinds find
 // (aura(item.x).is_active does not).
 func icdItems(result *proto.ComputeStatsResult) []int32 {
 	metadata := result.RaidStats.Parties[0].Players[0].Metadata
@@ -545,7 +545,7 @@ func registrations(result *proto.ComputeStatsResult) map[siml.Namespace]map[Iden
 	for _, aura := range player.Metadata.Auras {
 		add(siml.NamespaceAura, aura.Id, false)
 	}
-	// icd_is_ready and trigger_icd read an aura name too, so the internal cooldown triggers they find are aura names,
+	// icd_is_ready and trigger_icd read an aura name too, so the ICD triggers they find are aura names,
 	// marked as triggers when the build lists them as nothing else.
 	for _, aura := range player.Metadata.IcdAuras {
 		addOnly(siml.NamespaceAura, aura.Id, func(r *Registration) { r.ICDOnly = true })

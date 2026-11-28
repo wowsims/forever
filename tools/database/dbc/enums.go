@@ -285,8 +285,8 @@ const (
 	ITEM_MOD_MAX                      = 49
 
 	// Indices above ITEM_MOD_MAX that the Forever game files actually put on items.
-	// 50-56 are standard (wowdev.wiki/Stat_Types); 50 is already handled below.
-	// 83+ has no upstream definition -- the canonical enum stops at 74 -- so these
+	// 50-56 are standard; 50 is already handled below.
+	// 83+ has no upstream definition (the canonical enum stops at 74), so these
 	// were identified from self-labelling test items and enchant rows in the game files.
 	ITEM_MOD_EXTRA_ARMOR       = 50
 	ITEM_MOD_FIRE_RESISTANCE   = 51

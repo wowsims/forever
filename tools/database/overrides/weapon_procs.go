@@ -17,7 +17,7 @@ type WeaponProc struct {
 // adds back a weapon whose row was dropped needs the row restored from git history, or the database tests that name
 // the item fail the Update Items run.
 var WeaponProcs = []WeaponProc{
-	// Measured in end-game dungeon logs (EV-0003).
+	// PPM measurement in EV-0003.
 	{
 		ItemID:  10750,
 		SpellID: 1300356,
@@ -130,9 +130,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Lightcrest Hammer: no proc row",
 		Source:  "EV-0003",
 	},
-	// Measured the same way in combat logs of levelling players (EV-0022). A druid's Maul, Swipe, Claw and
-	// Lacerate hits are left out as well, since they almost never give a chance-on-hit weapon's proc. The chance
-	// a swing scales with the swing speed, as procs per minute do.
+	// PPM measurement in EV-0022.
 	{
 		ItemID:  9478,
 		SpellID: 1292573,
@@ -168,9 +166,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Rock on Stick: no proc row; measured on main-hand hits without extra attacks or haste",
 		Source:  "EV-0050",
 	},
-	// Measured the same way in reports of dungeons below the end game, on players with no extra attacks, leaving
-	// out the hits made under an attack speed aura and every swing that came sooner than the weapon's speed
-	// (EV-0024).
+	// PPM measurement in EV-0024.
 	{
 		ItemID:  287005,
 		SpellID: 1324687,
@@ -178,8 +174,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Sword of Dismemberment: no proc row",
 		Source:  "EV-0024",
 	},
-	// Measured on isolated hits in end-game and levelling dungeon reports: landed hits with no other hit of the
-	// wearer close enough to have rolled the proc, from wearers with no off-hand weapon (EV-0003, EV-0022, EV-0119).
+	// PPM measurement in EV-0003, EV-0022, EV-0119.
 	{
 		ItemID:  6220,
 		SpellID: 1292152,
@@ -250,7 +245,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Bigger Rock on Bigger Stick: no proc row",
 		Source:  "EV-0022",
 	},
-	// Measured on a cat druid's white swings, priced on the 1.0 s paw (EV-0122).
+	// PPM measurement in EV-0122.
 	{
 		ItemID:  274963,
 		SpellID: 1295744,
@@ -258,7 +253,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Rot-Covered Harpoon: column reads 101",
 		Source:  "EV-0122",
 	},
-	// Measured on the landed hits each trigger hears, each priced on its weapon's base speed (EV-0136).
+	// PPM measurement in EV-0136.
 	{
 		ItemID:  754,
 		SpellID: 13519,
@@ -301,8 +296,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Waveslicer: no proc row",
 		Source:  "EV-0136",
 	},
-	// Fitted the same way from the reports up to 2026-11-17, from too few wearers, too wide an interval or wearers of
-	// one class only to call final (EV-0136). The "observed" Source keeps the gear tab's notice up until more
+	// The rate is a log fit, not yet final (EV-0136). The "observed" Source keeps the gear tab's notice up until more
 	// wearers validate it.
 	{
 		ItemID:  6660,
@@ -311,8 +305,8 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Julie's Dagger: column reads 100; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
-	// Measured on every hit the class census finds rolling the weapon, each priced on its weapon's base speed (EV-0136,
-	// EV-0153, EV-0155).
+	// PPM measurement in EV-0136, EV-0153.
+	// Rolling hits in EV-0155.
 	{
 		ItemID:  1481,
 		SpellID: 1292158,
@@ -411,9 +405,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Toofbreaker: no proc row",
 		Source:  "EV-0136",
 	},
-	// Fitted the same way from too few wearers, too wide an interval, wearers of one class only or no lone-unit rate to
-	// check it, to call final (EV-0132, EV-0136, EV-0153). The "observed" Source keeps the gear tab's notice up until
-	// more wearers validate it.
+	// The rate is a log fit, not yet final (EV-0132, EV-0136, EV-0153).
 	{
 		ItemID:  647,
 		SpellID: 17152,
@@ -470,7 +462,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Satyr's Lash: no proc row; shares the trigger with Black Malice; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
-	// Measured by EV-0153's method on the reports from 2026-11-06 to 2026-11-21 (EV-0126, EV-0132, EV-0136).
+	// PPM measurement in EV-0126, EV-0132, EV-0136.
 	{
 		ItemID:  809,
 		SpellID: 17504,
@@ -562,8 +554,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Pyromancer's Baton: column reads 101",
 		Source:  "EV-0136",
 	},
-	// Measured the same way on the reports from 2026-11-14 to 2026-11-22, paladins included: their rolls are EV-0155's
-	// and EV-0156's, and their lone white swings read the warrior's chance (EV-0179).
+	// PPM measurement in EV-0179.
 	{
 		ItemID:  14541,
 		SpellID: 18652,
@@ -571,7 +562,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Barovian Family Sword: column reads 101",
 		Source:  "EV-0179",
 	},
-	// Measured by EV-0153's method on the reports from 2026-11-13 to 2026-11-24, paladins left out (EV-0125).
+	// PPM measurement in EV-0125.
 	{
 		ItemID:  12592,
 		SpellID: 16602,
@@ -579,7 +570,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blackblade of Shahram: no proc row",
 		Source:  "EV-0125",
 	},
-	// Measured by EV-0153's method on the reports from 2026-11-19 to 2026-11-23 (EV-0186).
+	// PPM measurement in EV-0186.
 	{
 		ItemID:  10623,
 		SpellID: 13439,
@@ -587,7 +578,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Winter's Bite: column reads 101; Hammer of the Northern Wind casts the same spell",
 		Source:  "EV-0186",
 	},
-	// Measured by EV-0153's method on the reports from 2026-11-13 to 2026-11-26 (EV-0136, EV-0221).
+	// PPM measurement in EV-0136, EV-0221.
 	{
 		ItemID:  12590,
 		SpellID: 16551,
@@ -609,8 +600,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Alcor's Sunrazor: no proc row",
 		Source:  "EV-0221",
 	},
-	// Measured by EV-0153's method on the reports from 2026-11-06 to 2026-11-22 (EV-0121, EV-0136, EV-0146, EV-0150,
-	// EV-0153, EV-0177, EV-0183).
+	// PPM measurement in EV-0121, EV-0136, EV-0146, EV-0150, EV-0153, EV-0177, EV-0183.
 	{
 		ItemID:  811,
 		SpellID: 18104,
@@ -884,8 +874,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Axe of Inevitable Ruin: no proc row",
 		Source:  "EV-0136",
 	},
-	// Measured the same way; its lone-unit rates read on a travel window past 400 ms, and a separate count of its
-	// lone Auto Shots checks the rate over all hits (EV-0136).
+	// PPM measurement in EV-0136.
 	{
 		ItemID:  274293,
 		SpellID: 1293714,
@@ -893,10 +882,8 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Spellsever Crossbow: no proc row",
 		Source:  "EV-0136",
 	},
-	// Fitted the same way on the reports from 2026-11-06 to 2026-11-24 from wearers of one class, too wide an interval,
-	// a lone-unit rate that disagrees or no lone-unit rate to check it, so not final (EV-0120, EV-0136, EV-0146,
-	// EV-0153, EV-0157, EV-0177, EV-0178, EV-0183, EV-0209). The "observed" Source keeps the gear tab's notice up until
-	// more wearers validate it.
+	// The rate is a log fit, not yet final (EV-0120, EV-0136, EV-0146, EV-0153, EV-0157, EV-0177, EV-0178, EV-0183,
+	// EV-0209).
 	{
 		ItemID:  810,
 		SpellID: 13439,
@@ -1233,9 +1220,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Darkmist Dirk: column reads 101; a log fit not yet validated (EV-0183)",
 		Source:  "observed",
 	},
-	// Fitted the same way on the reports from 2026-11-09 to 2026-11-22 from wearers of one class or with no lone-unit
-	// rate to check it, so not final (EV-0177). The "observed" Source keeps the gear tab's notice up until more wearers
-	// validate it.
+	// The rate is a log fit, not yet final (EV-0177).
 	{
 		ItemID:  19324,
 		SpellID: 1290950,
@@ -1243,9 +1228,8 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "The Lobotomizer: column reads 101; a log fit not yet validated (EV-0177)",
 		Source:  "observed",
 	},
-	// Fitted the same way on the reports from 2026-11-19 to 2026-11-22, paladins included: their rolls are EV-0155's
-	// and EV-0156's. Too few wearers and too wide an interval to call final (EV-0184). The "observed" Source keeps
-	// the gear tab's notice up until more wearers validate it.
+	// The rate is a log fit with paladins included: their rolls are EV-0155's and EV-0156's. Too few
+	// wearers and too wide an interval to call final (EV-0184).
 	{
 		ItemID:  12794,
 		SpellID: 16921,
@@ -1253,9 +1237,8 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Masterwork Stormhammer: column reads 101; a log fit not yet validated (EV-0184)",
 		Source:  "observed",
 	},
-	// Fitted over all hits of one paladin wearer each in one combat log, the seal hits rolling as the sim's do. A rate
-	// read from paladins alone stays observed (EV-0003, EV-0228). The "observed" Source keeps the gear tab's notice up
-	// until more wearers validate it.
+	// Fitted over all hits of one paladin wearer each in one combat log. A rate read from paladins alone stays
+	// observed (EV-0003, EV-0228).
 	{
 		ItemID:  12621,
 		SpellID: 16603,
@@ -1270,9 +1253,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Seeping Willow: column reads 101; a log fit not yet validated (EV-0003)",
 		Source:  "observed",
 	},
-	// Fitted the same way on the reports from 2026-11-06 to 2026-11-23, from wearers of one class, no lone-unit rate to
-	// check it, too wide an interval, or older and newer reports that read apart, to call final (EV-0183, EV-0186). The
-	// "observed" Source keeps the gear tab's notice up until more wearers validate it.
+	// The rate is a log fit, not yet final (EV-0183, EV-0186).
 	{
 		ItemID:  10626,
 		SpellID: 12686,
@@ -1294,10 +1275,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Whipfang's Skinsearer: no proc row; a log fit not yet validated (EV-0186)",
 		Source:  "observed",
 	},
-	// Fitted the same way on the reports from 2026-11-13 to 2026-11-26, from wearers of one class, no lone-unit rate to
-	// check it, too wide an interval, or reports before and after the 2026-11-23 hotfix that read apart, to call final
-	// (EV-0136, EV-0177, EV-0183, EV-0221). The "observed" Source keeps the gear tab's notice up until more wearers
-	// validate it.
+	// The rate is a log fit, not yet final (EV-0136, EV-0177, EV-0183, EV-0221).
 	{
 		ItemID:  2163,
 		SpellID: 18138,
@@ -1326,9 +1304,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Electrified Dagger: no proc row; a log fit not yet validated (EV-0183)",
 		Source:  "observed",
 	},
-	// Fitted the same way from too few wearers, wearers of one class, too wide an interval or no lone-unit rate to
-	// check it, to call final (EV-0136). The "observed" Source keeps the gear tab's notice up until more wearers
-	// validate it.
+	// The rate is a log fit, not yet final (EV-0136).
 	{
 		ItemID:  1726,
 		SpellID: 16401,
@@ -1350,7 +1326,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Puncturing Spear: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
-	// Measured on the reports from 2026-11-12 to 2026-11-18 (EV-0136).
+	// PPM measurement in EV-0136.
 	{
 		ItemID:  11809,
 		SpellID: 16559,
@@ -1358,7 +1334,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Flame Wrath: no proc row",
 		Source:  "EV-0136",
 	},
-	// Measured on the reports from 2026-11-13 to 2026-11-22 (EV-0175).
+	// PPM measurement in EV-0175.
 	{
 		ItemID:  6622,
 		SpellID: 8191,
@@ -1366,7 +1342,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Sword of Zeal: no proc row",
 		Source:  "EV-0175",
 	},
-	// Measured in a level 57 warrior's combat log (EV-0021).
+	// PPM measurement in EV-0021.
 	{
 		ItemID:  10847,
 		SpellID: 13049,
@@ -1374,8 +1350,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Dragon's Call: no proc row; measured on landed main-hand hits outside the 45 s cooldown",
 		Source:  "EV-0021",
 	},
-	// Measured on main-hand white swings with no other hit or debuff of the wearer beside them, each proc given
-	// to the hit it logs with (EV-0145).
+	// PPM measurement in EV-0145.
 	{
 		ItemID:  12469,
 		SpellID: 10370,

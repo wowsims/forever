@@ -20,8 +20,8 @@ export async function documentFor(uri: vscode.Uri): Promise<vscode.TextDocument>
 	return vscode.workspace.textDocuments.find(d => d.uri.toString() === key) ?? (await vscode.workspace.openTextDocument(uri));
 }
 
-// The last rotation the server read for each document, whose spans the cursor, Reveal and the sim's counts look up
-// while the document is at its version. The server's own reads are never kept here: siml/rotation reads them afresh.
+// The last rotation the server read for each document. The server's own reads are never kept here: siml/rotation
+// reads them afresh.
 const reads = new Map<string, RotationResult>();
 
 // The rotation a document's text reads as, from the server.

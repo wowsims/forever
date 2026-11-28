@@ -17,10 +17,8 @@ export type EnchantSlot = SkippedEnchantSlot | FittingEnchants;
 
 const ENCHANTABLE_SLOTS = [...ENCHANT_PRESET_SLOTS, ItemSlot.ItemSlotFinger2].sort((a, b) => a - b);
 
-// A slot whose item can take a proc enchant the sim implements is left to the sim: a combat proc for every spec, a
-// survival proc for tanks. With a preset pool, a slot draws only on the enchants the checked presets list for it: a
-// listed proc the sim implements leaves it to the sim for every spec, survival included, and a slot that can take an
-// enchant but none the presets list is left alone.
+// A slot whose item can take a proc enchant the sim implements is left to the sim. With a preset pool, a slot draws
+// only on the enchants the checked presets list for it.
 export const classifyEnchantSlots = (
 	player: Player<any>,
 	gear: Gear,

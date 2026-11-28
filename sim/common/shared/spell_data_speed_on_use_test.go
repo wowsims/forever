@@ -13,8 +13,7 @@ import (
 )
 
 // Mind Quickening Gem 19339 casts 23723, Scrolls of Blinding Light 19343 casts 23733 and Kiss of the
-// Spider 22954 casts 28866. The test's on-use runs the first two on a 5 min cooldown in category 1141
-// for 20 s, and the third on a 2 min cooldown in category 1141 for 15 s.
+// Spider 22954 casts 28866.
 const (
 	mindQuickening int32 = 23723
 	blindingLight  int32 = 23733
@@ -62,8 +61,8 @@ func (got speeds) differ(want speeds) bool {
 	return math.Abs(got.melee-want.melee) > 1e-9 || math.Abs(got.ranged-want.ranged) > 1e-9 || math.Abs(got.cast-want.cast) > 1e-9
 }
 
-// Using the item multiplies the wearer's speeds by the ones its row states for the row's duration, on
-// one aura, and every speed returns to what it was when the aura runs out.
+// Using the item multiplies the wearer's speeds by the ones its spell states for the spell's duration, on
+// one aura.
 func TestOnUseSpeedBuffMultipliesTheWearersSpeedsForItsDuration(t *testing.T) {
 	haste := func(spellID int32, aura dbcenums.EffectAuraType) float64 {
 		percent := spelldata.MustFind(spellID).FirstAura(aura).BasePoints

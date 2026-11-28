@@ -11,7 +11,7 @@ import (
 
 // The ladder a caller names: `warrior/Execute`, or `Execute` alone when one class states it, with the
 // package the caller's file sits in as the tiebreak. A name several classes state and no package to
-// choose between them is an error rather than a guess.
+// choose between them is an error.
 func findFamily(index map[string]*ladderFamily, spec, pkg string) (*ladderFamily, error) {
 	field := spec
 	if class, name, ok := strings.Cut(spec, "/"); ok {
@@ -51,8 +51,7 @@ func findFamily(index map[string]*ladderFamily, spec, pkg string) (*ladderFamily
 		field, strings.Join(classes, ", "), field)
 }
 
-// Whether any class file states a ladder by this name, which is what makes a bare `Execute.Highest()`
-// a ladder call rather than a name the package has yet to bind.
+// Whether any class file states a ladder by this name.
 func isFamilyName(name string) bool {
 	loadLadders.Do(scanLadders)
 	return familyFields[name]

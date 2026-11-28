@@ -6,8 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
-// The two enums a store effect names. Their constants live in sim/core/dbcenums, which is the
-// package the store's rows name them through.
+// The two enums a store effect names.
 var rankEnumTypes = []struct {
 	dbcType string
 	name    func(value int32) (string, bool)
@@ -17,8 +16,7 @@ var rankEnumTypes = []struct {
 }
 
 // Renders the enum values the store's rows state. A value the game files carry but dbcenums has
-// not named keeps its number, marked so a reader is not left looking for a constant, rather than
-// failing the build.
+// not named keeps its number, marked, rather than failing the build.
 type rankEnumNamer struct{}
 
 func newRankEnumNamer() *rankEnumNamer {

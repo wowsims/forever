@@ -8,7 +8,7 @@ import (
 var arcaneShotRank = spellData.ArcaneShot.Highest()
 var arcaneShotBaseDamage = arcaneShotRank.DamageEffect().Average()
 
-// The row states no attack power share; in game the shot takes 15% of ranged attack power (EV-0068).
+// Attack power share in EV-0068.
 const arcaneShotAPShare = 0.15
 
 func (hunter *Hunter) registerArcaneShot() {

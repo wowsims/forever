@@ -25,8 +25,7 @@ export const ENCHANT_PRESET_SLOTS: readonly ItemSlot[] = [
 
 export const enchantPresetPoolSlot = (slot: ItemSlot): ItemSlot => (slot === ItemSlot.ItemSlotFinger2 ? ItemSlot.ItemSlotFinger1 : slot);
 
-// The effect ids the presets hold for an item slot, each once and sorted. The Off Hand also takes the Main Hand's, which
-// go to both hands.
+// The effect ids the presets hold for an item slot.
 export const presetSlotEffectIds = (presets: readonly BulkEnchantPreset[], slot: ItemSlot): number[] => {
 	const poolSlot = enchantPresetPoolSlot(slot);
 	const sources = poolSlot === ItemSlot.ItemSlotOffHand ? [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand] : [poolSlot];

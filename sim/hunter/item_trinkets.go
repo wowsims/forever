@@ -24,9 +24,8 @@ func init() {
 	// Infuses you with Arcane energy, causing your next Arcane Shot fired within 10s to detonate at
 	// the target. The Arcane Detonation will deal 200 damage to enemies near the target.
 	//
-	// The buff's row fires the detonation on any ranged or spell hit and names no spell; the
-	// tooltip's Arcane Shot is the condition. 23722 states 200 with a 0.15 variance on every enemy
-	// within 8 yards.
+	// The buff spell fires the detonation on any ranged or spell hit and names no spell; the
+	// tooltip's Arcane Shot is the condition.
 	core.NewItemEffect(19336, func(agent core.Agent) {
 		character := agent.GetCharacter()
 
@@ -63,7 +62,7 @@ func init() {
 	// Instantly clears the cooldowns of Aimed Shot, Multishot, Volley, and Arcane Shot.
 	//
 	// Refocus 24531 is a dummy the game scripts. Aimed Shot and Multi-Shot share one category's
-	// cooldown. The charm is only worth using while one of the shots is cooling down.
+	// cooldown.
 	core.NewItemEffect(19953, func(agent core.Agent) {
 		character := agent.GetCharacter()
 

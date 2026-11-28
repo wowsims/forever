@@ -73,9 +73,8 @@ func consumableRow(id int32) *spelldata.Spell {
 	return spelldata.MustFind(core.GetConsumableByID(id).OnUse().BuffId)
 }
 
-// Nutritious Food 1248401 hands Well Fed 1248422 a value of its own, which is not the Strength Well
-// Fed's own row states; a copy of the food hands over one more than that, so the two always differ.
-// Well Fed persists through death, so it is up for the whole iteration.
+// Nutritious Food 1248401 hands Well Fed 1248422 a value of its own. Well Fed persists through death,
+// so it is up for the whole iteration.
 func TestWellFedTakesTheValueItsTriggerHandsOver(t *testing.T) {
 	registerStatConsumable(t, smokedDesertDumplingsID)
 	food := consumableRow(smokedDesertDumplingsID)
@@ -128,8 +127,8 @@ func TestElixirTakesEveryEffectAndTheDurationOfItsRow(t *testing.T) {
 	}
 }
 
-// Elixir of the Grizzly 250351 (1250986) states Strength and the same crit as Elixir of the Mongoose.
-// The two share the crit group, so only the first the spec names applies, its crit once.
+// Elixir of the Grizzly 250351 states the same crit as Elixir of the Mongoose. The two share the crit
+// group, so only the first the spec names applies.
 func TestOnlyTheFirstCritElixirApplies(t *testing.T) {
 	const grizzly int32 = 250351
 	registerStatConsumable(t, elixirOfTheMongooseID)
@@ -144,7 +143,7 @@ func TestOnlyTheFirstCritElixirApplies(t *testing.T) {
 }
 
 // Swiftfeather Token's buff runs out well inside the category cooldown the item shares, so it is used
-// in combat rather than put up before the pull.
+// in combat.
 func TestShortBuffIsUsedOnItsCooldown(t *testing.T) {
 	registerStatConsumable(t, swiftfeatherTokenID)
 
@@ -162,9 +161,8 @@ func TestShortBuffIsUsedOnItsCooldown(t *testing.T) {
 	}
 }
 
-// The Zanza group holds Spirit of Zanza 20079 (24382, Spirit and Stamina) and the Blasted Lands buffs,
-// R.O.I.D.S. 8410 (10667, Strength) and Ground Scorpok Assay 8412 (10669, Agility) among them: only
-// the first the spec names is up.
+// The Zanza group holds Spirit of Zanza 20079 and the Blasted Lands buffs: only the first the spec
+// names is up.
 func TestOnlyTheFirstOfTheZanzaGroupApplies(t *testing.T) {
 	const roids, scorpok, zanza int32 = 8410, 8412, 20079
 	for _, id := range []int32{roids, scorpok, zanza} {
@@ -187,9 +185,8 @@ func TestOnlyTheFirstOfTheZanzaGroupApplies(t *testing.T) {
 	}
 }
 
-// The Rum group holds Rumsey Rum Black Label 21151 (25804, Stamina) and Kreeg's Stout Beatdown 18284
-// (22790, Spirit and less Intellect): only the first the spec names is up, and it stacks with the food,
-// Runn Tum Tuber Surprise 18254 (Intellect).
+// The Rum group holds Rumsey Rum Black Label 21151 and Kreeg's Stout Beatdown 18284: only the first the
+// spec names is up, and it stacks with the food.
 func TestOnlyTheFirstOfTheRumGroupAppliesBesideTheFood(t *testing.T) {
 	const blackLabel, kreegs, tuber int32 = 21151, 18284, 18254
 	for _, id := range []int32{blackLabel, kreegs, tuber} {
@@ -267,12 +264,7 @@ func TestOnlyOneHitFoodApplies(t *testing.T) {
 }
 
 // Each stat the elixirs the spec names grant counts only the strongest one's amount, in whatever
-// order they come, where the elixirs sit in different groups. Elixir of Ferocity 250350 (Strength
-// and Agility) keeps its Strength beside Elixir of the Mongoose 13452 (more Agility and crit), and
-// adds nothing beside Elixir of Greater Agility 9187 and Elixir of the Grizzly 250351 (as much
-// Strength and crit). Juju Power 12451 bids with the elixirs. Elixir of Cunning 250328 states Agility
-// and Intellect, Elixir of the Sages 13447 Intellect and Spirit. Elixir of Greater Defense 13445 and
-// Elixir of the Phalanx 250329 both state armor as A_MOD_ARMOR_NO_MODS.
+// order they come, where the elixirs sit in different groups.
 func TestEachStatCountsOnlyItsStrongestElixir(t *testing.T) {
 	const ferocity, mongoose, greaterAgility, grizzly, jujuPower int32 = 250350, 13452, 9187, 250351, 12451
 	const cunning, greaterIntellect, sages, whale, greaterDefense, phalanx int32 = 250328, 9179, 13447, 250348, 13445, 250329
@@ -340,10 +332,7 @@ func TestTwoElixirsOfEqualStrengthCountItOnce(t *testing.T) {
 	}
 }
 
-// A scroll counts with the elixirs of its stat, the stronger alone, whichever comes first: Scroll of
-// Strength IV 10310 (17) under Juju Power 12451 (30), Scroll of Intellect IV 10308 (16) under Elixir of
-// Cunning's 250328 Intellect (25), Scroll of Agility IV 10309 (17) over Elixir of Lesser Agility 3390
-// (8), and Scroll of Protection IV 10305 (240 armor) under Elixir of Defense 8951 (250).
+// A scroll counts with the elixirs of its stat, the stronger alone, whichever comes first.
 func TestAScrollCountsWithTheElixirsOfItsStat(t *testing.T) {
 	const scrollOfStrengthIV, jujuPower, cunning, scrollOfAgilityIV, lesserAgility, scrollOfProtectionIV, defense int32 = 10310, 12451,
 		250328, 10309, 3390, 10305, 8951
@@ -371,10 +360,10 @@ func TestAScrollCountsWithTheElixirsOfItsStat(t *testing.T) {
 	}
 }
 
-// Arcane Intellect overwrites the Intellect of the elixirs and of Scroll of Intellect IV 10308, which
-// add none to its own, Prayer of Spirit the Spirit of Elixir of Sages 250338 and Scroll of Spirit IV
-// 10306, and Power Word: Fortitude the Stamina of Elixir of Brute Force 13453 and Scroll of Stamina IV
-// 10307. Elixir of Cunning 250328 keeps its Agility, Sages its crit and Brute Force its Strength.
+// Arcane Intellect overwrites the Intellect of the elixirs and of Scroll of Intellect IV 10308, Prayer
+// of Spirit the Spirit of Elixir of Sages 250338, and Power Word: Fortitude the Stamina of Elixir of
+// Brute Force 13453. Elixir of Cunning 250328 keeps its Agility, Sages its crit and Brute Force its
+// Strength.
 func TestTheRaidBuffsOverwriteTheIntellectSpiritAndStaminaOfTheElixirsAndScrolls(t *testing.T) {
 	const cunning, greaterIntellect, sages, scrollOfSpiritIV, bruteForce, scrollOfStaminaIV int32 = 250328, 9179, 250338, 10306, 13453, 10307
 	for _, tc := range []struct {
@@ -403,8 +392,7 @@ func TestTheRaidBuffsOverwriteTheIntellectSpiritAndStaminaOfTheElixirsAndScrolls
 	}
 }
 
-// Elixir of the Mongoose's 13452 crit stacks with Moonkin Aura's and Leader of the Pack's: under
-// either, the character has the raid buff's crit and the elixir's.
+// Elixir of the Mongoose's 13452 crit stacks with Moonkin Aura's and Leader of the Pack's.
 func TestTheElixirCritStacksWithTheRaidCrit(t *testing.T) {
 	registerStatConsumable(t, elixirOfTheMongooseID)
 	mongoose := soloGain(elixirOfTheMongooseID)
@@ -427,8 +415,7 @@ func TestTheElixirCritStacksWithTheRaidCrit(t *testing.T) {
 	}
 }
 
-// Mark of the Wild stacks with the elixirs and the scrolls: Juju Power's 12451 and Scroll of Strength
-// IV's 10310 Strength each count in full beside the Mark's.
+// Mark of the Wild stacks with the elixirs and the scrolls.
 func TestMarkOfTheWildStacksWithTheElixirs(t *testing.T) {
 	for _, id := range []int32{10310, 12451} {
 		registerStatConsumable(t, id)
@@ -440,9 +427,7 @@ func TestMarkOfTheWildStacksWithTheElixirs(t *testing.T) {
 }
 
 // A raid buff that overwrites the elixirs and the scrolls counts by its own category, so an elixir or a
-// scroll granting as much as it or more could count beside it. Every elixir and scroll in the database
-// grants less Intellect than Arcane Intellect, less Spirit than Prayer of Spirit and less Stamina than
-// Power Word: Fortitude.
+// scroll granting as much as it or more could count beside it.
 func TestNoElixirOrScrollOutbidsTheRaidBuffOfItsStat(t *testing.T) {
 	ceilings := map[string]float64{
 		"stat Intellect": buffs.ArcaneIntellectValue(0),

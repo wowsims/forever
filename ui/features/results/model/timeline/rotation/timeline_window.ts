@@ -16,10 +16,8 @@ export type TrackBand = Pick<RowWindow, 'left' | 'right'>;
 export const EMPTY_ROW_WINDOW: RowWindow = { first: 0, last: -1, topSpacer: 0, bottomSpacer: 0, left: 0, right: 0 };
 
 /**
- * The horizontal band every mounted track has to cover, in pixels at the current zoom.
- *
- * The sticky label occludes the first `labelWidth` of every track, so the unobscured track range is
- * [scrollLeft, scrollLeft + clientWidth - labelWidth].
+ * The horizontal band every mounted track has to cover, in pixels at the current zoom. The sticky
+ * label occludes the first `labelWidth` of every track.
  */
 export const trackBand = (scrollLeft: number, clientWidth: number, labelWidth: number): TrackBand => ({
 	left: scrollLeft - HORIZONTAL_PADDING_PX,

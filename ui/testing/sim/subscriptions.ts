@@ -8,11 +8,7 @@ type Subscriptions = typeof import('@sim/state/subscriptions');
 /**
  * Every `subscribe*` export answered from one source; non-subscription exports stay real.
  *
- * `vi.mock` is hoisted above the imports, so the factory has to reach this module lazily:
- *
- * ```ts
- * vi.mock('@sim/state/subscriptions', async () => (await import('@testing/sim/subscriptions')).mockSubscriptions(source.subscribe));
- * ```
+ * `vi.mock` is hoisted above the imports, so the factory has to reach this module lazily.
  */
 export const mockSubscriptions = async (
 	source: StoreSubscribe = noopSubscribe,

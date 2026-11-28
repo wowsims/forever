@@ -7,17 +7,14 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Items whose effect reaches the wearer's whole party. The wearer is in its own party, so each puts
-// the party buff's own copy on the wearer, and that copy joins the party buff's category: a party
-// buff ticked in the settings and the wearer's own item are worth one buff, not two.
+// Items whose effect reaches the wearer's whole party. Each puts the party buff's own copy on the
+// wearer, and that copy joins the party buff's category: a party buff ticked in the settings and the
+// wearer's own item are worth one buff.
 func init() {
 	// Darkspear
 	// https://www.wowhead.com/forever/item=12802/darkspear
 	//
 	// Chance on hit to grant nearby party members 4% increased critical strike chance.
-	//
-	// 1314143 states the 5% chance on melee swings and abilities and the 60 s between procs; the buff is
-	// 16939, 4% crit for 20 s.
 	core.NewItemEffect(12802, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		buff := buffs.NewSpellDataDarkspearAura(&character.Unit, true, 0)
@@ -34,16 +31,12 @@ func init() {
 	// https://www.wowhead.com/forever/item=10030/admiral-s-hat
 	//
 	// Gives 10 additional stamina to party members within 30 yards.
-	//
-	// The use is 12022, 10 Stamina for 10 min, on the item's 1 min cooldown.
 	registerPartyItemUse(10030, 12022, buffs.NewSpellDataAdmiralsHatAura, core.CooldownTypeSurvival)
 
 	// Headmaster's Charge
 	// https://www.wowhead.com/forever/item=13937/headmasters-charge
 	//
 	// Use: Gives 20 additional intellect to party members within 30 yards. (10 Min Cooldown)
-	//
-	// The use is 18264, 20 Intellect for 15 min, on the item's 10 min cooldown.
 	registerPartyItemUse(13937, 18264, buffs.NewSpellDataHeadmastersChargeAura, core.CooldownTypeDPS)
 }
 

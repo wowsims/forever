@@ -96,7 +96,7 @@ every run writes `<Suite>.results.tmp`, which git ignores; its presence means no
 - **`DynamicProcManager.Chance` stays exported for the shared tests, which read an exact proc chance through it.**
   `sim/core/procs.go:35`, PR #187.
 - **Logic, not data.** Outside `sim/<class>/` a test asserts what an effect does (what it modifies, when it fires, what
-  it spends, how it scales), so a game build that changes an amount leaves it green. Expected values come from the raw
+  it uses, how it scales), so a game build that changes an amount leaves it green. Expected values come from the raw
   row, `spelldata.MustFind(id).EffectN(i)`, not from the generated accessor the production path reads or a literal; a
   test over the real tables checks only data-independent invariants, never counts or specific ids.
 - **Pin the precondition on a row copy** (`withRows`, `editRow`), never `t.Skip`; a needed amount that reads 0 fails

@@ -21,8 +21,7 @@ export interface ResolvedId {
 	tag?: number;
 }
 
-// A proto ActionID as JSON (`{ "spellId": 1 }`, `{ "itemId": 2 }`, `{ "otherId": "OtherActionAttack" }`)
-// with the name and icon the database gives it.
+// A proto ActionID as JSON with the name and icon the database gives it.
 export function resolveId(db: AplDatabase, json: Json | undefined): ResolvedId | undefined {
 	if (!isObject(json)) {
 		return undefined;

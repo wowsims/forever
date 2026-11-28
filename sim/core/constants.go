@@ -65,8 +65,7 @@ func AllMeleeWeaponSlots() []proto.ItemSlot {
 
 // Which hit table a spell rolls on and which crit multiplier it takes. Values match the
 // DefenseType column of the game files' SpellCategories table, so a spell's value is looked up
-// there rather than inferred from its school: Thunder Clap is Physical but rolls as Magic,
-// Seal of Command procs are Holy but roll as Melee.
+// there rather than inferred from its school: Thunder Clap is Physical but rolls as Magic.
 type DefenseType byte
 
 const (

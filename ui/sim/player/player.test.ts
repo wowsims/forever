@@ -31,7 +31,7 @@ import { Player, UnitMetadata } from './player';
 import { PlayerSpecs } from './specs';
 
 // getDebuffStats reads nothing but the raid's debuffs, so the method is called against that one
-// dependency rather than against a constructed Player, which needs a whole sim behind it.
+// dependency.
 const debuffStats = (debuffs: Partial<Debuffs>): Stats =>
 	Player.prototype.getDebuffStats.call({
 		sim: { raid: { getDebuffs: () => Debuffs.create(debuffs) } },

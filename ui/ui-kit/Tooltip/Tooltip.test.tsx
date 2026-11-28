@@ -17,8 +17,7 @@ describe('Tooltip', () => {
 		expect(await screen.findByText('Reforge to hit cap')).toBeTruthy();
 	});
 
-	// react-tooltip builds content lazily for free: children are not rendered until the tooltip first
-	// opens, so a picker inside one costs nothing until it is shown.
+	// react-tooltip builds content lazily: children are not rendered until the tooltip first opens.
 	it('does not render its content until it is first opened', () => {
 		let renders = 0;
 		const Content = () => {
@@ -51,9 +50,9 @@ describe('Tooltip', () => {
 		expect(screen.getByText('Bonus Strength')).toBeTruthy();
 	});
 
-	// The library injects its own stylesheet unless disableStyleInjection is "core" — bare `true`
+	// The library injects its own stylesheet unless disableStyleInjection is "core"; bare `true`
 	// stops only the base styles. An injected tag lands after the bundle's <link> and outranks the
-	// component's theme, which is how the tooltip kept the library's 0.9 opacity in the browser.
+	// component's theme.
 	it('injects no stylesheet of its own', async () => {
 		render(<Anchored />);
 		fireEvent.mouseEnter(screen.getByRole('button'));

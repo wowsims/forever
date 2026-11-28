@@ -10,8 +10,7 @@ import (
 // it; its tooltip does ("$1326891s1%").
 var frigidPowerRank = spellData.IceBarrierTriggered.ByID(1326891)
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.IceBarrier lists.
+// Only the highest rank is registered.
 func (mage *Mage) registerIceBarrierSpell() {
 	mage.registerIceBarrierRank(spellData.IceBarrier.Len(), spellData.IceBarrier.Highest())
 }
@@ -25,7 +24,7 @@ func (mage *Mage) registerIceBarrierSpell() {
 //
 // The shield's effects 2 and 3 raise Frost damage while it holds, and Frigid Power raises it again for
 // the full minute, however soon the shield breaks. The spell power share is the tooltip's, since the
-// row states no coefficient, and Frost Warding's effect 3 raises the whole absorb. No effect of the row
+// game files state no coefficient, and Frost Warding's effect 3 raises the whole absorb. No effect of the spell
 // states the casting time clause: a hit the shield absorbs whole deals no damage, so it pushes back no cast.
 func (mage *Mage) registerIceBarrierRank(_ int32, rank *spelldata.Spell) {
 	frigidPower := mage.RegisterAura(spelldata.AuraConfig(frigidPowerRank))

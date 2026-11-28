@@ -43,7 +43,7 @@ In a `.siml` file, the SIML language server (`wowsimcli siml lsp`, which `tools/
 
 ## When a sim number disagrees with the game files
 
-The rows are a second opinion on every number the sim already had. Decide rather than assume, and when a
+The game files are a second opinion on every number the sim already had. Decide rather than assume, and when a
 disagreement stays, say so at the call site.
 
 - The sim is likely wrong when its value equals a different rank's or a sibling spell's, or breaks the
@@ -52,10 +52,10 @@ disagreement stays, say so at the call site.
   sim models something the game files' base excludes (a ranged-weapon component in every hunter cast
   time), not a run of slips. A coefficient read from another spell is not a disagreement either: a tick's
   coefficient belongs to the spell its description names.
-- Where the row and the tooltip disagree, the tooltip can win (Flurry's haste ladder against its buff
-  row's flat 30), and the comment names the wording it came from. An in-game measurement beats both the row and
+- Where the game files and the tooltip disagree, the tooltip can win (Flurry's haste ladder against its buff's
+  flat 30), and the comment names the wording it came from. An in-game measurement beats both the game files and
   the tooltip; a rank whose value jumps against its sibling ranks may be a tooltip bug, so ask the owner before
-  changing the sim to the row.
+  changing the sim to the game files.
 
 ## Keeping this skill true
 

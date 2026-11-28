@@ -45,8 +45,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	// Ranged in SpellCategories with No Active Defense: hit and crit on the ranged table, never
 	// blocked, and a ranged attack to procs. The seal's hit and the judgement set no BonusCoefficient:
 	// they take no spell damage against the target's creature type (EV-0143), so they add their
-	// spell power by hand, and core adds Judgement of the Crusader at the coefficient after the done
-	// multipliers.
+	// spell power by hand.
 	judgementCoefficient := judgementDamage.Coeff()
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfFury
@@ -58,12 +57,8 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 
-	// The shield is this share of the hit in the open world, which is what the sim gives every target
-	// (EV-0022). Inside a dungeon the game scales it by the creature health the
-	// game files expect at a base level over the one at the mob's level (ExpectedStat.CreatureHealth),
-	// where the base is the dungeon's lowest mob level in Shadowfang Keep, the Stockade, Gnomeregan,
-	// Scarlet Monastery and Ruins of Lordaeron. The sim's targets carry no base level, so it models
-	// none of that.
+	// Shield share and dungeon scaling in EV-0022. The sim's targets carry no base level, so every target
+	// gets the open world's flat share.
 	shieldShare := rank.EffectN(2).Percent()
 	var pendingShield float64
 	shield := paladin.NewDamageAbsorptionAura(core.AbsorptionAuraConfig{
@@ -80,9 +75,8 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 
 	damage := procDamage.Mean()
 	procCoefficient := procDamage.Coeff()
-	// The damage spells carry the same flags as Seal of Righteousness's: procs themselves, and no
-	// Suppress Weapon Procs, so a weapon's "Chance on hit" rolls on the seal's hit too.
-	// No BonusCoefficient, as on the judgement below.
+	// The damage spells are procs themselves with no Suppress Weapon Procs, so a weapon's "Chance on
+	// hit" rolls on the seal's hit too. No BonusCoefficient, as on the judgement.
 	procConfig := spelldata.SpellConfig(&paladin.Unit, procRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(), spelldata.Flags(core.SpellFlagProc))
 	procConfig.ClassSpellMask = SpellMaskSealOfFuryProc
 	procConfig.TakenBonusCoefficient = procCoefficient

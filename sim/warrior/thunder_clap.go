@@ -9,7 +9,7 @@ import (
 
 var thunderClapRank = spellData.ThunderClap.Highest()
 
-// The Attack Power share is 0.07: Rank 4 hits for floor(0.99 * (55 + 0.07 * AP)) (EV-0019, EV-0048, EV-0203).
+// Attack power share in EV-0019, EV-0048, EV-0203.
 var thunderClapBaseDamage = thunderClapRank.DamageEffect().Average()
 var thunderClapAPCoeff = thunderClapRank.DamageEffect().APCoeff()
 var thunderClapSlow = thunderClapRank.EffectN(2).BaseValue()
@@ -23,8 +23,7 @@ func (warrior *Warrior) registerThunderClap() {
 	auras := warrior.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 		// The clap bids its whole slow in the attack-speed category, so the strongest single slow
 		// on the target is the only one applied. The generated aura holds the category at the
-		// game files' amount; the clap sets its bid before it lands, and the effect applies what the
-		// bid is worth.
+		// game files' amount; the clap sets its bid before it lands.
 		aura := buffs.NewSpellDataThunderClapAura(target, true, 0)
 		speed := 1.0
 		bid := aura.ExclusiveEffects[0]
@@ -38,17 +37,14 @@ func (warrior *Warrior) registerThunderClap() {
 		return aura
 	})
 
-	// Thunder Clap is Physical but Magic in SpellCategories: it rolls on the spell hit table
-	// and crits on spell crit chance for 1.5x. Warriors have no base spell crit, so without
-	// Totem of Wrath it never crits (EV-0055). A magic hit spends no Sweeping Strikes charge,
-	// which melee swings and abilities do. Its ranged mask reaches equip procs that hear ranged
-	// abilities, and core's canProcFrom decides which weapon procs hear it.
+	// Thunder Clap is Physical but Magic in SpellCategories: it rolls on the spell hit table and crits on
+	// spell crit chance for 1.5x. Spell crits in EV-0055. A magic hit uses no Sweeping Strikes charge.
+	// Its ranged mask reaches equip procs that hear ranged abilities.
 	config := spelldata.SpellConfig(&warrior.Unit, thunderClapRank,
 		spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskRangedSpecial
 	config.DamageMultiplier = 1
-	// Threat is 1 times the damage with no flat bonus, at 1 to 4 targets, Improved Thunder Clap included
-	// (EV-0048, EV-0220).
+	// Threat multiplier in EV-0048, EV-0220.
 	config.ThreatMultiplier = 1
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

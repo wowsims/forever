@@ -7,9 +7,9 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The rows state no attack power share. In game Explosive Trap's initial hit takes 10% of ranged
-// attack power and its ticks take none (EV-0068). TODO: In-game testing required for Immolation Trap, which the
-// Forever notes give the same 10% over its whole duration, split evenly over the ticks and read at
+// No attack power share in game files. In game Explosive Trap's initial hit takes 10% of ranged
+// attack power and its ticks take none (EV-0068). TODO: In-game testing required for Immolation Trap,
+// which the Forever notes give the same 10% over its whole duration, split evenly over the ticks and read at
 // each tick.
 const trapTotalAPShare = 0.10
 
@@ -18,9 +18,7 @@ const trapTotalAPShare = 0.10
 // on a target within this radius once armed.
 const trapTriggerRadius = 5
 
-// The game files carry no arming delay either. A trap arms 0.8 s after it is placed and looks for a
-// target every 0.4 s from a point that falls evenly in its first 0.4 s; about one trap in four springs
-// a check later (EV-0218).
+// The game files carry no arming delay either. Arming and target checks in EV-0218.
 const trapArmingDelay = 800 * time.Millisecond
 const trapCheckInterval = 400 * time.Millisecond
 const trapLateCheckChance = 0.24
@@ -35,9 +33,8 @@ func (hunter *Hunter) registerTraps() {
 	hunter.registerExplosiveTrap()
 }
 
-// The placement spell: shared trap cooldown, mana and GCD from its row. The trap lies at the hunter's
-// distance from the target when placed, so moving away afterwards does not stop it; a trap placed
-// out of reach of the standing target never springs.
+// The placement spell. The trap lies at the hunter's distance from the target when placed, so moving
+// away afterwards does not stop it; a trap placed out of reach of the standing target never springs.
 func (hunter *Hunter) trapConfig(rank *spelldata.Spell, trigger *core.Spell) core.SpellConfig {
 	config := spelldata.SpellConfig(&hunter.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty
@@ -71,7 +68,7 @@ func (hunter *Hunter) registerImmolationTrap() {
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 
-	// The trap casts the debuff where it lies, so the row's 10 yd range from the hunter does not
+	// The trap casts the debuff where it lies, so the spell's 10 yd range from the hunter does not
 	// limit it.
 	config.MaxRange = 0
 

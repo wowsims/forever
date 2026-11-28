@@ -172,8 +172,7 @@ func TestRenderBuffsDebuffsTSRejectsAnUncountedInt32(t *testing.T) {
 	}
 }
 
-// The settings read an overwriting buff's input as on or off, so a row with an improved state, whose
-// amount moves with the talent, fails to render.
+// The settings read an overwriting buff's input as on or off, so a row with an improved state fails to render.
 func TestRenderBuffsDebuffsTSRejectsAnOverwritingBuffWithAnImprovedState(t *testing.T) {
 	rows := []ResolvedBuff{{
 		BuffSpec: buffmanifest.BuffSpec{Field: "power_word_fortitude", ElixirCategory: core.ElixirStatCategory},

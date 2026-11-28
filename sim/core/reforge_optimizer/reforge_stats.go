@@ -67,7 +67,6 @@ func isEmptyUnitStats(unitStats core.UnitStats) bool {
 
 // Maps each haste% pseudo-stat to its speed multiplier pseudo-stat for the analytical haste delta
 // calculation.
-// Δhaste% = speedMult × ΔHasteRating / HasteRatingPerHastePercent
 var hasteSpeedMultipliers = map[proto.PseudoStat]proto.PseudoStat{
 	proto.PseudoStat_PseudoStatMeleeHastePercent:  proto.PseudoStat_PseudoStatMeleeSpeedMultiplier,
 	proto.PseudoStat_PseudoStatRangedHastePercent: proto.PseudoStat_PseudoStatRangedSpeedMultiplier,
@@ -75,7 +74,7 @@ var hasteSpeedMultipliers = map[proto.PseudoStat]proto.PseudoStat{
 }
 
 // Applies the character's stat dependency graph to delta, resolving conversions such as
-// HitRating→Hit%, CritRating→Crit%, Agility→PhysicalCritPercent.
+// Agility→PhysicalCritPercent.
 // It also mirrors the resolved Stats values back to their corresponding PseudoStats
 // so that LP constraint evaluation (which reads PseudoStats for hit/crit/haste caps)
 // sees the correct contribution. A rating counted in whole steps moves its percent by
@@ -101,8 +100,7 @@ func resolveStatDelta(sdm *stats.StatDependencyManager, baseStats core.UnitStats
 		delta.Stats[conversion.Percent] += (whole - counted) * conversion.Step / conversion.RatingPerPercent
 	}
 
-	// Mirror dual-stored stats from Stats (updated by SDM — e.g. HitRating→Hit%,
-	// CritRating→Crit%, Agility→PhysicalCritPercent) back to their PseudoStat indices.
+	// Mirror dual-stored stats from Stats back to their PseudoStat indices.
 	for _, pair := range stats.PercentPseudoStats {
 		value := delta.Stats[pair.Stat]
 		if pair.MeleeShare != nil {
@@ -283,9 +281,8 @@ func unitStatFromUIStat(uiStat *proto.UIStat) (stats.UnitStat, bool) {
 // LP coefficient-key scheme
 // ---------------------------------------------------------------------------
 //
-// Coefficients are keyed by the proto enum NAME (e.g. "StatHitRating",
-// "PseudoStatSpellHitPercent", "ItemSlotHead") so checkCaps can recover the stat from a key.
-// Slot keys ("ItemSlot...") and the "score" key are not stat names and parse to (_, false).
+// Coefficients are keyed by the proto enum NAME (e.g. "StatHitRating") so checkCaps can recover the
+// stat from a key.
 
 func statCoeffKey(stat proto.Stat) string {
 	return proto.Stat_name[int32(stat)]

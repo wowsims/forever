@@ -9,9 +9,7 @@ import (
 )
 
 // A bonus list's allocations, per 10000 of the item's random property points, land on the stats their
-// item mod names: spell power on spell damage and healing alike, healing and spell damage done each on
-// its own, a mod named twice adds up, and health regeneration, which the sim has no stat for, is left
-// out.
+// item mod names, and health regeneration, which the sim has no stat for, is left out.
 func TestRandomSuffixAllocations(t *testing.T) {
 	type stats = map[proto.Stat]float64
 	row := func(itemMod, allocation int) dbc.RandomSuffixStat {
@@ -68,9 +66,7 @@ func TestRandomSuffixEquipSpellDodge(t *testing.T) {
 	}
 }
 
-// A bonus list with an ITEM_BONUS_REDUCED_CASTER_DPS row marks its suffix, and a weapon offering one
-// carries the damage it deals with it, as Brutal War Axe (3210) with "of the Physician" (12911) does
-// (EV-0110). A weapon offering none, and the armor the lower lists sit on, carry no such range.
+// Reduced caster damage in EV-0110.
 func TestReducedCasterDpsSuffixDamage(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()

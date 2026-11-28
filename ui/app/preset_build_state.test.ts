@@ -40,8 +40,7 @@ describe('buildCategories', () => {
 		expect(categories).toEqual(['common.preset.other_settings']);
 	});
 
-	// Each of these is excluded from the key walk and re-added by its own rule, so it reads once
-	// rather than under two names. `epWeights` was the one that was not, and listed itself twice.
+	// Each of these is excluded from the key walk and re-added by its own rule, so it reads once.
 	it('names each specially-handled category exactly once', () => {
 		expect(buildCategories(build({ reforgeSettings: {} }))).toEqual(['common.preset.reforge_settings']);
 		expect(buildCategories(build({ epWeights: {} }))).toEqual(['common.preset.stat_weights']);

@@ -62,9 +62,8 @@ export class Encounter {
 		this.set({ targets: newTargets === this.enc.targets ? newTargets.slice() : newTargets });
 	}
 
-	// Target mutation with a single change event — the write path for the
-	// encounter picker's per-field edits. Replace-on-write: the callback gets a
-	// clone, which then replaces the original in a new targets array.
+	// Target mutation with a single change event. Replace-on-write: the callback
+	// gets a clone, which then replaces the original in a new targets array.
 	modifyTarget(index: number, modify: (target: TargetProto) => void) {
 		const targets = this.enc.targets.slice();
 		if (!targets[index]) {

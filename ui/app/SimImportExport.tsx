@@ -31,7 +31,7 @@ const SimlExporterDialog = exporterDialog(SIML_EXPORTER);
 
 export const SimImportExport = () => {
 	// The menus open from the first frame but every dialog reads the item database, so the entries
-	// wait for init exactly as the imperative registration did.
+	// wait for init.
 	const ready = useSimReady();
 
 	return (

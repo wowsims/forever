@@ -15,8 +15,6 @@ type ItemSet struct {
 	AlternativeName string
 	// Maps set piece requirement to an ApplyEffect function that will be called
 	// before the Sim starts.
-	//
-	// The function should apply any benefits provided by the set bonus.
 	Bonuses map[int32]ApplySetBonus
 
 	// Optional field to override the DefaultItemSetSlots
@@ -80,9 +78,9 @@ func NewItemSet(set ItemSet) *ItemSet {
 	})
 
 	if WITH_DB {
-		// Forever's item set is a subset of TBC's, so a set the sim implements may have no
-		// members in the loaded database. Skipping keeps the bonus around for the day those
-		// items return; panicking would stop the sim from starting over missing content.
+		// A set the sim implements may have no members in the loaded database. Skipping keeps
+		// the bonus around for the day those items return; panicking would stop the sim from
+		// starting over missing content.
 		if !foundID || !foundName || (len(set.AlternativeName) > 0 && !foundAlternativeName) {
 			missingItemSets = append(missingItemSets, set.Name)
 			return &set
@@ -93,12 +91,10 @@ func NewItemSet(set ItemSet) *ItemSet {
 	return &set
 }
 
-// missingItemSets collects sets whose items the game files do not ship, so the count can
-// be reported rather than silently swallowed.
+// Collects the sets whose items the game files do not ship, so the count can be reported.
 var missingItemSets []string
 
-// MissingItemSets reports the set names skipped because the loaded database holds none of
-// their items.
+// The set names skipped because the loaded database holds none of their items.
 func MissingItemSets() []string { return missingItemSets }
 
 // The registered sets; a set skipped for holding no items in the database is in MissingItemSets instead.

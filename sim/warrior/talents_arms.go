@@ -58,8 +58,6 @@ func (warrior *Warrior) registerDeflection() {
 		return
 	}
 
-	// The row states parry as a percentage, which the parse adds to ParryPercent on top of the base
-	// chance.
 	spelldata.ParseStatic(&warrior.Character, spellData.Deflection.Rank(warrior.Talents.Deflection))
 }
 
@@ -82,10 +80,9 @@ func (warrior *Warrior) registerImprovedOverpower() {
 
 var angerManagementRank = spellData.AngerManagement.Highest()
 
-// The rage regen aura on effect 1 states its amount on the rage bar's tenths, per five seconds as
-// every A_MOD_POWER_REGEN does. The game files state no tick for it, so the rage arrives as one
-// gain every five seconds while in combat. The tooltip's "$m2 Rage every $m3 sec" reads the two
-// dummies instead, 1 rage every 3 seconds.
+// The rage regen aura on effect 1 states its amount on the rage bar's tenths, per five seconds as every
+// A_MOD_POWER_REGEN does. No tick for it in game files, so the rage arrives as one gain every five
+// seconds. The tooltip's "$m2 Rage every $m3 sec" reads the two dummies instead, 1 rage every 3 seconds.
 var angerManagementRage = angerManagementRank.EffectN(1).Tenths()
 
 const angerManagementPeriod = 5 * time.Second
@@ -119,18 +116,15 @@ func (warrior *Warrior) registerDeepWounds() {
 	share := spellData.DeepWounds.FractionAt(warrior.Talents.DeepWounds)
 	tick := deepWoundsBleed.EffectN(1)
 
-	// A crit casts the bleed, but it does not take spelldata.Proc(): that marks the spell passive,
-	// and the metrics aggregator counts no cast for a passive spell, while the sim reports every
-	// application as a cast. The caster's damage bonuses, Death Wish among them, never scale the
-	// ticks (EV-0139).
+	// The bleed does not take spelldata.Proc(): that marks the spell passive, and the metrics aggregator
+	// counts no cast for a passive spell. Attacker modifiers in EV-0139.
 	config := spelldata.SpellConfig(&warrior.Unit, deepWoundsBleed,
 		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagIgnoreResists|core.SpellFlagProc|core.SpellFlagIgnoreAttackerModifiers)) // 12162 and 412609 lack Not a Proc.
 	config.ProcMask = core.ProcMaskEmpty
 
-	// The tick is a share of weapon damage, not the row's amount or its coefficient, which is why the
-	// dot is written out rather than taken from spelldata.DotConfig: 412609's periodic effect is a
-	// dummy of one base point carrying a spell power coefficient of 1, and the resolver would tick
-	// that amount with spell power on top of it.
+	// The dot is written out rather than taken from spelldata.DotConfig: 412609's periodic effect is a
+	// dummy of one base point carrying a spell power coefficient of 1, and the resolver would tick that
+	// amount with spell power on top of it.
 	config.Dot = core.DotConfig{
 		Aura: core.Aura{
 			Label: "DeepWounds",
@@ -162,15 +156,11 @@ func (warrior *Warrior) registerDeepWounds() {
 
 	warrior.DeepWounds = warrior.RegisterSpell(config)
 
-	// The proc shape with no roll: 12834 states its rate as "always" and its crit hint carries the
-	// tooltip's condition. The physical school the tooltip's melee weapon means is the caller's. A crit
-	// on the magic hit table, Thunder Clap's, starts no bleed (EV-0139).
+	// Bleed starting crits in EV-0139.
 	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.DeepWounds.Rank(warrior.Talents.DeepWounds),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			// One application is the share of the critting hand's average weapon damage, without Attack Power:
-			// an off-hand crit takes the off hand's average without the off-hand damage penalty, and every
-			// other crit the main hand's (EV-0139).
+			// Application amount in EV-0139.
 			weapon := core.Ternary(spell.IsOH() && !spell.IsMH(), warrior.AutoAttacks.OH(), warrior.AutoAttacks.MH())
 			application = weapon.AverageDamage() * share
 			warrior.DeepWounds.Cast(sim, result.Target)
@@ -257,11 +247,7 @@ func (warrior *Warrior) registerBloodthrill() {
 
 	talent := spellData.Bloodthrill.Rank(warrior.Talents.Bloodthrill)
 
-	// The proc opens Overpower's window as a dodge would, for the window's own duration, and the
-	// cast consumes it. The tooltip's $s1 names an effect, so the row's own ProcChanceEffectN
-	// reads the rate ladder. Main-hand white swings, extra attacks included, and the on-next-swing
-	// Heroic Strike and Cleave proc it on a target with the warrior's Rend; the row's melee-ability
-	// bit would also admit the instant specials, which in game do not proc it (EV-0056).
+	// Hits that proc in EV-0056. Main-hand white swings include extra attacks.
 	trigger := spelldata.ProcTrigger(&warrior.Character, talent,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.OverpowerAura.Activate(sim)
@@ -296,8 +282,6 @@ func (warrior *Warrior) registerWeaponmaster() {
 	}
 	readWeapons()
 
-	// The aura is up while either hand holds an axe or a polearm, and its crit reaches the attacks
-	// made with one.
 	critAura := warrior.RegisterAura(core.Aura{
 		Label:      "Weaponmaster (Axe/Polearm)",
 		ActionID:   actionID.WithTag(1),
@@ -313,8 +297,7 @@ func (warrior *Warrior) registerWeaponmaster() {
 		core.MakePermanent(critAura)
 	}
 
-	// The aura is up while either hand holds a one- or two-handed mace or a staff, and its armor
-	// ignore reaches every attack. A mace in each hand ignores the share once.
+	// The Mace/Staff aura's armor ignore reaches every attack. A mace in each hand ignores the share once.
 	armorIgnore := spellData.Weaponmaster.EffectAt(2).FractionAt(rank)
 	armorIgnoreAura := warrior.RegisterAura(core.Aura{
 		Label:    "Weaponmaster (Mace/Staff)",
@@ -331,13 +314,9 @@ func (warrior *Warrior) registerWeaponmaster() {
 		core.MakePermanent(armorIgnoreAura)
 	}
 
-	// 1290261 states no proc flags at all, so the row decodes to a listener that hears nothing:
-	// the shape, the mask and the rate's effect are all the caller's. Sweeping Strikes' hits never
-	// roll it. Every landed Whirlwind strike with a sword rolls it, either hand and every target, and
-	// one cast grants one extra attack at most (EV-0054). Cleave rolls it once a cast however many
-	// targets it lands on, on its first landed hit; no log measures Cleave. A Windfury Totem hit
-	// rolls it as a white swing does (EV-0002). Swings other procs grant (Hand of Justice, Thrash
-	// Blade) bring one as well.
+	// 1290261 states no proc flags at all, so the shape, the mask and the rate's effect are the caller's.
+	// Hits that roll in EV-0002, EV-0054. Cleave rolls it once a cast, on its first landed hit; no log
+	// measures Cleave. Swings other procs grant (Hand of Justice) roll it as well.
 	firstCleaveHit, resetFirstCleaveHit := core.OncePerCast()
 	firstWhirlwindGrant, resetFirstWhirlwindGrant := core.OncePerCast()
 	swordTrigger := core.ProcTrigger{
@@ -407,8 +386,6 @@ func (warrior *Warrior) registerImprovedHamstring() {
 		return target.GetOrRegisterAura(spelldata.AuraConfig(root, spelldata.Label("Improved Hamstring-"+warrior.Label)))
 	})
 
-	// The rate is the effect ladder the tooltip's $m1 names. The one ability it fires on is a
-	// shape no proc mask states, so the row's listener is narrowed to Hamstring by hand.
 	trigger := spelldata.ProcTrigger(&warrior.Character, talent,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			immobilizeAuras.Get(result.Target).Activate(sim)
@@ -426,8 +403,7 @@ func (warrior *Warrior) registerImprovedSlam() {
 		return
 	}
 
-	// The five rank-swap effects the row states past the cast time, the global cooldown and Slam's
-	// cooldown have no sim kind and are reported as skipped.
+	// The spell's five rank-swap effects have no sim kind and are reported as skipped.
 	spelldata.ParseStatic(&warrior.Character, spellData.ImprovedSlam.Rank(warrior.Talents.ImprovedSlam))
 }
 
@@ -445,9 +421,9 @@ func (warrior *Warrior) registerSweepingStrikes() {
 
 	var copyDamage float64
 	// The copy takes the hit's damage with the attacker's damage bonuses already in it, and those bonuses
-	// apply to it again, except one that needs a weapon equipped: the copy has none, so Two-Handed Weapon
-	// Specialization counts once (EV-0182). The logs measure Enrage and Two-Handed Weapon Specialization; that
-	// every other bonus follows the same rule, Death Wish among them, is an owner decision.
+	// apply to it again, except one that needs a weapon equipped (EV-0182). The logs measure Enrage and
+	// Two-Handed Weapon Specialization; that every other bonus follows the same rule, Death Wish among
+	// them, is an owner decision.
 	twoHandSpec := 1.0
 	var twoHandSpecWeapon core.EquipRequirement
 	if warrior.Talents.TwoHandedWeaponSpecialization > 0 {
@@ -455,8 +431,8 @@ func (warrior *Warrior) registerSweepingStrikes() {
 		twoHandSpec = 1 + row.EffectN(1).Percent()
 		twoHandSpecWeapon = core.EquipRequirement{SubclassMask: row.EquipSubclass, InvTypeMask: row.EquipInvType, Hand: spelldata.RequiredHand(row)}
 	}
-	// 12723 has no SpellCategories row and so no DefenseType: no chance-on-hit effect or combat
-	// enchant hears the copied hit (EV-0007). Equip procs still hear it; no log measures them on 12723.
+	// Proc listeners in EV-0007. Equip procs still hear the copied hit;
+	// no log measures them on 12723.
 	hitSpell := warrior.RegisterSpell(core.SpellConfig{
 		ActionID:    actionID,
 		ClassFlags:  SpellFlagsSweepingStrikes,
@@ -491,27 +467,23 @@ func (warrior *Warrior) registerSweepingStrikes() {
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
-			// The strike is never missed, dodged or parried, and rolls a crit of its own, whether or not the
-			// hit that brought it crit (EV-0213).
+			// Strike outcome in EV-0213.
 			// TODO: Ingame test needed: whether the strike an Execute brings below 20% rolls a crit too; the
 			// logs measure the Whirlwind ones.
 			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialCritOnly)
 		},
 	})
 
-	// The proc shape with no roll: 12292 states its rate as "always" and the buff's charges are
-	// what run out. The duration and the charge count are the row's; which hits spend a charge is
-	// the handler's.
 	sweepingStrikes := spelldata.ProcTrigger(&warrior.Character, sweepingStrikesRank,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if warrior.Env.ActiveTargetCount() < 2 || warrior.SweepingStrikesAura.GetStacks() == 0 || result.PostOutcomeDamage <= 0 {
 				return
 			}
 
-			// Whirlwind brings its one strike through CastNormalizedSweepingStrikesAttack, from the main
-			// hand's results: one hit and one charge a cast (EV-0054).
+			// Whirlwind brings its one strike through CastNormalizedSweepingStrikesAttack.
+			// Hits and charges in EV-0054.
 			// TODO: Whirlwind's off-hand strike also brings off-hand strikes of Sweeping Strikes (462890 in
-			// game), each spending a charge, and the sim casts none; how many a cast brings is open (EV-0216).
+			// game), each using a charge, and the sim casts none; how many a cast brings is open (EV-0216).
 			if spell == hitSpell || spell == warrior.SweepingStrikesNormalizedAttack || spellData.ThunderClap.Contains(spell) || spellData.Whirlwind.Contains(spell) {
 				return
 			}

@@ -135,7 +135,7 @@ func TestCritForCasterReachesTheNamedSpells(t *testing.T) {
 	}
 }
 
-// A row that states a damage effect and a crit effect holds one slot, and each handler answers for
+// A spell that states a damage effect and a crit effect holds one slot, and each handler answers for
 // its own effects.
 func TestFromCasterEffectsShareTheParsesSlot(t *testing.T) {
 	sim := &core.Simulation{}
@@ -171,9 +171,8 @@ func TestFromCasterEffectsShareTheParsesSlot(t *testing.T) {
 	}
 }
 
-// Without a caster the rows have no attacks to reach: a raid debuff whose caster the sim does not
-// model, and the dry run a generator reads. A dry run given a caster reads them for what they would
-// attach.
+// Without a caster the rows have no attacks to reach. A dry run given a caster reads them for what
+// they would attach.
 func TestFromCasterRowsNeedACaster(t *testing.T) {
 	row := &Spell{ID: 22959, Name: "Fire Vulnerability", DurationMs: 30000, MaxStack: 5,
 		Effects: []Effect{{SpellID: 22959, Type: dbcenums.E_APPLY_AURA,

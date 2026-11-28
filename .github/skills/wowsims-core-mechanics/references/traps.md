@@ -2,7 +2,7 @@
 
 Each line is a trap of `sim/core` that a spell's row cannot warn about, under the section of `SKILL.md` it belongs to.
 
-## What a cast spends
+## What a cast uses
 
 - **An item swap that moves a weapon slot extends the GCD to at least now + 1.5 s and restarts both swing timers**
   (`sim/core/item_swaps.go`, `SwapItems`). The cost is not measured in game, and an APL with swaps needs

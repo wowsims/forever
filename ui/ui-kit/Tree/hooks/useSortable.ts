@@ -239,8 +239,8 @@ const createSortable = (options: RefObject<TreeSortable | undefined>): SortableC
 
 /**
  * Native drag and drop over a set of registered items. Returns `null` without `sortable`. The
- * controller is created only while `sortable` is given, once, and reads it from the latest render, so a `sortable` object
- * written inline changes nothing downstream.
+ * controller is created once and reads it from the latest render, so a `sortable` object written
+ * inline changes nothing downstream.
  */
 export const useSortable = (sortable: TreeSortable | undefined): SortableController | null => {
 	const options = useRef(sortable);

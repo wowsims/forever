@@ -10,10 +10,8 @@
 // out of data/<xx>/<yy>/<archive>. The CDN serves no archive-group index for
 // this product (404), so the per-archive .index files are merged in memory.
 //
-// Every hash-addressed download is verified: configs and loose files against
-// their name, encoded files against the encoding key (the MD5 of the whole
-// BLTE blob, or of just its header when it carries a chunk table). Immutable
-// downloads are kept under cacheDir so a re-run of the same build is offline.
+// Every hash-addressed download is verified. Immutable downloads are kept
+// under cacheDir so a re-run of the same build is offline.
 
 package tact
 
@@ -74,8 +72,7 @@ func OpenCDN(product, region, cacheDir string) (*Build, error) {
 		return nil, err
 	}
 	// The Servers column carries full origins (http://host/?maxhosts=8); the
-	// older Hosts column bare hostnames. Prefer the former, fall back to the
-	// latter over https like TACTSharp.
+	// Hosts column bare hostnames.
 	for server := range strings.FieldsSeq(cdns["Servers"]) {
 		if u, _, ok := strings.Cut(server, "/?"); ok {
 			s.bases = append(s.bases, u+"/"+cdns["Path"])

@@ -8,8 +8,7 @@ import { EMPTY_ROW_WINDOW, sameRowWindow } from '../../../model/timeline/rotatio
 
 /** One rotation frame: which rows are mounted, and which of each row's items are inside the track window. */
 export interface RotationFrame {
-	// The order the window's indexes point into. A frame measured against a different one is stale,
-	// which is what `nextFrame` is asked to fix in the same render rather than a frame later.
+	// The order the window's indexes point into. A frame measured against a different one is stale.
 	order: ReadonlyArray<string>;
 	window: RowWindow;
 	items: ReadonlyMap<string, ReadonlyArray<number>>;
@@ -28,8 +27,7 @@ const sameFrame = (a: RotationFrame, b: RotationFrame): boolean => {
 
 /**
  * The frame the view should render, or the previous one unchanged. Returning `prev` is what makes a
- * scroll that moves nothing — the common case, since the page owns vertical scrolling and the frame
- * runs far more often than the window moves — cost one binary search per mounted row and no render.
+ * scroll that moves nothing cost one binary search per mounted row and no render.
  */
 export const nextFrame = (prev: RotationFrame, window: RowWindow, pps: number, order: ReadonlyArray<string>, rowFor: (key: string) => Row): RotationFrame => {
 	const items = new Map<string, ReadonlyArray<number>>();
@@ -53,10 +51,9 @@ export const rowStyle = (row: Row): CSSProperties =>
 		// both halves of it are in scope: `--row-h` is set here, `--rotation-item-h` on the pane.
 		// Without it the variable resolves nowhere and every item falls back to `top: auto`.
 		'--rotation-item-top': 'calc((var(--row-h) * 1px - var(--rotation-item-h)) / 2)',
-		// The GCD band is two spacing steps tall (`GcdSegmentItem`'s `h-2`) rather than the full item
-		// height, so it centres against the item rather than the row. Derived here for the same reason
-		// as the line above: a class token may not carry a `var(...)`, so the arithmetic has to land in
-		// a property of its own.
+		// The GCD band is two spacing steps tall (`GcdSegmentItem`'s `h-2`), so it centres against the
+		// item rather than the row. A class token may not carry a `var(...)`, so the arithmetic has to
+		// land in a property of its own.
 		'--rotation-gcd-top': 'calc(var(--rotation-item-top) + (var(--rotation-item-h) - var(--spacing) * 2) / 2)',
 	});
 

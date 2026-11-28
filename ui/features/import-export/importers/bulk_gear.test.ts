@@ -1,5 +1,4 @@
-// The batch importer's `onImport` is the whole of it: what reaches `addItems`, and what a bad payload
-// does — a throw, which the shell turns into the error toast.
+// The batch importer's `onImport`: what reaches `addItems`, and that a bad payload throws.
 import { EquipmentSpec, ItemSpec } from '@generated/proto/common';
 import { fakeHost } from '@testing/sim/fake_host';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

@@ -87,10 +87,9 @@ func (s *Spell) IsWeaponProcAura() bool {
 	return s.HasAttributeAt(dbcenums.ATTR_INDEX_EX_6, dbcenums.ATTR_EX_6_AURA_IS_WEAPON_PROC)
 }
 
-// Reports whether the spell is barred from critically striking. Seal of Light, Judgement of Wisdom,
-// Sweeping Strikes and Vampiric Embrace are the shape: effects that resolve at a flat amount in game.
-// A damage proc built from one of these has to roll an outcome that cannot crit, or it gains crit
-// damage the game never gives it.
+// Reports whether the spell is barred from critically striking. Seal of Light is the shape: effects
+// that resolve at a flat amount in game. A damage proc built from one of these has to roll an outcome
+// that cannot crit.
 func (s *Spell) CannotCrit() bool {
 	return s.HasAttributeAt(dbcenums.ATTR_INDEX_EX_2, dbcenums.ATTR_EX_2_CANT_CRIT)
 }

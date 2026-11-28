@@ -13,10 +13,9 @@ import (
 )
 
 // The sim as commands, for an editor with no panel. On an .apl.siml a code action and a code lens run siml.sim or
-// siml.compare through workspace/executeCommand, which sims as siml/sim does; a message gives the result, the lens
-// shows it, and an inlay hint at the end of each row's line says how often the row ran per fight while the text is the
-// one simmed. The client turns them on with the initialization option simCommands, as the Zed extension does; VS Code's
-// panel sims through siml/sim.
+// siml.compare through workspace/executeCommand; a message gives the result, the lens shows it, and an inlay hint at
+// the end of each row's line says how often the row ran per fight while the text is the one simmed. The client turns
+// them on with the initialization option simCommands.
 
 const (
 	commandSim     = "siml.sim"

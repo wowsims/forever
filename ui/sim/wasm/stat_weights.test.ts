@@ -1,7 +1,6 @@
-// The backend omits RequestLow for the school-split hit/crit stats: sim/core/statweight.go
-// zeroes their low-side stat modifier and only populates lowSimRequest when it is non-zero.
-// Nothing in the type system catches a missing guard here — a non-null assertion on the low
-// request type-checks and throws at runtime — so the absent-low path is covered explicitly.
+// The backend omits RequestLow for the school-split hit/crit stats (sim/core/statweight.go).
+// A non-null assertion on the low request type-checks and throws at runtime, so the absent-low
+// path is covered explicitly.
 import {
 	AggregatorData,
 	DistributionMetrics,

@@ -1,7 +1,6 @@
 // icons writes the icon of every item, enchant, consumable and spell the database names into
 // assets/icons as <name>.jpg, decoded from the game files' BLP on Blizzard's CDN, and lists the names it
-// wrote in assets/icons/manifest.json. The site serves an icon from there when the manifest lists it and
-// from zamimg otherwise (ui/sim/proto/wowhead.ts). The folder is gitignored: deploy builds it.
+// wrote in assets/icons/manifest.json. The folder is gitignored: deploy builds it.
 //
 // Run from the repository root: go run ./tools/icons
 package main

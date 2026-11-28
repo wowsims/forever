@@ -42,11 +42,10 @@ type fieldPlan struct {
 }
 
 // Row is one decoded record; Values align 1:1 with the version block's
-// Definitions, which is also the column order the sqlite writer binds.
-// Value dynamic types are limited to int64/uint64 scalars, float32, string,
-// []int64, []uint64, []float32 and []string — never []byte, so encoding/json
-// writes every array element-by-element as numbers (no base64), the
-// wowsims.db array-text format.
+// Definitions. Value dynamic types are limited to int64/uint64 scalars,
+// float32, string, []int64, []uint64, []float32 and []string, never []byte,
+// so encoding/json writes every array element-by-element as numbers (no
+// base64), the wowsims.db array-text format.
 type Row struct {
 	ID     int32
 	Values []any
@@ -57,9 +56,8 @@ type Decoded struct {
 }
 
 func buildFieldPlans(def dbd.DBDefinition, version dbd.VersionDefinitions, buildNumber uint32) ([]fieldPlan, error) {
-	// The locstring size is 1 for post-wotlk builds (build > 12340) — always
-	// the case for the builds this tool targets. A locstring therefore maps
-	// to a single string field with no _mask column.
+	// The locstring size is 1 for post-wotlk builds (build > 12340). A
+	// locstring therefore maps to a single string field with no _mask column.
 	if buildNumber <= 12340 {
 		return nil, fmt.Errorf("build %d predates single-locale locstrings; this port only supports locStringSize == 1", buildNumber)
 	}
@@ -95,10 +93,8 @@ func buildFieldPlans(def dbd.DBDefinition, version dbd.VersionDefinitions, build
 			return nil, fmt.Errorf("column %q: unable to construct field type from %q", d.Name, col.Type)
 		}
 		// Capture the DBD-declared mapping before the non-inline-relation
-		// override — the hotfix decoder reads that type.
+		// override; the hotfix decoder reads that type.
 		p.hfKind, p.hfSize, p.hfSigned = p.kind, p.size, p.signed
-		// A non-inline relation always decodes as a signed 32-bit int,
-		// regardless of the DBD-declared type.
 		if p.isNonInlineRel {
 			p.kind = kindInt
 			p.size = 32
@@ -134,8 +130,6 @@ func (t *Table) DecodeRows(def dbd.DBDefinition, version dbd.VersionDefinitions,
 		byID[id] = values
 	}
 
-	// Copy-table rows: clone the source row's decoded values and rewrite the
-	// id field.
 	if len(t.copyData) > 0 {
 		if hadInlineID {
 			// Never occurs on real data, and the id-field mapping would be
@@ -148,10 +142,9 @@ func (t *Table) DecodeRows(def dbd.DBDefinition, version dbd.VersionDefinitions,
 		}
 		// Cloning the source row's decoded values is only equivalent to
 		// upstream's re-decode-with-the-destination-id while no column is
-		// COMMON-compressed: a common value is looked up BY ROW ID
-		// (getFieldRaw), so a copy row would wrongly inherit the source id's
-		// value. No table has both today; fail loud if a future build changes
-		// that rather than emit silently wrong rows.
+		// COMMON-compressed: a common value is looked up BY ROW ID (getFieldRaw),
+		// so a copy row would wrongly inherit the source id's value. No table has both a copy
+		// table and a COMMON-compressed column.
 		for i := range t.ColumnMeta {
 			if t.ColumnMeta[i].CompressionType == compressionCommon {
 				return nil, fmt.Errorf("table has both a copy table and a COMMON-compressed column (field %d) — copy rows would resolve common data by the source id; decode copy rows per destination id instead", i)
@@ -237,7 +230,7 @@ func (t *Table) readScalarField(id int32, r *bitReader, fieldIndex int, p fieldP
 		if t.Flags&flagSparse != 0 {
 			return r.ReadCString(), nil
 		}
-		// The byte position is captured BEFORE the relative offset is read —
+		// The byte position is captured BEFORE the relative offset is read;
 		// the offset is relative to the field's own position.
 		recordOffset := (int(row.recordIndex) * int(t.RecordSize)) - (int(t.RecordsCount) * int(t.RecordSize))
 		bytePos := r.Position >> 3
@@ -365,10 +358,8 @@ func (t *Table) readArrayField(r *bitReader, fieldIndex int, p fieldPlan, row ra
 		return out, nil
 	}
 
-	// Byte-sized arrays must stay plain numeric slices (never []byte): the
-	// wowsims.db array-text format is element-by-element numbers, e.g.
-	// [0,0,0], NOT base64. Width/sign truncation still follows the
-	// DBD-declared element type.
+	// Byte-sized arrays must stay plain numeric slices (never []byte).
+	// Width/sign truncation still follows the DBD-declared element type.
 	if p.size == 64 && !p.signed {
 		out := make([]uint64, len(raws))
 		copy(out, raws)

@@ -86,8 +86,8 @@ const settings = () => vscode.workspace.getConfiguration('wowsims-apl');
 
 // The server binary for a repository: the `wowsims-apl.server` setting's, or one built from the repository into the
 // extension's storage. The server imports the generated Go protos, which git does not hold, so make writes them first
-// when proto/ is newer, as after pulling a branch that changes a proto; it does nothing when they are current, and
-// `go build` relinks nothing when the binary is up to date.
+// when proto/ is newer; it does nothing when they are current, and `go build` relinks nothing when the binary is up
+// to date.
 async function serverBinary(root: string): Promise<string> {
 	const prebuilt = settings().get<string>('server', '');
 	if (prebuilt) return prebuilt;
@@ -104,8 +104,8 @@ async function serverBinary(root: string): Promise<string> {
 
 async function start(root: string): Promise<LanguageClient> {
 	const command = await serverBinary(root);
-	// A file in a repository nested in this one, such as a worktree under .claude/worktrees, is that repository's: this
-	// server is never told it is open, so it answers nothing about it and the nested one's server serves it alone.
+	// A file in a repository nested in this one is that repository's: this server is never told it is open, so it
+	// answers nothing about it and the nested one's server serves it alone.
 	const ours = (document: vscode.TextDocument) => document.uri.scheme !== 'file' || repositoryRoot(document.uri.fsPath) === root;
 	const client = new LanguageClient(
 		'wowsims-siml',
@@ -182,9 +182,7 @@ export async function stopServers(last = false): Promise<void> {
 	await Promise.all(running.map(client => client.then(c => c.stop()).catch(() => undefined)));
 }
 
-// Starts the server of a .siml document as it opens, and says in the WoWSims SIML output whether it serves the file:
-// every .siml file in a repository gets the checks, completion, hover, highlighting and formatting, while the APL
-// editor panel opens on .apl.siml rotations only.
+// Starts the server of a .siml document as it opens, and says in the WoWSims SIML output whether it serves the file.
 function served(document: vscode.TextDocument): void {
 	if (document.languageId !== 'siml' || (document.uri.scheme !== 'file' && document.uri.scheme !== 'untitled')) return;
 	const file = document.uri.scheme === 'file' ? document.uri.fsPath : document.uri.toString();

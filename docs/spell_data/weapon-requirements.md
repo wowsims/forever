@@ -35,7 +35,7 @@ is applied at run time.
 done, spell hit or threat effect, and `go run ./tools/spelldata <id>` prints that rule in words on each
 effect line.
 
-| aura                                                  | the row requires                                                  | the parse attaches                                                                                                                                                                                                                                              | rows                                                                                                                                                                               |
+| aura                                                  | the spell requires                                                | the parse attaches                                                                                                                                                                                                                                              | rows                                                                                                                                                                               |
 | ----------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 52 `A_MOD_WEAPON_CRIT_PERCENT`, 54 `A_MOD_HIT_CHANCE` | a weapon                                                          | per weapon: `SpellMod_BonusCrit_Percent` or `SpellMod_BonusHit_Percent` on the matching weapon's attacks                                                                                                                                                        | Cruelty 12320, Conviction 20117, Dual Wield Specialization 23584 (the off hand, by its hand bit), Fist Weapon Specialization 13707, Lethal Shots 450403, Ranged Hit Bonus +3 22780 |
 | 290 `A_MOD_CRIT_PCT`                                  | a weapon not ranged alone, or one named by inventory type or hand | while equipped: physical and spell crit on every spell and attack while a matching weapon is in any weapon slot                                                                                                                                                 | Conviction 20117                                                                                                                                                                   |
@@ -58,31 +58,31 @@ its own. `Applied` names the melee-defense part as `damage-dealt-melee` beside t
 That part reaches a spell by the school its `SchoolIndex` reads (`MultiplierSchool`), so a
 melee-defense spell of several schools takes the bonus once.
 
-A melee weapon's row with a mask short of every school reaches the schools past Physical by defense
-type, whether its mask names them or leaves them out: a row of Physical and Holy gives its Holy to the
-melee-defense Holy spells alone (EV-0064, EV-0022). A row with
-`ATTR_EX_5_NOT_JUST_REQ_EQUIPPED_ITEM` has an aura that reaches beyond its weapon, and the parse
-gives every school its mask names as a school multiplier while the weapon is equipped. The paladin's
-20111 carries it, so all Physical and Holy damage takes the talent with a two-hander, whatever the
-spell's defense type. Healing takes none.
+A spell that requires a melee weapon and has a mask short of every school reaches the schools past
+Physical by defense type, whether its mask names them or leaves them out: a spell of Physical and Holy
+gives its Holy to the melee-defense Holy spells alone. The game files hold no such spell with a school
+past Physical. A spell with `ATTR_EX_5_NOT_JUST_REQ_EQUIPPED_ITEM` has an aura that reaches beyond its
+weapon, and the parse gives every school its mask names as a school multiplier while the weapon is
+equipped. The paladin's 20111 carries it, so all Physical and Holy damage takes the talent with a
+two-hander, whatever the spell's defense type (EV-0022). Healing takes none.
 
-**Read the row's tooltip before scoping; 290 is ambiguous.** "Improves your chance to get a critical
+**Read the spell's tooltip before scoping; 290 is ambiguous.** "Improves your chance to get a critical
 strike with all spells and attacks" is crit on everything while the weapon is equipped, which is what
 the parse makes of a melee-weapon 290 (Conviction). "Increases your chance to get a critical
 strike with Axes and Polearms" is per weapon, although the game files also state it as a 290, on the
-Weaponmaster 12700 and Hack and Slash 13706 rows. The live Weaponmaster 1290261 and Hack and Slash 13960
+Weaponmaster 12700 and Hack and Slash 13706 spells. The live Weaponmaster 1290261 and Hack and Slash 13960
 carry that crit as an `A_DUMMY` branch, so each needs the crit built by hand as a per-weapon mod. Where
 the parse and the tooltip disagree, the tooltip wins, and the call site names the tooltip's wording.
 
 ## Which API
 
-| the effect                                                              | write                                                                                                          |
-| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| a per-weapon bonus the row states as 52, 54 or a ranged-only 290        | `ParseStatic` or `ParseEffects`; `Applied` names a `SpellMod_BonusHit_Percent` or `SpellMod_BonusCrit_Percent` |
-| a per-weapon bonus the row does not state, or states as a 290 exception | `AddStaticMod(core.SpellModConfig{...})` with the Equip fields                                                 |
-| a per-weapon bonus that shows as an aura                                | `AttachSpellMod` on that aura, with the Equip fields                                                           |
-| stats on every spell and attack while a weapon is equipped              | `character.NewEquipGatedStats(req, bonus)`, which the parse's 290 path uses                                    |
-| a temporary enchant's per-weapon effects                                | `spelldata.OnHand(...)`, which binds them to the hand carrying the enchant                                     |
+| the effect                                                         | write                                                                                                          |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| a per-weapon bonus the spell states as 52, 54 or a ranged-only 290 | `ParseStatic` or `ParseEffects`; `Applied` names a `SpellMod_BonusHit_Percent` or `SpellMod_BonusCrit_Percent` |
+| a per-weapon bonus the spell lacks or states as a 290 exception    | `AddStaticMod(core.SpellModConfig{...})` with the Equip fields                                                 |
+| a per-weapon bonus that shows as an aura                           | `AttachSpellMod` on that aura, with the Equip fields                                                           |
+| stats on every spell and attack while a weapon is equipped         | `character.NewEquipGatedStats(req, bonus)`, which the parse's 290 path uses                                    |
+| a temporary enchant's per-weapon effects                           | `spelldata.OnHand(...)`, which binds them to the hand carrying the enchant                                     |
 
 Weaponmaster (`sim/warrior/talents_arms.go`) keeps its crit visible as an aura. `critOn` says whether
 either hand holds an axe or a polearm when the character is built:
@@ -145,7 +145,7 @@ name and the rule they get. A hover on `SpellModConfig` in a class file shows th
 | rogue Fist Weapon Specialization 13707  | a 52 with fist weapons, per weapon. `ParseStatic`                                                                                                                             |
 | Lethal Shots 450403                     | a 52 with ranged weapons, per weapon on ranged attacks. `ParseStatic`                                                                                                         |
 | paladin Conviction 20117                | a 290 with melee weapons, while equipped. `ParseStatic`                                                                                                                       |
-| shaman Dual Wield Specialization 408496 | the rune's hit is an `A_DUMMY` and the row names no weapon: spell and melee hit gated on dual wielding, `NewEquipGatedStats` with `Hand: core.ProcMaskMeleeOH`                |
+| shaman Dual Wield Specialization 408496 | the rune's hit is an `A_DUMMY` and the spell names no weapon: spell and melee hit gated on dual wielding, `NewEquipGatedStats` with `Hand: core.ProcMaskMeleeOH`              |
 
 A requirement of `Hand: core.ProcMaskMeleeOH` alone is met while the off hand holds a weapon, that is,
 while the character dual wields.

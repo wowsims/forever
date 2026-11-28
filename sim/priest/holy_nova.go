@@ -19,7 +19,7 @@ func (priest *Priest) registerHolyNovaSpell(_ int32, rank *spelldata.Spell) {
 	healSpell := priest.RegisterSpell(healConfig)
 
 	config := spelldata.SpellConfig(&priest.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
-	config.ThreatMultiplier = 0 // The tooltip: "These effects cause no threat." No row field states it.
+	config.ThreatMultiplier = 0 // The tooltip: "These effects cause no threat." Not in game files.
 	config.ClassSpellMask = PriestSpellHolyNova
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {

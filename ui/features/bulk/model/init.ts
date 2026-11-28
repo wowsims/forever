@@ -78,7 +78,7 @@ const loadSettings = (player: Player<any>) => {
 
 /**
  * The batch belongs to the page, not to its tab: the gear tab adds items to it and the autosave
- * has to keep them, so none of this can wait for `BulkTabBody` to mount. The host calls it once.
+ * has to keep them, so none of this can wait for `BulkTabBody` to mount.
  */
 export const initBulk = (host: IndividualSimHost<any>) => {
 	const { sim, player } = host;

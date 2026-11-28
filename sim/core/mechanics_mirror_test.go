@@ -10,8 +10,7 @@ import (
 
 // ui/sim/constants/mechanics.ts and base_stats_auto_gen.go are both written by
 // tools/base_stats_parser.py from the same numbers, so they cannot disagree unless
-// someone hand-edits one. This catches that, and catches a constant being added to
-// one side only. The fix is `make basestats`, not an edit to the generated file.
+// someone hand-edits one.
 func TestMechanicsConstantsMatchTheUI(t *testing.T) {
 	const mechanicsPath = "../../ui/sim/constants/mechanics.ts"
 
@@ -34,8 +33,7 @@ func TestMechanicsConstantsMatchTheUI(t *testing.T) {
 		"MISS_DODGE_PARRY_BLOCK_CRIT_CHANCE_PER_DEFENSE": MissDodgeParryBlockCritChancePerDefense,
 	}
 
-	// BOSS_LEVEL is an expression rather than a literal, so it is checked separately
-	// below against the default raid boss level in target.go.
+	// BOSS_LEVEL is an expression rather than a literal, so it is checked separately below.
 	declaration := regexp.MustCompile(`(?m)^export const ([A-Z_0-9]+) = ([0-9.]+);`)
 	seen := map[string]bool{}
 	for _, match := range declaration.FindAllStringSubmatch(string(source), -1) {

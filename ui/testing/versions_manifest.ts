@@ -27,10 +27,7 @@ export const VERSIONS_MANIFEST = {
 	],
 };
 
-/**
- * Answers fetches of the versions manifest with `body`, or fails them when `body` is an Error, for a story's
- * `beforeEach` or a test; other URLs go to the real fetch. Returns the restore.
- */
+/** Answers fetches of the versions manifest with `body`, or fails them when `body` is an Error. Returns the restore. */
 export const withVersionsManifest = (body: unknown): (() => void) => {
 	const realFetch = globalThis.fetch;
 	globalThis.fetch = (input, init) => {

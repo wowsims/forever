@@ -34,8 +34,7 @@ class Options {
 	}
 }
 
-// `iconEnumPickerShown` is satisfied only by a value that carries an actionId *and* is shown, so
-// this is the shape of the engineering explosives: one real option behind a profession check.
+// The shape of the engineering explosives: one real option behind a profession check.
 const configFor = (shown: (options: Options) => boolean): IconEnumPickerConfig<Options, number> =>
 	({
 		values: [{ value: 0 }, { actionId: {} as never, value: 1, showWhen: shown }],
@@ -66,9 +65,7 @@ describe('ConsumeRow', () => {
 		expect(screen.getByRole('group', { name: 'settings_tab.consumables.engineering.title' })).toBe(screen.getByTestId('consumes-row'));
 	});
 
-	// Vanilla's updateRow toggled a `hide` class and nothing more, so the pickers inside a hidden
-	// row stayed mounted and kept zeroing and restoring the field they are bound to. Unmounting
-	// instead would strand a selection the player can no longer use.
+	// Unmounting the row instead of hiding it would strand a selection the player can no longer use.
 	it('hides the row when every picker in it is hidden, without unmounting it, and shows it again', () => {
 		const options = new Options();
 		const rowElem = row(options, [configFor(opts => opts.engineer), configFor(opts => opts.engineer)]);

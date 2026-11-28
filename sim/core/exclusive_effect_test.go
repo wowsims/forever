@@ -14,8 +14,7 @@ func newExclusiveTestTarget() *Unit {
 	}
 }
 
-// Registers an aura with an exclusive effect in "TestCategory" whose callbacks
-// track the currently applied value via *applied, without touching unit stats
+// An aura whose callbacks track the currently applied value via *applied, without touching unit stats
 // (dynamic stat changes require a full Environment).
 func makeTestExclusiveAura(target *Unit, label string, duration time.Duration, priority float64, applied *float64) *Aura {
 	aura := target.GetOrRegisterAura(Aura{

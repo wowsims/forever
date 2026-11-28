@@ -10,8 +10,8 @@ import { useEffect, useMemo, useState } from 'react';
 
 const SETTINGS_KEY = `${LOCAL_STORAGE_PREFIX}_notice-local-sim.v1`;
 
-// The flag has always been written as the bare string `true`, which is also its JSON form, so it
-// reads back unchanged through the shared hook.
+// The flag is written as the bare string `true`, which is also its JSON form, so it reads back
+// unchanged through the shared hook.
 const parseSeen = (value: unknown): boolean | undefined => (value === true ? true : undefined);
 
 export const NoticeNativeSim = () => {

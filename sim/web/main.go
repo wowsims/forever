@@ -295,8 +295,8 @@ type apiHandler struct {
 type asyncAPIHandler struct {
 	msg    func() googleProto.Message
 	handle func(googleProto.Message, chan *proto.ProgressMetrics, string)
-	// errorProgress wraps a request-level failure (e.g. a parse error) in the endpoint's own
-	// final result type, so the client's consumer for this endpoint sees the error.
+	// Wraps a request-level failure in the endpoint's own final result type, so the client's
+	// consumer for this endpoint sees the error.
 	errorProgress func(*proto.ErrorOutcome) *proto.ProgressMetrics
 }
 
@@ -323,9 +323,6 @@ func (s *server) handleAsyncAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// reporter channel is handed into the core simulation.
-	//  as the simulation advances it will push changes to the channel
-	//  these changes will be consumed by the goroutine below so the asyncProgress endpoint can fetch the results.
 	reporter := make(chan *proto.ProgressMetrics, 100)
 	requestId := r.URL.Query().Get("requestId")
 	handler.handle(msg, reporter, requestId)
@@ -333,8 +330,6 @@ func (s *server) handleAsyncAPI(w http.ResponseWriter, r *http.Request) {
 	// Generate a new async simulation
 	simProgress := s.addNewSim()
 
-	// Now launch a background process that pulls progress reports off the reporter channel
-	// and pushes it into the async progress cache.
 	go func() {
 		for {
 			select {
@@ -419,8 +414,7 @@ func (s *server) setupAsyncServer() {
 
 		w.Header().Add("Content-Type", "application/x-protobuf")
 		if _, err := w.Write(outbytes); err != nil {
-			// Nothing reached the client, so leave the cached progress in place for the next
-			// poll rather than dropping it.
+			// Nothing reached the client, so leave the cached progress in place for the next poll.
 			log.Printf("[ERROR] Failed to write async progress response: %s", err.Error())
 			return
 		}

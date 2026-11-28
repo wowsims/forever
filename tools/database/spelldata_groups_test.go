@@ -410,8 +410,7 @@ func TestMergeAdoptsInputsThatRecordNoSpellDataGroups(t *testing.T) {
 }
 
 // The committed inputs merged with themselves, one group at a time, are the committed inputs again,
-// apart from the build stamped on the groups the merge takes: with the groups on different builds,
-// items and shared take the stamp of the group the run names.
+// apart from the build stamped on the groups the merge takes.
 func TestMergeOfTheCommittedInputsWithThemselvesChangesNothing(t *testing.T) {
 	inRepositoryRoot(t)
 	committed := committedInputs(t)

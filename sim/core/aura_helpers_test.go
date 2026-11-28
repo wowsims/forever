@@ -73,8 +73,7 @@ func TestProcTriggerClassSpellsOnly(t *testing.T) {
 	}
 }
 
-// A listener that cannot proc from procs skips a proc's hits but hears a dot's ticks, whatever laid the dot, unless the
-// ticks are the hits of a spell the aura casts (EV-0226). One that can proc from procs hears all of them.
+// Dot ticks in EV-0226.
 func TestProcTriggerHearsAProcsTicksButNotItsHits(t *testing.T) {
 	proc := &Spell{Flags: SpellFlagProc}
 	castTicks := &Spell{Flags: SpellFlagProc | SpellFlagTicksAreCasts}
@@ -103,7 +102,7 @@ func TestProcTriggerHearsAProcsTicksButNotItsHits(t *testing.T) {
 	}
 }
 
-// A proc cooldown mod scales the internal cooldown a proc starts on the triggers whose own class flags
+// A proc cooldown mod scales the ICD a proc starts on the triggers whose own class flags
 // it names, and leaves every other trigger and every proc chance alone.
 func TestProcCooldownModScalesTheICDsItNames(t *testing.T) {
 	omen := ClassFlags{Family: 7, Mask: [4]uint32{3: 0x40000}}
@@ -198,8 +197,6 @@ func TestProcChanceModReachesTheTriggersItNames(t *testing.T) {
 		}
 	}
 
-	// A pet's trigger reads its owner's mods, and a trigger on the target reads the ones of the unit
-	// it names.
 	pet := &Unit{procChanceOwner: unit}
 	target := &Unit{}
 	for _, test := range []struct {

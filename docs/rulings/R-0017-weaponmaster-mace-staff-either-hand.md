@@ -6,4 +6,4 @@
 - Evidence: pending
 
 Weaponmaster covers a mace or staff in either hand without doubling, Anger Management comes from its aura, crit rage ×2
-follows the row, a wand keeps `SpellFlagNoPartialResist`, and Flamestrike's burn stays a dot.
+follows the game files, a wand keeps `SpellFlagNoPartialResist`, and Flamestrike's burn stays a dot.

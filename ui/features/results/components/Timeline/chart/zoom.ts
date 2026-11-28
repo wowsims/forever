@@ -12,8 +12,7 @@ const MIN_RANGE = 0.5;
 const DRAG_THRESHOLD_PX = 5;
 
 // Owns the x range outright rather than delegating to a plugin, so a reset is always
-// `[0, duration]` of the result currently on screen and cannot drift when the duration
-// changes between results.
+// `[0, duration]` of the result currently on screen.
 export class ChartZoom {
 	private duration = 1;
 	private min = 0;
@@ -29,7 +28,7 @@ export class ChartZoom {
 	) {}
 
 	// chart.js rebuilds `config.options.scales` on every update, and `chart.options` is a resolver
-	// proxy, so the range has to be read back off the config each time and written there — never into
+	// proxy, so the range has to be read back off the config each time and written there, never into
 	// the scales object the chart was configured with, which it reads exactly once.
 	private xOptions(): XRange | undefined {
 		return this.getChart()?.config.options?.scales?.x as XRange | undefined;

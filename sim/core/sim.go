@@ -226,10 +226,8 @@ func newSimWithEnv(env *Environment, simOptions *proto.SimOptions, signals simsi
 
 // Returns a random float64 between 0.0 (inclusive) and 1.0 (exclusive).
 //
-// In tests, although we can set the initial seed, test results are still very
-// sensitive to the exact order of RandomFloat() calls. To mitigate this, when
-// testing we use a separate rand object for each RandomFloat callsite,
-// distinguished by the label string.
+// Test results are very sensitive to the exact order of RandomFloat() calls, so
+// tests use a separate rand object for each callsite, distinguished by the label string.
 func (sim *Simulation) RandomFloat(label string) float64 {
 	return sim.labelRand(label).NextFloat64()
 }
@@ -472,10 +470,8 @@ func (sim *Simulation) PrePull() {
 }
 
 func (sim *Simulation) Cleanup() {
-	// The last event loop will leave CurrentTime at some value close to but not
-	// quite at the Duration. Explicitly set this so that accesses to CurrentTime
-	// during the doneIteration phase will return the Duration value, which is
-	// intuitive.
+	// The last event loop leaves CurrentTime close to but not quite at the Duration, so
+	// accesses to CurrentTime during the doneIteration phase return the Duration value.
 	sim.CurrentTime = sim.Duration
 
 	for _, pa := range sim.pendingActions {
@@ -621,11 +617,8 @@ func (sim *Simulation) AddPendingAction(pa *PendingAction) {
 	sim.pendingActions = pas
 }
 
-// Use this for any "fire and forget" delayed actions where your code does not
-// require persistent access to the returned *PendingAction pointer. This helper
-// avoids unnecessary re-allocations of the PendingAction struct for improved
-// code performance, but offers no guarantees on the long-term state of the
-// underlying struct, which will be re-used once consumed.
+// For "fire and forget" delayed actions that need no persistent access to the returned
+// *PendingAction pointer: the underlying struct is re-used once consumed.
 func (sim *Simulation) GetConsumedPendingActionFromPool() *PendingAction {
 	pa := sim.pendingActionPool.Get().(*PendingAction)
 	pa.NextActionAt = 0

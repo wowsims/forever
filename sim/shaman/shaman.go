@@ -75,8 +75,7 @@ type Shaman struct {
 	mainHandID     int32
 	swapMainHandID int32
 
-	// The imbue on each of those main hands as the sim runs: the options set them at reset, and an
-	// imbue's cast replaces the one on the main hand in use.
+	// The imbue on each of those main hands as the sim runs.
 	imbues        [2]proto.ShamanImbue
 	imbueAuras    [proto.ShamanImbue_RockbiterWeapon + 1]*core.Aura // Active while the main hand in use carries that imbue.
 	onImbueChange []func(sim *core.Simulation)
@@ -173,8 +172,8 @@ func (shaman *Shaman) OnEncounterStart(sim *core.Simulation) {
 	shaman.startShieldProcPeriodicAction(sim)
 }
 
-// The chance is the talent's ranked dummy, 10/20/30 (the logs fit rank 3, EV-0137), which the tooltip
-// of 408438 reads as $m1; the effect's base points, 30, are what the talent's ranks replace.
+// The chance is the talent's ranked dummy; the effect's base points, 30, are what the talent's ranks
+// replace. Rank fit in EV-0137.
 func (shaman *Shaman) GetOverloadChance() float64 {
 	return spellData.LightningOverload.FractionAt(shaman.Talents.LightningOverload)
 }

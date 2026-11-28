@@ -41,8 +41,7 @@ export const ADDON_IMPORTER: ImporterDefinition = {
 		// The class is required. Gear, race, professions, rotation and talents are optional, and anything left out stays as it is.
 		const has = (key: string) => importJson[key] != null;
 		const talentsStr = (importJson['talents'] as string) || '';
-		// Only an export from the Forever client builds its talent string from these trees; Era/SoD
-		// exports carry strings for other trees, so their talents don't count as something to import.
+		// Only a Forever export builds its talent string from these trees.
 		const talentsMatchTrees = importJson['flavor'] === 'forever';
 		const hasTalents = talentsMatchTrees && talentsStr != '' && talentsStr != '--';
 		if (!['gear', 'race', 'professions', 'rotation'].some(has) && !hasTalents) {

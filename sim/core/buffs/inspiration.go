@@ -8,7 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The armor share is on the talent's curve, one value per rank; the buff row states only the
+// The armor share is on the talent's curve, one value per rank; the buff spell states only the
 // duration and the rank 1 share.
 var inspirationTalent = spelldata.Talent(14892, 3)
 var inspirationBuff = spelldata.MustFind(14893)

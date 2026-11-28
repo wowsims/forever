@@ -11,7 +11,7 @@ func (shaman *Shaman) registerLightningBoltSpell() {
 	shaman.registerWithOverloads(lightningBoltRanks, lightningBoltOverloadRanks, shaman.newLightningBoltSpellConfig)
 }
 
-// The cast, with the overload it may trigger; the overload itself, from its own row, where overload is nil.
+// The cast, with the overload it may trigger; the overload itself, from its own spell, where overload is nil.
 func (shaman *Shaman) newLightningBoltSpellConfig(row *spelldata.Spell, overload *core.Spell) core.SpellConfig {
 	config, damage := shaman.newElectricSpellConfig(row, overload == nil)
 	config.ClassSpellMask = SpellMaskLightningBolt
@@ -23,7 +23,7 @@ func (shaman *Shaman) newLightningBoltSpellConfig(row *spelldata.Spell, overload
 		result := spell.CalcDamage(sim, target, damage, spell.OutcomeMagicHitAndCrit)
 		spell.DealCastResult(sim, result)
 
-		// The bolt lands before its overload is priced, so a debuff charge the bolt spends does
+		// The bolt lands before its overload is priced, so a debuff charge the bolt uses does
 		// not also raise the overload. DealDamage disposes the result, so Landed is read first.
 		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
 			landed := result.Landed()

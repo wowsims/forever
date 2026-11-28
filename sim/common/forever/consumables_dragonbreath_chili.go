@@ -9,9 +9,8 @@ import (
 // https://www.wowhead.com/forever/item=12217/dragonbreath-chili
 //
 // 15852 applies an A_PROC_TRIGGER_SPELL the parser does not attach, so the item routes to no shape and
-// ships through ConsumableAllowList. Its row states the roll, the melee hits that make it and the
-// internal cooldown; 15851 deals the fire damage to a cone in front of the eater, which the sim takes as
-// every target. The 10 minute buff is up for the whole fight.
+// ships through ConsumableAllowList. 15851 deals the fire damage to a cone in front of the eater, which
+// the sim takes as every target. The 10 minute buff is up for the whole fight.
 func init() {
 	core.NewConsumableEffect(12217, func(agent core.Agent) {
 		character := agent.GetCharacter()

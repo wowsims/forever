@@ -36,8 +36,7 @@ const BARE_CONFIG = {
 };
 
 // A real Sim with one real Player, serialized the way the sim UI does it, once its database has
-// loaded. `config` is the spec's; a bare one is registered when none is given. The test mocks the
-// worker pool (worker_pool.ts).
+// loaded. The test mocks the worker pool (worker_pool.ts).
 export const makeIndividualSim = async ({ spec = Spec.SpecDpsWarrior, config = BARE_CONFIG as object, env = memoryEnv() } = {}) => {
 	registerSpecConfig(spec, config as PlayerConfig<any>);
 	const sim = new Sim({ env });

@@ -105,8 +105,7 @@ func TestDotConfigTakesAuraOptions(t *testing.T) {
 	}
 }
 
-// An effect that does not tick and a spell with no duration cannot answer a tick count, so they say
-// so rather than registering a dot that never ticks.
+// An effect that does not tick and a spell with no duration cannot answer a tick count.
 func TestDotConfigPanicsWithoutAPeriodOrADuration(t *testing.T) {
 	withRows(t, resolverRows())
 

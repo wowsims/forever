@@ -1,5 +1,5 @@
-// The store, the worker and the saved-data manager are stubbed — what is under test is the view,
-// and every source it reads is driven directly.
+// The store, the worker and the saved-data manager are stubbed; every source the view reads is
+// driven directly.
 import { ErrorOutcomeType, type StatWeightsResult, StatWeightsTargetMetric } from '@generated/proto/api';
 import { Class, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { DatabaseFilters } from '@generated/proto/ui';
@@ -93,8 +93,7 @@ vi.mock('@i18n/localization', () => ({
 
 vi.mock('../SavedEpWeights', () => ({ SavedEpWeights: () => null }));
 
-// The vitest i18n stub has no resources, so `t` answers with the key and never interpolates — which
-// would make the reference-stat half of a column tooltip and the time left invisible. This keeps the
+// The vitest i18n stub has no resources, so `t` answers with the key and never interpolates. This keeps the
 // key and shows the interpolation beside it.
 vi.mock('@i18n/config', () => ({
 	default: {
@@ -357,8 +356,7 @@ describe('EpWeightsDialog', () => {
 		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
 	});
 
-	// A gear planner never computes weights: no Calculate button, no computed columns, no Update
-	// column, no reference picker. What is left is the editable Current EP column the item pickers sort by.
+	// A gear planner gets no Calculate button, no computed columns, no Update column and no reference picker.
 	it('gives a gear planner only the editable Current EP column', () => {
 		host.simDisabled = true;
 		host.sim.showThreatMetrics = true;
@@ -378,9 +376,6 @@ describe('EpWeightsDialog', () => {
 		expect(popup().textContent).not.toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
 	});
 
-	// Vanilla's `.sim-type--tank .ep-weights-menu { display: none }` block is commented out, so a tank
-	// gets the whole dialog there. Re-implementing that dead rule in TSX left the three tank specs
-	// with no Calculate button at all and no way to compute weights.
 	it('gives a tank the same dialog as everyone else', () => {
 		player.playerSpec = { isTankSpec: true, isHealingSpec: false };
 		host.sim.showThreatMetrics = true;
@@ -480,8 +475,6 @@ describe('EpWeightsDialog', () => {
 		expect(rowFor(STAMINA.getFullName(Class.ClassWarrior))).toBeTruthy();
 	});
 
-	// DEFECT FIXED. `makeEpRatioCell` was applied to the six EP cells and the six weight cells, both
-	// indexed 0-5, so `ep-ratio-0`…`ep-ratio-5` each existed twice.
 	it('gives every EP-ratio picker a unique id, and writes each ratio at its own index', () => {
 		host.sim.showThreatMetrics = true;
 		renderDialog();
@@ -498,8 +491,6 @@ describe('EpWeightsDialog', () => {
 		expect(player.epRatios).toEqual([1, 0, 0.5, 0, 0, 0]);
 	});
 
-	// DEFECT FIXED. The id was the untranslated full name, so it carried ASCII spaces — the line
-	// below it in the same function already called `sanitizeId`.
 	it('sanitises the include-toggle id, and disables the toggle on the reference stat', () => {
 		renderDialog();
 		expect(rowFor('1% Spell Hit').querySelector('[data-testid="swcalc-include-toggle"] input')!.id).toBe('sw-stat-toggle-1%spellhit');
@@ -509,8 +500,6 @@ describe('EpWeightsDialog', () => {
 		expect(rowFor('Agility').querySelector<HTMLInputElement>('[data-testid="swcalc-include-toggle"] input')!.disabled).toBe(false);
 	});
 
-	// DEFECT FIXED. Every `<button>` in the panel was written without one, so any inside a form would
-	// submit it.
 	it('types every button it renders', () => {
 		host.sim.showThreatMetrics = true;
 		renderDialog();
@@ -519,8 +508,6 @@ describe('EpWeightsDialog', () => {
 		expect(buttons.filter(button => !button.getAttribute('type'))).toEqual([]);
 	});
 
-	// DEFECT FIXED. The three reference selects were named by an adjacent `<span>`, which is not an
-	// accessible name at all.
 	it('labels each reference select', () => {
 		host.sim.showThreatMetrics = true;
 		renderDialog();
@@ -532,8 +519,6 @@ describe('EpWeightsDialog', () => {
 		}
 	});
 
-	// DEFECT FIXED. The `<option>`s carried no `value`, so the selection round-tripped through the
-	// translated display string.
 	it('carries the stat enum on each reference option, writes it, and follows it in the column tooltip', async () => {
 		renderDialog();
 		// The options run Strength, Agility, Crit.
@@ -693,8 +678,6 @@ describe('EpWeightsDialog', () => {
 			}
 		});
 
-		// DEFECT FIXED. The delta test was `if (…) epAvgElem;` — an expression statement that does
-		// nothing, so a column at its current EP was styled as a change.
 		it('marks the EP cell against the current weight with a live colour utility, and not at all when they match', async () => {
 			player.computeStatWeights.mockResolvedValue(
 				weightsResult([
@@ -754,9 +737,6 @@ describe('EpWeightsDialog', () => {
 			expect(popup().hasAttribute('hidden')).toBe(false);
 		});
 
-		// DEFECT FIXED. `isRunning` was set before the pre-run abort and the catch returned without
-		// clearing it, so one rejection left the Calculate button inert for the life of the page —
-		// and it was never disabled, so it still looked live.
 		it('stays usable after the pre-run abort rejects', async () => {
 			abortType.mockRejectedValueOnce(new Error('worker gone'));
 			player.computeStatWeights.mockResolvedValue(weightsResult([[STRENGTH, 2]]));
@@ -1031,8 +1011,6 @@ describe('EpWeightsDialog', () => {
 		});
 	});
 
-	// DEFECT FIXED. The panel discarded the unsubscribe its table-level `subscribePlayerField`
-	// returned, so the subscription outlived the panel.
 	it('drops every subscription when it unmounts', () => {
 		const { unmount } = renderDialog();
 		expect(source.count()).toBeGreaterThan(0);

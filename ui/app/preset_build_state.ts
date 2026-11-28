@@ -47,8 +47,7 @@ export function buildCategories(build: PresetBuild): Array<string> {
 
 /**
  * Whether the live settings already match the build, scoped to the categories the picker showing
- * the chip cares about: a gear-tab chip lights up on gear alone, even when the build also carries
- * talents the player has not loaded.
+ * the chip cares about.
  */
 export function isBuildActive(
 	{ gear, itemSwap, rotation, rotationType, talents, epWeights, encounter, settings }: PresetBuild,

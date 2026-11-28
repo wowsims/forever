@@ -10,12 +10,10 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-// Driver-marshaling smoke test: creates the extractor's schema shapes,
-// upserts through the zombiezen writer, then reads everything back through
-// database/sql + modernc — the exact stack gen_db consumes wowsims.db with —
-// checking json_extract virtual columns, NULL scans, and REAL vs INTEGER
-// marshaling. A permanent regression gate for writer/reader behavior,
-// independent of any game-data snapshot.
+// Driver-marshaling smoke test: upserts through the zombiezen writer, then
+// reads everything back through database/sql + modernc (the exact stack gen_db
+// consumes wowsims.db with), checking json_extract virtual columns, NULL
+// scans, and REAL vs INTEGER marshaling.
 func TestMarshalingContract(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "smoke.db")
 
@@ -109,7 +107,7 @@ func TestMarshalingContract(t *testing.T) {
 		t.Errorf("Stats_1 = %d, want -2", stats1)
 	}
 	// json_extract parses the stored float32 shortest-round-trip TEXT ("0.1")
-	// as a double — so virtual float columns yield 0.1, NOT the widened
+	// as a double, so virtual float columns yield 0.1, NOT the widened
 	// float32 0.10000000149011612.
 	if scales0 != 0.1 {
 		t.Errorf("Scales_0 = %v, want 0.1", scales0)
@@ -124,8 +122,7 @@ func TestMarshalingContract(t *testing.T) {
 		t.Errorf("upserted arrays = %q / %q, want [9,9,9] / [2.5,0]", upsertedStats, upsertedScales)
 	}
 
-	// All-zero arrays serialize as [0,...], never NULL/[]/"" — checked on the
-	// row that was never upserted.
+	// All-zero arrays serialize as [0,...], never NULL/[]/"".
 	var zeroStats, zeroScales string
 	if err := db.QueryRow("SELECT Stats, Scales FROM Smoke WHERE ID=3").Scan(&zeroStats, &zeroScales); err != nil {
 		t.Fatal(err)
@@ -134,7 +131,7 @@ func TestMarshalingContract(t *testing.T) {
 		t.Errorf("all-zero arrays = %q / %q, want [0,0,0] / [0,0]", zeroStats, zeroScales)
 	}
 
-	// Relation value 0 stays 0 — never converted to NULL. The C# original's
+	// Relation value 0 stays 0, never converted to NULL. The C# original's
 	// relation-0-to-NULL branch was dead code (a boxed reference compare).
 	var parent sql.NullInt64
 	if err := db.QueryRow("SELECT ParentID FROM Smoke WHERE ID=1").Scan(&parent); err != nil {

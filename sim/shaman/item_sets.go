@@ -34,7 +34,7 @@ var ItemSetStormcallersGarb = core.NewItemSet(core.ItemSet{
 		// Your Lightning Bolt, Chain Lightning, and Shock spells have a 20% chance to grant up to 50
 		// Nature damage to spells for 8s.
 		// The proc effect names class family 11 and none of its spells, so the listener keeps to the
-		// spells the tooltip names; the copies Lightning Overload casts are not among them. The row
+		// spells the tooltip names; the copies Lightning Overload casts are not among them. The spell
 		// hears harmful spells, which the decode reads as the cast, so a Chain Lightning rolls once
 		// however many targets it hits.
 		// TODO: Ingame test needed -- whether only Lightning Bolt, Chain Lightning and the shocks roll it,
@@ -72,8 +72,7 @@ var ItemSetGiftOfTheGatheringStorm = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		// Increases the chain target damage multiplier of your Chain Lightning spell by 5%.
 		// The modifier (SPELLMOD_DAMAGE_MULTIPLIER, misc 20) scales the share of the damage each jump
-		// keeps, the effect's ChainAmp. It is a percent modifier, so it multiplies that share. The
-		// copy Lightning Overload casts carries Chain Lightning's class flags and jumps alike.
+		// keeps, the effect's ChainAmp. It is a percent modifier, so it multiplies that share.
 		// TODO: Ingame test needed -- whether the 5% multiplies each jump's share or adds to it.
 		3: func(agent core.Agent, setBonusAura *core.Aura) {
 			shaman := agent.(ShamanAgent).GetShaman()
@@ -133,8 +132,7 @@ var ItemSetTheEarthshatterer = core.NewItemSet(core.ItemSet{
 	},
 })
 
-// 28821 puts 28820 on the shaman when Lightning Shield lands, and the sim keeps 28820's mana per 5 sec up
-// exactly while both Lightning Shield and the 8pc are. Effect 2 of 28820 is a periodic dummy.
+// 28821 puts 28820 on the shaman when Lightning Shield lands. Effect 2 of 28820 is a periodic dummy.
 func (shaman *Shaman) registerEarthshattererShieldMP5() {
 	// 28820 shares Lightning Shield's name.
 	mp5 := shaman.RegisterAura(spelldata.AuraConfig(earthshatterShieldMP5, spelldata.Label("Lightning Shield - The Earthshatterer")))

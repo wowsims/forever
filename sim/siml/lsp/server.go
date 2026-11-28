@@ -1,8 +1,7 @@
 // Package lsp is the SIML language server: diagnostics, completion, hover, navigation, rename, outline, folding,
 // semantic tokens, formatting and code actions for every *.siml file, and the requests the rotation panel of the
-// VS Code extension makes (siml/rotation, siml/pathAt, siml/registered, siml/splice, siml/database, siml/patterns, siml/insertPattern, siml/sim).
-// It speaks JSON-RPC over a stream, and reads the name table and the item database from the repository each file
-// sits in.
+// VS Code extension makes. It speaks JSON-RPC over a stream, and reads the name table and the item database from the
+// repository each file sits in.
 package lsp
 
 import (

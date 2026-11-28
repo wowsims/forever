@@ -22,10 +22,8 @@ var (
 	rockbiterWeaponProc      = spelldata.MustFind(20871)
 )
 
-// Every imbue has its top rank's cast and an aura, so a rotation can put any of them on the main hand.
-// The effects register wherever the shaman has a main hand, equipped or in the swap set, and each
-// does nothing while the main hand in use carries another imbue. A shaman's imbue sits beside an oil
-// or a stone on the same weapon, so it is kept apart from the weapon's temporary enchant.
+// A shaman's imbue sits beside an oil or a stone on the same weapon, so it is kept apart from the
+// weapon's temporary enchant.
 func (shaman *Shaman) registerImbues() {
 	shaman.mainHandID = shaman.Equipment[proto.ItemSlot_ItemSlotMainHand].ID
 	if shaman.ItemSwap.IsEnabled() {
@@ -53,8 +51,7 @@ func (shaman *Shaman) registerImbues() {
 }
 
 // The aura is the cast's buff, so a rotation can ask which imbue the main hand carries. The imbue
-// lasts 60 minutes, longer than any fight, so the aura never runs out. The cast replaces the imbue on
-// the main hand in use, and the GCD, the mana and the melee weapon it needs come from the row.
+// lasts 60 minutes, longer than any fight, so the aura never runs out.
 func (shaman *Shaman) registerImbueCast(imbue proto.ShamanImbue, cast *spelldata.Spell) {
 	aura := shaman.RegisterAura(core.Aura{
 		Label:    cast.Name + " (Main Hand)",
@@ -91,7 +88,7 @@ func (shaman *Shaman) mainHandImbue() proto.ShamanImbue {
 }
 
 // Puts up the aura of the imbue the main hand in use carries, takes down the others, and lets each
-// imbue's effects follow, after a cast or a weapon swap.
+// imbue's effects follow.
 func (shaman *Shaman) applyImbues(sim *core.Simulation) {
 	current := shaman.mainHandImbue()
 	for imbue, aura := range shaman.imbueAuras {
@@ -109,8 +106,7 @@ func (shaman *Shaman) applyImbues(sim *core.Simulation) {
 	}
 }
 
-// Rolls on the main hand's hits while it carries the imbue, at the weapon's speed for a rate per
-// minute, and nothing rolls while it does not.
+// Rolls on the main hand's hits while it carries the imbue, at the weapon's speed for a rate per minute.
 func (shaman *Shaman) imbueProcManager(imbue proto.ShamanImbue, ppm float64, chance float64) *core.DynamicProcManager {
 	build := func() core.DynamicProcManager {
 		procMask := core.ProcMaskUnknown
@@ -129,10 +125,7 @@ func (shaman *Shaman) imbueProcManager(imbue proto.ShamanImbue, ppm float64, cha
 	return &dpm
 }
 
-// Each Windfury Weapon hit is 439440, a main-hand ability (EV-0012), dealing the main
-// hand's weapon damage with 16361's attack power added. It rolls the weapon special's table of miss,
-// dodge, parry and crit and never glances, and listeners hear it as an ability: Flametongue Totem,
-// whose row hears swings alone, procs off the swing that brought the hits and off none of them.
+// Windfury Weapon hit type in EV-0012.
 func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 	// Elemental Weapons raises effect 1, which the parse would read as damage.
 	attackPower := windfuryWeaponAttack.EffectN(1).Average() * shaman.windfuryWeaponMultiplier
@@ -147,11 +140,9 @@ func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 	return shaman.RegisterSpell(config)
 }
 
-// 439431 rolls its 20% on the main hand's melee hits, once per 1.5 s, and fires the rank's 16361,
-// whose extra attacks count is how many Windfury hits follow. It rolls off the hit's cast result, and
-// the Windfury hits follow once that hit has been dealt, in the same instant. The row hears
-// abilities, the Windfury hits among them, but they land inside the 1.5 s the proc has just started,
-// so they never roll.
+// 439431 rolls off a main-hand melee hit's cast result, and the Windfury hits follow once that hit has
+// been dealt, in the same instant. The spell hears abilities, the Windfury hits among them, but they land inside
+// the 1.5 s the proc has just started, so they never roll.
 func (shaman *Shaman) RegisterWindfuryImbue() {
 	strike := shaman.newWindfuryImbueSpell()
 	count := int(windfuryWeaponAttack.ExtraAttacksEffect().BaseValue())
@@ -230,7 +221,7 @@ func (shaman *Shaman) RegisterFrostbrandImbue() {
 }
 
 // Enchant 1664 puts 16313 on the main hand as an equip aura: the attack power, and the threat Spirit
-// Weapons gives effect 2, which the row states as 0. Both ride on the imbue's aura.
+// Weapons gives effect 2, which the game files state as 0.
 func (shaman *Shaman) RegisterRockbiterImbue() {
 	// Elemental Weapons raises effect 1, which the parse would read as damage.
 	attackPower := rockbiterWeaponPassive.EffectN(1).Average() * shaman.rockbiterWeaponMultiplier

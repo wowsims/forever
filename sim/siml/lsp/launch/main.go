@@ -1,5 +1,5 @@
-// Starts the SIML language server, `wowsimcli siml lsp`, for an editor, from the repository root, through
-// tools/lsplaunch. The server is built with the item database, as the sims it runs need it.
+// Starts the SIML language server, `wowsimcli siml lsp`, for an editor, from the repository root. The server is built
+// with the item database, as the sims it runs need it.
 package main
 
 import (

@@ -13,15 +13,14 @@ import (
 	"zombiezen.com/go/sqlite/sqlitex"
 )
 
-// InsertRows upserts every decoded row of one table inside one transaction,
-// through a single prepared statement (prepare once, bind/step/reset per
-// row — see the package comment for why this matters).
+// Upserts every decoded row of one table inside one transaction, through a
+// single prepared statement (prepare once, bind/step/reset per row).
 //
 // Contract notes (the wowsims.db output format):
 //   - definition order = column order = bind order;
 //   - relation-column idx_ indexes use table-less names (idx_<col lowercased>)
 //     with IF NOT EXISTS, so only the first table processed with a given
-//     relation-column name gets the index — tables MUST be processed in
+//     relation-column name gets the index: tables MUST be processed in
 //     settings order;
 //   - relation values of 0 stay 0, never NULLed;
 //   - arrays serialize as JSON text via encoding/json over plain numeric

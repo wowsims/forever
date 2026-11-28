@@ -36,23 +36,21 @@ func NewDamageShield(unit *core.Unit, label string, actionID core.ActionID, dura
 }
 
 // The same damage shield on an aura that already exists, live while the aura is up: an item's buff
-// whose row states a damage shield beside its other effects. The spell that deals the damage takes
+// whose spell states a damage shield beside its other effects. The spell that deals the damage takes
 // the aura's action id with its tag raised by 2. hits narrows the physical hits the shield answers to
-// the ones the row's proc flags name; ProcMaskUnknown answers every one. lockout is the time the
+// the ones the spell's proc flags name; ProcMaskUnknown answers every one. lockout is the time the
 // shield waits between two reflections; 0 answers every hit.
 func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64, bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) {
 	aura.AttachProcTrigger(damageShieldTrigger(aura.Unit, aura.Label, aura.ActionID, school, damage, bonusCoefficient, hits, lockout))
 }
 
 // A damage shield's hit takes the wearer's spell power at its coefficient and the wearer's done
-// multipliers, a Dwarf's 5% against beasts among them. The flat school bonus on the unit it strikes
-// adds nothing: in game a rank 1 Retribution Aura hits a beast under the paladin's own Judgement of
-// the Crusader for its flat 5 at the racial's 5% (EV-0066).
+// multipliers. Flat school bonus in EV-0066.
 //
 // A Physical shield's reflection is no attack: it lands whole, with no armor reducing it and no roll
 // missing it. A magic shield keeps the spell hit roll and the target's resistance.
 //
-// A hit the block takes whole reflects nothing, and a partial block reflects like a hit (EV-0050).
+// Blocked hits in EV-0050.
 func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, school core.SpellSchool, damage float64,
 	bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) core.ProcTrigger {
 	physical := school.Matches(core.SpellSchoolPhysical)
@@ -99,7 +97,7 @@ func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, 
 // What a driver decides about a buff other players cast on this one: how many
 // of them take turns, how long each waits before casting again, whether the
 // cooldown is worth a mana, a damage or a survival slot, and when the sim
-// should spend it.
+// should use it.
 type generatedExternalCD struct {
 	NumSources     int32
 	Cooldown       time.Duration
@@ -145,27 +143,17 @@ func joinSharedCategory(aura *core.Aura, shared string, isPlayer bool) {
 	aura.NewExclusiveEffect(shared, true, core.ExclusiveEffect{})
 }
 
-// AddGeneratedFlatBonus raises a generated buff the game files state as worth base
-// to base+bonus, in both of the numbers a buff that does not stack keeps apart:
-// what it applies and what it bids for its category. Three pieces of the
-// warrior's tier 2 set are worth 30 more attack power on Battle Shout, and a
-// shout worth 169 has to outbid one worth 139. The aura grants the extra amount
-// for exactly as long as it holds the category, because a category that holds
+// Raises a generated buff the game files state as worth base to base+bonus, in both of the numbers a
+// buff that does not stack keeps apart: what it applies and what it bids for its category. The aura
+// grants the extra amount for exactly as long as it holds the category, because a category that holds
 // one aura at a time deactivates the copy it outbids.
 //
-// The aura belongs to the unit rather than to whoever raised it, so two party
-// members wearing the same set ask for the same total and get it once: a call
-// against an aura that already carries the bonus does nothing. One that finds
+// The aura belongs to the unit rather than to whoever raised it, so two party members wearing the same
+// set get it once: a call against an aura that already carries the bonus does nothing. One that finds
 // some other amount there is reading a different buff's base and says so.
 //
-// The category has to hold one aura at a time. That is what makes attaching the
-// extra amount to the aura the same thing as attaching it to the effect: the
-// copy that loses the category is deactivated outright, so the aura is up
-// exactly while its effect is the one applying.
-//
-// It writes Priority directly, which is only safe before the fight: an effect
-// that is already active has to go through SetPriority to re-apply what it
-// holds. Every caller runs while the character is being built.
+// It writes Priority directly, which is only safe before the fight: an effect that is already active
+// has to go through SetPriority to re-apply what it holds.
 func AddGeneratedFlatBonus(aura *core.Aura, stat stats.Stat, base float64, bonus float64) {
 	if aura.MaxStacks > 0 {
 		panic("a stacking aura re-prices its category effect on every stack, which would drop the bonus: " + aura.Label)
@@ -193,9 +181,8 @@ func AddGeneratedFlatBonus(aura *core.Aura, stat stats.Stat, base float64, bonus
 	panic("a flat bonus needs a buff that bids for its whole category: " + aura.Label)
 }
 
-// Used for approximating cooldowns applied by other players to you, such as
-// innervate, power infusion, etc. This is specifically for buffs
-// which can be consecutively applied multiple times to a single player.
+// Used for approximating cooldowns applied by other players to you, such as innervate. This is
+// specifically for buffs which can be consecutively applied multiple times to a single player.
 type externalConsecutiveCDApproximation struct {
 	ActionID         core.ActionID
 	AuraTag          string

@@ -57,9 +57,7 @@ func walk(sim *core.Simulation, hunter *Hunter, stepTo func(time.Duration), to f
 	return crossing
 }
 
-// The off hand's half swing runs from when the attack starts. Started by the rotation on the way in,
-// at 7 yd, the off hand swings half a swing after that, before half a swing has passed since the
-// arrival.
+// The off hand's half swing runs from when the attack starts.
 func TestStartAttackOnTheWayInStartsTheOffHandsHalfSwing(t *testing.T) {
 	rotation := &proto.APLRotation{PriorityList: []*proto.APLListItem{{Action: &proto.APLAction{
 		Action: &proto.APLAction_StartAttack{StartAttack: &proto.APLActionStartAttack{}},
@@ -95,7 +93,7 @@ func TestWalkingInStartsTheAttackOnArrival(t *testing.T) {
 }
 
 // Starting Auto Shot turns the attack off, so the next trip in starts it again with a fresh half
-// swing. A trip out and back with no shot keeps it on: the off hand swings on arrival once ready.
+// swing. A trip out and back with no shot keeps it on.
 func TestAutoShotTurnsTheAttackOff(t *testing.T) {
 	t.Run("a shot between two trips", func(t *testing.T) {
 		sim, hunter, stepTo := newStartAttackSim(t, &proto.APLRotation{})

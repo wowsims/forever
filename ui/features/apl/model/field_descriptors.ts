@@ -12,8 +12,6 @@ export interface FieldOptions {
 
 // The DOM-free half of an APL picker field: which proto field it edits, how to
 // label it, and a `type` tag naming the picker the view should build for it.
-// `field_specs.ts` resolves the tag to a spec and `components/FieldGroup/AplField`
-// renders that spec; nothing here touches the DOM.
 type FieldDescriptorPayloads = {
 	// Rendered by AplField and its `fields/`.
 	actionId: { field: string; actionIdSet: ACTION_ID_SET; unitRefField?: string; defaultUnitRef?: DEFAULT_UNIT_REF; options?: FieldOptions };
@@ -56,8 +54,6 @@ export type APLFieldDescriptor = { [K in keyof FieldDescriptorPayloads]: Descrip
 /** Everything an APL *value* kind may use — i.e. no action pickers. */
 export type ValueFieldDescriptor = Exclude<APLFieldDescriptor, Descriptor<'action' | 'actionList'>>;
 
-// Constructors mirror the argument order of the `*FieldConfig` picker factories
-// they replace in the view, so the kind tables below read exactly as before.
 export function actionIdFieldConfig(
 	field: string,
 	actionIdSet: ACTION_ID_SET,

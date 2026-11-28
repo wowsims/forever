@@ -20,10 +20,8 @@ func init() {
 	// Chance on hit: Attack all nearby enemies, dealing weapon damage plus 5 every 3 sec for 9 sec, and
 	// reducing your own movement speed by 80%.
 	//
-	// The game files state no rate for Bladestorm; the item's chance-on-hit entry carries it. The row
-	// is a channel: it cuts off a cast in progress, and for its 9 s the wearer swings no auto attack
-	// and casts nothing. Each tick casts 9633, a main-hand strike at every enemy, which rolls the other
-	// weapon procs but not Bladestorm.
+	// The spell is a channel: for its 9 s the wearer swings no auto attack and casts nothing. Each tick's
+	// strike rolls the other weapon procs but not Bladestorm.
 	newEntryRateItemEffect(7717, 9632, func(character *core.Character, ppm float64) {
 		strikeRow := spelldata.MustFind(9633)
 		strikeConfig := spelldata.SpellConfig(&character.Unit, strikeRow, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(), spelldata.Triggered())
@@ -71,10 +69,7 @@ func init() {
 	//
 	// Chance on hit: Next spell cast within 4 sec will cast instantly.
 	//
-	// The game files state no rate for Focus; the proc runs at the one the item's chance-on-hit entry
-	// states, and registers nothing while it states none. The row makes the cast instant with +100000%
-	// cast speed, which the sim states as no cast time at all, so the global cooldown stays whole. The
-	// next spell with a cast time spends the one charge.
+	// The sim states the spell's +100000% cast speed as no cast time, so the global cooldown stays whole.
 	newEntryRateItemEffect(2243, 18803, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(18803)
 
@@ -114,10 +109,10 @@ func init() {
 	// Chance on hit: Calls forth an Emerald Dragon Whelp to protect you in battle for a short period of
 	// time.
 	//
-	// The game files state no rate for 13049; the item's chance-on-hit entry carries the one measured on
+	// No rate for 13049 in game files; the item's chance-on-hit entry carries the one measured on
 	// the sword's speed. Any landed hit rolls it, Rend's and Concussion Blow's applications included. The
-	// row's category cooldown starts at the proc, and no hit rolls while it runs. The cast summons the
-	// Emerald Dragon Whelp 8776 its E_SUMMON names, on the hit enemy, for the row's duration.
+	// spell's category cooldown starts at the proc, and no hit rolls while it runs. The cast summons the
+	// Emerald Dragon Whelp 8776 its E_SUMMON names, on the hit enemy, for the spell's duration.
 	shared.RegisterItemGuardian(10847, spelldata.MustFind(13049), emeraldDragonWhelp)
 	newEntryRateItemEffect(10847, 13049, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(13049)
@@ -151,9 +146,7 @@ func init() {
 	// inflicting 490 Physical damage to your current target and increasing all your stats by 20 for
 	// 20 sec.
 	//
-	// 1325535 adds a stack of 1325509 on each main-hand swing. At the stack count 1325509's second
-	// effect names, 1325508 deals its damage, applies its stats and removes the stacks. No row states
-	// a cooldown.
+	// No cooldown in game files.
 	core.NewItemEffect(2801, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		stackRow := spelldata.MustFind(1325509)
@@ -193,10 +186,10 @@ func init() {
 	// Equip: Your attacks have a chance to Wax, dealing 189 Arcane damage or Wane, granting 40 Strength
 	// for 10s.
 	//
-	// 1309550 is a dummy that names both spells and neither one's odds. Each proc casts Waxing Moon
-	// 1319378 or gives Waning Moon 1319382, one in two each, never both (EV-0163). Waxing Moon is a
-	// missile on the magic table and takes the spell damage mask a magic proc built from its row
-	// takes (R-0051), which R-0051 leaves open for a hand-written item spell.
+	// 1309550 states neither spell's odds.
+	// Outcome odds in EV-0163.
+	// Waxing Moon takes a magic proc's spell damage mask, which R-0051 leaves open for a hand-written item
+	// spell.
 	core.NewItemEffect(280080, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		waxRow := spelldata.MustFind(1319378)
@@ -233,7 +226,7 @@ func init() {
 	//
 	// Chance to strike your ranged target with a Shadowbolt for 13 to 19 Shadow damage.
 	//
-	// The game files state no rate for 29626; the item's entry carries it, measured on the
+	// No rate for 29626 in game files; the item's entry carries it, measured on the
 	// crossbow's speed.
 	newEntryRateItemEffect(13040, 29640, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(29640)
@@ -260,11 +253,7 @@ func init() {
 	// Chance on hit: Drains target for 21 Shadow damage every 1 sec and transfers it to the caster.
 	// Lasts for 10 sec.
 	//
-	// The game files state no rate for 17484; the item's chance-on-hit entry carries it, measured on
-	// the sword's speed. Landed white swings and melee specials of the hand that holds it roll it alike,
-	// Windfury Totem hits too; the other hand's swings and ranged hits never do, and a proc on a
-	// branded target refreshes the brand (EV-0121). 17484's first effect drains the target and its
-	// second heals the wearer as a heal over time of its own. Both crit, as the row's Periodic Can Crit says.
+	// PPM measurement in EV-0121.
 	newEntryRateItemEffect(13361, 17484, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(17484)
 		heal := row.FirstAura(dbcenums.A_PERIODIC_HEAL)
@@ -313,9 +302,8 @@ func init() {
 	//
 	// Chance on hit: Transfers 10 health every 1.0 seconds from the target to the caster for 5s.
 	//
-	// The game files state no rate for 16603; the item's chance-on-hit entry carries the one measured on
-	// the weapon's speed, with Seal of Fury's hits rolling it as the sim's do (EV-0228). A proc on a
-	// drained target refreshes the drain.
+	// PPM measurement in EV-0228.
+	// A proc refreshes the drain.
 	newEntryRateItemEffect(12621, 16603, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(16603)
 		drain := registerLeechDrain(character, row, "Demonfork")
@@ -337,11 +325,8 @@ func init() {
 	//
 	// Chance on hit: Knocks target silly for 2 sec and increases Strength by 53 for 20 sec.
 	//
-	// 17500 states the stun alone and no rate; the item's chance-on-hit entry carries the rate, and
-	// Surge of Strength 17499, which the tooltip names, goes up on the wearer with every proc, a stun
-	// the target is immune to included. No effect of 17500 casts it, so the generator cannot pair them.
-	// Landed white swings and melee specials roll it alike, and a proc never rolls another (EV-0150). The
-	// stun is crowd control the sim leaves out.
+	// Surge of Strength 17499 goes up on the wearer with every proc (EV-0150), but no effect of 17500
+	// casts it, so the generator cannot pair them. The sim leaves the stun out.
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17500, BuffSpellID: 17499, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13393, ItemName: "Malown's Slam"},
@@ -352,11 +337,9 @@ func init() {
 	//
 	// Chance on hit: All attacks are guaranteed to land and will be critical strikes for the next 3s.
 	//
-	// Felstriker 16551 goes up in the instant of the hit that procs it, after that hit's own roll, so the
-	// Windfury Totem hit the same hit sets off rolls under it (EV-0225). An extra swing it sets off does
-	// too, by the same order; that swing is not measured. The buff lasts its 3 s from the spell batch the
-	// proc would have landed in, so it ends one batch window after 3 s; the owner rules the difference
-	// is server rounding (EV-0225).
+	// Felstriker 16551 goes up in the instant of the hit that procs it, so the Windfury Totem hit the same
+	// hit sets off rolls under it (EV-0225). An extra swing that hit sets off rolls under it too; that swing
+	// is not measured.
 	shared.ProcTriggerExtras[12590] = func(trigger *core.ProcTrigger) {
 		trigger.TriggerImmediately = true
 	}
@@ -367,10 +350,8 @@ func init() {
 	//
 	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
 	//
-	// Every harmful spell that lands on an enemy rolls it once for each target, damage or not, on the cast
-	// time of the cast that launched it. 21978 lacks Can Proc From Procs, so a spell fired as a proc never
-	// rolls it; Hellfire Effect, whose row lacks Not a Proc, rolls nothing in game (EV-0025). Only the
-	// wearer's harmful spells roll it (harmfulSpells).
+	// PPM measurement in EV-0025.
+	// 21978 lacks Can Proc From Procs, so a spell fired as a proc never rolls it (EV-0025).
 	row := spelldata.MustFind(21978)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
@@ -380,7 +361,7 @@ func init() {
 		[]shared.ItemVariant{
 			{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
 		})
-	// Engulfing Shadows 27860 is binary by its row, but a landed hit takes no Spell Piercing bonus (EV-0142).
+	// Resist handling in EV-0142.
 	shared.DamageProcExtras[17780] = func(_ *core.Character, config *core.SpellConfig) {
 		config.Flags |= core.SpellFlagNoPartialResist
 	}
@@ -390,10 +371,7 @@ func init() {
 	//
 	// Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.
 	//
-	// 1300435 rolls on each enemy a harmful spell lands on (harmfulSpells) at the row's procs per minute on
-	// the cast time behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one cast
-	// proc it once; each proc casts Shadow 1300437 or Arcane 1300438, one in two each, which fly to that
-	// enemy (EV-0115).
+	// PPM measurement in EV-0115.
 	core.NewItemEffect(22458, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300435)
@@ -426,9 +404,7 @@ func init() {
 	//
 	// Harmful spell casts have a chance to deal 70 Fire damage. Deals 3 times as much damage to Plants.
 	//
-	// 1300781 rolls on each enemy a harmful spell lands on (harmfulSpells) at the row's procs per minute on
-	// the cast time behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one cast
-	// proc it once; each proc deals 1300782 to that enemy, three times as much to Plants (EV-0219).
+	// PPM measurement in EV-0219.
 	core.NewItemEffect(11750, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300781)
@@ -457,9 +433,8 @@ func init() {
 	// Restores 150 mana or 20 rage when you kill a target that gives experience; this effect cannot
 	// occur more than once every 10 seconds.
 	//
-	// 21185 hears the killing blow and fires 21186, whose effect 1 states the mana and effect 2 the
-	// rage in tenths. A wearer with a rage bar and no mana bar gains the rage, and so does a druid in
-	// Bear Form or Dire Bear Form at the killing blow; other forms gain the mana.
+	// A wearer with a rage bar and no mana bar gains the rage, and so does a druid in Bear or Dire Bear
+	// Form at the killing blow; other forms gain the mana.
 	core.NewItemEffect(288901, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(21185)
@@ -494,9 +469,7 @@ func init() {
 	// Attacks have a chance to grant 2 extra attacks on your next swing. Attacks against Orcs are 2 times
 	// as likely to activate this effect.
 	//
-	// The tooltip states no chance. It follows Hand of Justice's shape: 1301046's ProcChance is the
-	// chance against an Orc and its second effect, a dummy, is the "2 times as likely".
-	// Logs fit that reading: half the column against other targets, the column against Orcs (EV-0119).
+	// Chance by target in EV-0119.
 	core.NewItemEffect(11684, func(agent core.Agent) {
 		registerExtraAttackVersus(agent.GetCharacter(), 11684, "Ironfoe", 1301046)
 	})
@@ -506,10 +479,9 @@ func init() {
 	//
 	// Chance on hit: Wounds the target for 42 damage. Naga are Stunned for 2 sec.
 	//
-	// An Auto Shot or ranged special that lands rolls it at the procs per minute of the item's
-	// chance-on-hit entry, on the bow's speed (EV-0136). The roll comes on the shot's cast result at its
-	// release, and Pierce Heart strikes then. 1292647 is physical on the melee table. The stun on Naga
-	// is crowd control the sim leaves out. A missed Auto Shot never rolls it (EV-0206).
+	// PPM measurement in EV-0136.
+	// Missed shots in EV-0206. The proc rolls on the shot's cast result at its release, and Pierce Heart
+	// 1292647 strikes then, physical on the melee table. The sim leaves the stun on Naga out.
 	newEntryRateItemEffect(3078, 1292647, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(1292647)
 		damage := row.DamageEffect()
@@ -539,12 +511,10 @@ func init() {
 	//
 	// Chance on hit to reduce the mana cost of your next spell cast within 10s by 24.
 	//
-	// Landed wand shots roll it at the item entry's procs per minute on the wand's speed (EV-0119).
-	//
-	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell that
-	// pays mana spends its one charge. A free cast keeps it, and so does one the reduction itself
-	// brings to 0. The listener is hand-written: spelldata.AttachChargeSpender on cast complete would
-	// spend the charge on Shoot.
+	// PPM measurement in EV-0119.
+	// A free cast keeps the charge, as does one the reduction brings to 0.
+	// The listener is hand-written: spelldata.AttachChargeSpender on cast complete would use the
+	// charge on Shoot.
 	newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
 		if !character.HasManaBar() {
 			return
@@ -587,11 +557,8 @@ func init() {
 	// Chance on hit: Lash the enemy with the rage of Sul'thraze, reducing their attack power by 180 for
 	// 15s and dealing 159 Shadow damage. After 5s, the target suffers an additional 159 Shadow damage.
 	//
-	// A landed Rage of Sul'thraze 1294430 puts Shadow Lash 1294431 on the target, which deals its damage
-	// once, when its 5 s run out. A Rage that lands while a Shadow Lash is still running puts up no
-	// second one and leaves the running one's time alone (EV-0136). The Lash rolls no hit of its own and
-	// can crit, as its row states. The Trolls factor 1294430 states is the Lash's alone, so the Rage
-	// hands its versus bonus over.
+	// Overlapping procs in EV-0136. The Trolls factor Rage of Sul'thraze 1294430 states is Shadow Lash
+	// 1294431's alone, so the Rage hands its versus bonus over.
 	shared.DamageProcExtras[9372] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(4).Trigger()
 		lashConfig := procSpellConfig(character, row)
@@ -619,9 +586,7 @@ func init() {
 	// Chance on hit: Deals 49 Shadow damage every 1.0 sec for 5s. All damage done is then transferred to
 	// the caster.
 	//
-	// Siphon Health 18652 goes on with every proc, with no hit roll of its own. Each of its ticks casts
-	// Siphon Health 18653 on the wearer, a heal for the amount the drain's row states, whatever the tick
-	// dealt. The heal crits on a roll of its own (EV-0179).
+	// Tick heals in EV-0179.
 	// TODO: the heal crits several times as often as the tick in the logs (EV-0179), and the sim rolls both
 	// on the wearer's spell crit. Measure which chance each rolls.
 	shared.DamageProcExtras[14541] = func(character *core.Character, config *core.SpellConfig) {
@@ -638,7 +603,7 @@ func init() {
 			panic(fmt.Sprintf("Barovian Family Sword: %d links to %d spells, want its heal alone", row.ID, len(linked)))
 		}
 		healConfig := procSpellConfigAs(character, linked[0], spelldata.Magic(core.ProcMaskSpellHealing))
-		// The heal's row states no defense type, and a heal crits for the magic multiplier.
+		// No defense type for the heal in game files, and a heal crits for the magic multiplier.
 		healConfig.DefenseType = core.DefenseTypeMagic
 		healConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealHealing(sim, target, drain.Roll(sim), spell.OutcomeHealingCrit)
@@ -676,10 +641,7 @@ func init() {
 	// Chance on hit: Delivers a fatal wound for 448 Physical damage. Deals 50% increased damage to
 	// targets below 25% health.
 	//
-	// Fatal Wound 10373, 16549, 18206 and Wound 18107 deal the percent their second dummy states more to a target below the
-	// health percent their third states, which the sim's execute phases track. 10373's hits of 1.5 times
-	// the plain range land late in a target's life, but the logs state no health, so the threshold is the
-	// row's alone (EV-0136).
+	// Health threshold in EV-0136.
 	fatalWound := func(_ *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(config.ActionID.SpellID)
 		bonus := 1 + row.EffectN(2).Average()/100
@@ -710,9 +672,8 @@ func init() {
 	// Chance on hit: Wounds the target causing them to bleed for 98 damage over 7 sec. Deals 2 times as
 	// much damage if applied while behind the target.
 	//
-	// Rend 1300787's second effect, a dummy, states the multiplier a Rend applied from behind the target
-	// deals its ticks with (EV-0146). Its ticks meet a tenth of the target's armor, as its row's
-	// attributes say (EV-0194).
+	// Behind-target bonus in EV-0146.
+	// Rend's ticks meet a tenth of armor (EV-0194).
 	shared.DamageProcExtras[12791] = func(character *core.Character, config *core.SpellConfig) {
 		if !character.PseudoStats.InFrontOfTarget {
 			config.DamageMultiplier *= spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Average()
@@ -725,8 +686,7 @@ func init() {
 	// Chance on hit: Bash the target, causing 42 Physical damage. Deals 2 times as much damage if the
 	// target is facing you.
 	//
-	// Toofbreak 1320269's second effect, a dummy, states the multiplier. The target faces a wearer who
-	// stands in front of it, by the owner's ruling.
+	// The target faces a wearer who stands in front of it, by the owner's ruling.
 	shared.DamageProcExtras[286430] = func(character *core.Character, config *core.SpellConfig) {
 		if character.PseudoStats.InFrontOfTarget {
 			config.DamageMultiplier *= spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Average()
@@ -739,10 +699,9 @@ func init() {
 	// Chance on hit: Shoots a ring of fire dealing 154 Fire damage to all nearby enemies, and envelops
 	// the caster with a Fire Shield for 15s.
 	//
-	// 16559's second effect casts 16560, the tooltip's Fire Shield, on the wearer. The generated damage
-	// spell does not follow it, so each proc puts it on here for its duration, a later proc refreshing
-	// it (EV-0136). It raises Fire resistance and deals its damage shield's amount to each attacker
-	// that strikes the wearer. A druid's form attacks roll it as any other melee hit does (R-0056).
+	// The generated spell does not cast 16559's second effect.
+	// Shield refresh in EV-0136.
+	// A druid's form attacks roll it (R-0056).
 	shared.DamageProcExtras[11809] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Trigger()
 		shield := character.RegisterAura(spelldata.AuraConfig(row, spelldata.Label("Flame Wrath Fire Shield")))
@@ -763,10 +722,9 @@ func init() {
 	// Chance on hit: Deal 84 Nature damage, increased by 2% per stack of Static Electricity. Deals 2
 	// times as much damage to Aquatic enemies.
 	//
-	// 3742 deals the percent Static Electricity 1294477 states more for each stack of it on the wearer,
-	// and each proc spends all of them but one (EV-0136).
-	// TODO: Static Electricity builds while the wearer moves, at a rate no row states and the logs do
-	// not settle in time between stacks; measure how far the wearer moves for a stack. Until then the
+	// Stack use in EV-0136.
+	// TODO: Static Electricity builds while the wearer moves, at a rate the game files do not
+	// state and the logs do not settle in time between stacks; measure how far the wearer moves for a stack. Until then the
 	// sim gives no stacks.
 	shared.DamageProcExtras[9467] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(1294477)
@@ -791,10 +749,7 @@ func init() {
 	// Chance on hit: Deal 294 Physical damage and stun for 1.5s. Trolls take 2 times as much damage
 	// and stun duration.
 	//
-	// Every proc also casts 1294340 at the target, which rolls the spell hit table on its own and stuns
-	// for its duration: a dodged, parried or missed strike stuns all the same (EV-0136). A stun-immune
-	// target, a raid boss among them, takes none. The strike's versus factor, Trolls', lengthens the
-	// stun on them as well.
+	// Stun rolls in EV-0136.
 	shared.DamageProcExtras[9477] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(1294340)
 		label := fmt.Sprintf("%s %d", row.Name, row.ID)
@@ -828,11 +783,10 @@ func init() {
 	// Melee attacks with this weapon deal 41 Frost damage. Chance on hit: Deal an additional 105 Frost
 	// damage and slow movement speed by 50% for 5s.
 	//
-	// The generator keeps one proc per item, so both procs are written here. 1298413 casts 1298414 on
-	// each landed main-hand swing and special, one that deals no damage included (EV-0195). 1298414's
-	// row states Always Hit, so it rolls only the melee crit (EV-0164). 1298416 strikes at the procs
-	// per minute of the item's chance-on-hit entry on the axe's speed (EV-0136), and registers nothing
-	// while the entry states none; its slow is movement the sim leaves out.
+	// PPM measurement in EV-0136.
+	// Every-hit procs in EV-0195.
+	// Always Hit crits in EV-0164.
+	// The generator keeps one proc per item, so both are written here. The sim leaves the slow out.
 	core.NewItemEffect(13952, func(agent core.Agent) {
 		character := agent.GetCharacter()
 
@@ -886,9 +840,8 @@ func init() {
 	//
 	// Chance on hit to restore 65 mana.
 	//
-	// Landed wand shots roll 1302348 at the procs per minute of the item's entry on the wand's speed,
-	// and each proc restores the mana of 1302350, the spell 1302348 fires, not the 65 the tooltip
-	// quotes from 1302348 (EV-0136). A wearer with no mana bar registers nothing.
+	// PPM measurement in EV-0136.
+	// The mana is not the tooltip's 65 (EV-0136).
 	newEntryRateItemEffect(18483, 1302350, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(1302348)
 		handler := shared.FiredSpellHandler(character, core.ActionID{ItemID: 18483}, row)
@@ -903,11 +856,10 @@ func init() {
 	})
 }
 
-// Registers an item effect whose proc runs at the procs per minute the item's chance-on-hit entry
-// states for spellID, since the game files state no rate for it. While the entry states none, the
-// effect registers nothing and the item keeps only its stats; no rate is made up for the proc. The
-// generator lists such an item as missing its effect. The rate goes in overrides.WeaponProcs, never in a
-// Spells PPM override: the entry carries only the first, while the missing check counts either as a rate.
+// Registers an item effect whose proc runs at the procs per minute the item's chance-on-hit entry states
+// for spellID, since the game files state none; while the entry states none it registers nothing. The
+// rate goes in overrides.WeaponProcs, never in a Spells PPM override: the entry carries only the first,
+// while the generator's missing-effect check counts either as a rate.
 func newEntryRateItemEffect(itemID int32, spellID int32, apply func(character *core.Character, ppm float64)) {
 	core.NewItemEffect(itemID, func(agent core.Agent) {
 		if ppm := weaponProcPPM(itemID, spellID); ppm > 0 {
@@ -926,10 +878,8 @@ func weaponProcPPM(itemID int32, spellID int32) float64 {
 	return 0
 }
 
-// An item's extra attack proc whose row states the chance against its versus targets in its
-// ProcChance column, and in its versus bonus how many times likelier a hit on them is than one on any
-// other target. The extra attack is the spell the row's first effect triggers. A hit on a versus
-// target rolls the row's column and a hit on any other target the column divided by the factor.
+// An item's extra attack proc whose ProcChance column is the chance against its versus targets, and
+// whose versus bonus is how many times likelier a hit on them is than one on any other target.
 func registerExtraAttackVersus(character *core.Character, itemID int32, name string, rowID int32) {
 	row := spelldata.MustFind(rowID)
 	extraAttacks := row.EffectN(1).Trigger()
@@ -955,11 +905,7 @@ func registerExtraAttackVersus(character *core.Character, itemID int32, name str
 	character.ItemSwap.RegisterProc(itemID, aura)
 }
 
-// Narrows the trigger to landings on an enemy of the wearer's harmful spells: spell damage hits, and
-// spells with no proc mask whose DefenseType is magic and whose school is not Physical, such as the
-// curses, Hex of Weakness and Counterspell. Physical taunts, shouts and roars, spells fired as a proc
-// and spells an item casts are not harmful spells of the wearer's. It runs before any condition the
-// trigger already has (EV-0025, EV-0219).
+// Narrows the trigger to the wearer's harmful spells landing on an enemy (EV-0025, EV-0219).
 func harmfulSpells(character *core.Character, trigger *core.ProcTrigger) {
 	condition := trigger.ExtraCondition
 	trigger.ProcMask = core.ProcMaskUnknown
@@ -972,14 +918,10 @@ func harmfulSpells(character *core.Character, trigger *core.ProcTrigger) {
 	}
 }
 
-// The row's procs per minute, priced on the cast time of the cast that launched the hit, at least the
-// global cooldown's 1.5 s, and rolled by each direct spell hit that lands, one that deals no damage
-// included. The cast time is read where the cast deals the hit's result, which is the
-// cast's end for a missile, so one still in flight keeps it when the next cast of the spell starts. It
-// is the time the cast took after talents, Presence of Mind and cast speed. The chance depends on the
-// hit, so Chance(1) leaves core no roll of its own and the condition draws it after the cooldown check
-// and before the cooldown starts. A spell with no defense type rolls nothing, so the landing that
-// starts Arcane Missiles' channel rolls nothing and its missiles do (EV-0025, EV-0219).
+// PPM measurement in EV-0025, EV-0219.
+// The cast time is read where the cast deals its result, a missile's at cast end, so one still in flight
+// keeps it when the next cast of the spell starts. The chance depends on the hit, so Chance(1) leaves
+// core no roll and the condition draws it after the cooldown check and before the cooldown starts.
 // TODO: Verify in game whether cast speed shortens the time the chance is priced on; Omen of Clarity's
 // is priced on the unhasted time.
 func castTimePPM(row *spelldata.Spell) spelldata.ProcOpt {

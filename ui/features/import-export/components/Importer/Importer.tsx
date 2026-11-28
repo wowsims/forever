@@ -57,8 +57,6 @@ export const Importer = <P,>({
 		setPending(false);
 	};
 
-	// A closed dialog drops its text, and with it the file the text came from, what was wrong with it and the import
-	// that has not ended.
 	const changeOpen = (next: boolean) => {
 		if (!next) {
 			closes.current++;

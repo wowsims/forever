@@ -174,10 +174,7 @@ const resultOf = ({ dps, hps, tps, dtps, tmi }: StatSweepSample) =>
 		raidMetrics: { parties: [{ players: [{ dps: metricOf(dps), hps: metricOf(hps), threat: metricOf(tps), dtps: metricOf(dtps), tmi: metricOf(tmi) }] }] },
 	});
 
-/**
- * A host for the stat sweep: a warrior weighing Strength and Agility with no stats of its own, so a step's totals are its
- * bonus, on a sim that draws seed 7 and runs `simulatePass` for each pass, by default at `sweepStepDps`.
- */
+/** A host for the stat sweep: a warrior weighing Strength and Agility with no stats of its own, so a step's totals are its bonus. */
 export const makeStatSweepHost = ({ simulatePass, abortType, simDisabled = false, showPowerTools = false }: StatSweepHostParts = {}): StatSweepHostFixture => {
 	const store = createSimStore();
 	patchSlice(store, 'ui', { showPowerTools });

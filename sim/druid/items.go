@@ -31,7 +31,7 @@ func init() {
 		character.ItemSwap.RegisterProc(23197, aura)
 	})
 
-	// Talons of Wrath. The proc row names no spell; the tooltip names Wrath, whose class flags no other
+	// Talons of Wrath. The proc names no spell; the tooltip names Wrath, whose class flags no other
 	// druid spell shares.
 	core.NewItemEffect(249441, func(agent core.Agent) {
 		druid := agent.(DruidAgent).GetDruid()
@@ -50,7 +50,7 @@ func init() {
 	})
 
 	// Wolfshead Helm (8345). Effect 1 raises effect 2 of Enrage, its instant rage, which the parser
-	// would read as damage. Effect 2 is the energy Shifting Power adds; the row states it as a dummy.
+	// would read as damage. Effect 2 is the energy Shifting Power adds; the spell states it as a dummy.
 	core.NewItemEffect(8345, func(agent core.Agent) {
 		druid := agent.(DruidAgent).GetDruid()
 		row := spelldata.MustFind(17768)

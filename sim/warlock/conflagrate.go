@@ -6,7 +6,7 @@ import (
 )
 
 // Granted by the Conflagrate talent: ignites the warlock's own Immolate and consumes it, unless Shadow and
-// Flame keeps it burning. The 10 sec cooldown is the row's category cooldown.
+// Flame keeps it burning.
 func (warlock *Warlock) registerConflagrate() {
 	rankedSpell := spellData.Conflagrate.ByID(18932)
 	conflagrateHit := rankedSpell.DamageEffect()
@@ -27,7 +27,7 @@ func (warlock *Warlock) registerConflagrate() {
 		}
 	}
 
-	// Calculate expected damage from the row's average hit
+	// Calculate expected damage from the spell's average hit
 	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
 		return spell.CalcDamage(sim, target, conflagrateHit.Average(), spell.OutcomeExpectedMagicCrit)
 	}

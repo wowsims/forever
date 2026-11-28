@@ -83,9 +83,7 @@ type copyEntry struct {
 	Src  int32
 }
 
-// Table is the parsed (but not field-decoded) WDC5 file. Header fields the
-// decoder does not consume (schema version/string, layout hash, max index,
-// locale) are read past rather than kept.
+// Table is the parsed (but not field-decoded) WDC5 file.
 type Table struct {
 	RecordsCount    int32
 	FieldsCount     int32
@@ -331,8 +329,7 @@ func read(buf []byte) (*Table, error) {
 		}
 	}
 
-	// encrypted ID lists (read sequentially; content unused — this tool
-	// never consults them)
+	// encrypted ID lists (read sequentially; content unused)
 	for i := range sectionsCount {
 		if t.Sections[i].TactKeyLookup == 0 {
 			continue

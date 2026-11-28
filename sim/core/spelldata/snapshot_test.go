@@ -1,8 +1,7 @@
 package spelldata
 
 // The generated store as the package loads it, rather than the fixture the rest of the tests run
-// against: the shape every accessor depends on (ids in search order, effects in position order) and
-// the links, masks and effect kinds of a handful of rows; no amount is pinned.
+// against; no amount is pinned.
 
 import (
 	"math"
@@ -34,8 +33,7 @@ func TestGeneratedStoreShape(t *testing.T) {
 	withGeneratedStore(t)
 
 	// The bounds are wide enough that a regeneration adding a class or a patch's spells does not fail
-	// the gate. Whether the committed store is the one the committed inputs produce is
-	// TestStoreRegeneratesFromTheCommittedInputs' job.
+	// the gate.
 	rows := All()
 	if len(rows) < 5000 || len(rows) > 12000 {
 		t.Fatalf("the store holds %d spells, which is outside the [5000, 12000] a whole store has",
@@ -111,8 +109,7 @@ func TestAverageCountsLevelsFromBaseLevel(t *testing.T) {
 			t.Errorf("Vindication's debuff at %d is %v, want %v", c.level, got, c.want)
 		}
 	}
-	// BaseLevel equals SpellLevel on ordinary ranks, so their amounts do not move: Demoralizing Shout
-	// 11556's.
+	// BaseLevel equals SpellLevel on ordinary ranks, so their amounts do not move.
 	demoralizingShout := &Effect{SpellID: 11556, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ATTACK_POWER,
 		BasePoints: -196, PPL: -1.399999976158142, BaseLevel: 54, MaxLevel: 64}
 	if got := demoralizingShout.AverageAt(60); got != -205 {
@@ -248,8 +245,8 @@ func TestPhysicalRollIsAWholeNumber(t *testing.T) {
 }
 
 // Lightning Shield rank 1: the proc columns, and the two edges a proc row is read through. The aura
-// triggers the shared dispatcher 26545, which every rank triggers; the rank's own damage spell is
-// named by the tooltip instead, which is what RefIDs carries.
+// triggers the shared dispatcher 26545; the rank's own damage spell is named by the tooltip, which is
+// what RefIDs carries.
 func TestGeneratedLightningShield(t *testing.T) {
 	withGeneratedStore(t)
 
@@ -272,7 +269,7 @@ func TestGeneratedLightningShield(t *testing.T) {
 	}
 }
 
-// Stolen Power's companion row requires Forest and Grassland; Staff of Westfall's group is a single zone.
+// Stolen Power's companion spell requires Forest and Grassland; Staff of Westfall's group is a single zone.
 func TestGeneratedRequiredAreas(t *testing.T) {
 	withGeneratedStore(t)
 
@@ -305,7 +302,7 @@ func TestGeneratedAreaBonus(t *testing.T) {
 	}
 }
 
-// Versus bonuses come from the override table: a factor on one of the row's effects, or one of the
+// Versus bonuses come from the override table: a factor on one of the spell's effects, or one of the
 // override's own.
 func TestGeneratedVersusBonus(t *testing.T) {
 	withGeneratedStore(t)
@@ -394,7 +391,7 @@ func TestGeneratedOverrideRow(t *testing.T) {
 	}
 }
 
-// Frostbolt and Slam state the flag that pushes the cast back, and Slam's row also carries the
+// Frostbolt and Slam state the flag that pushes the cast back, and Slam also carries the
 // attribute that keeps it from being pushed back. EZ-Thro Bronze Mortar states neither.
 func TestGeneratedInterruptFlags(t *testing.T) {
 	withGeneratedStore(t)

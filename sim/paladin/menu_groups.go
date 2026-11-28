@@ -22,8 +22,7 @@ const (
 )
 
 // Each castable spell's group by its ClassSpellMask, and the group its buff on the paladin goes to.
-// Holy Shock is two castable spells: the damage files under Damage and the heal under Heals. Divine
-// Favor and Templar's Bulwark are major cooldowns and stay under Cooldowns with their auras.
+// Divine Favor and Templar's Bulwark are major cooldowns and stay under Cooldowns with their auras.
 var menuGroups = []struct {
 	mask        int64
 	spell, aura string
@@ -35,10 +34,8 @@ var menuGroups = []struct {
 	{SpellMaskDevotionAura | SpellMaskRetributionAura | SpellMaskConcentrationAura | SpellMaskFireResistanceAura | SpellMaskFrostResistanceAura | SpellMaskShadowResistanceAura, menuSpellPaladinAuras, menuPaladinPaladinAuras},
 }
 
-// Files the castable spells, every rank, and what they put on the paladin: the RelatedSelfBuff, the
-// aura of an area dot (Consecration), and the paladin's own entry of an ally aura array (Light's
-// Vigil, Oath of Light). The auras no spell names file themselves where they register. Each spec lists
-// its own groups first.
+// Files the castable spells, every rank, and what they put on the paladin. The auras no spell names
+// file themselves where they register.
 func (paladin *Paladin) registerMenuGroups() {
 	paladin.OnSpellRegistered(func(spell *core.Spell) {
 		for _, group := range menuGroups {

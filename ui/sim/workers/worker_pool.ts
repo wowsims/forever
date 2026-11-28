@@ -39,10 +39,9 @@ const SIM_WASM_URL = `/${REPO_NAME}/lib.wasm.gz`;
 
 // lib.wasm ships gzipped (Cloudflare Pages caps files at 25 MiB; the raw module exceeds it)
 // and is fetched + compiled exactly once here, then shared with every wasm worker as a
-// compiled WebAssembly.Module via structured clone - spawning N workers costs one download
-// and one compile instead of N of each. Decompression streams, so compilation overlaps the
-// download. The magic-byte sniff keeps this working behind servers that set
-// Content-Encoding for .gz files and hand the browser already-decompressed bytes.
+// compiled WebAssembly.Module via structured clone. The magic-byte sniff keeps this working
+// behind servers that set Content-Encoding for .gz files and hand the browser
+// already-decompressed bytes.
 let sharedWasmModule: Promise<WebAssembly.Module> | undefined;
 const getSharedWasmModule = (): Promise<WebAssembly.Module> => {
 	sharedWasmModule ??= (async () => {
@@ -69,7 +68,7 @@ const getSharedWasmModule = (): Promise<WebAssembly.Module> => {
 		return WebAssembly.compileStreaming(new Response(wasmStream, { headers: { 'Content-Type': 'application/wasm' } }));
 	})().catch(error => {
 		// Never memoize a failure: a transient fetch error must not brick every current and
-		// future worker for the page lifetime (cf. initHiGHS in ui/worker/sim_worker.ts).
+		// future worker for the page lifetime.
 		sharedWasmModule = undefined;
 		throw error;
 	});
@@ -252,13 +251,7 @@ export class WorkerPool {
 
 	/**
 	 * Start an async request, handling progress and returning the final ProgressMetrics.
-	 * @param requestName
-	 * @param request
-	 * @param id The task id used.
-	 * @param worker
-	 * @param onProgress
 	 * @param totalIterations Used for initial work amount tracking for worker task.
-	 * @returns The final ProgressMetrics.
 	 */
 	private async doAsyncRequest(
 		requestName: AsyncSimRequest,
@@ -269,10 +262,9 @@ export class WorkerPool {
 		totalIterations: number,
 		signals?: SimSignals,
 	): Promise<ProgressMetrics> {
-		// The abort subscription's lifetime is exactly this request's, so it belongs here
-		// rather than at each call site. A bulk run issues one request per candidate against
-		// the same signals object; leaving callbacks registered would grow the list for the
-		// whole run and make a cancel fan out to every request that finished long ago.
+		// The abort subscription's lifetime is exactly this request's; leaving callbacks registered
+		// would grow the list for the whole run and make a cancel fan out to every request that
+		// finished long ago.
 		const unsubscribeAbort = signals?.abort.onTrigger(async () => {
 			await worker.sendAbortById(id);
 		});
@@ -284,8 +276,7 @@ export class WorkerPool {
 			});
 			const apiCallResult = worker.doApiCall(requestName, request, id).then(outputData => {
 				// WASM async handlers deliver their final result via the progress channel and may return no payload
-				// on the request channel. In that case keep waiting for the final progress message instead of
-				// trying to decode an empty response.
+				// on the request channel. In that case keep waiting for the final progress message.
 				if (!outputData?.length) {
 					return finalProgress;
 				}
@@ -533,9 +524,8 @@ class SimWorker {
 		this.log('Enabled.');
 	}
 
-	// Accepts a thunk so a caller whose message is expensive to build - a request or result
-	// serialized to JSON - pays nothing outside dev mode. Prefer the thunk form for anything
-	// that is not a plain template literal.
+	// Accepts a thunk so a caller whose message is expensive to build pays nothing outside dev
+	// mode. Prefer the thunk form for anything that is not a plain template literal.
 	log(s: string | (() => string)) {
 		if (isDevMode()) console.log(`Worker ${this.workerId}: ${typeof s === 'function' ? s() : s}`);
 	}

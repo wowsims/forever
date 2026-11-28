@@ -675,7 +675,7 @@ func (value *APLValueNot) String() string {
 	return fmt.Sprintf("Not(%s)", value.val)
 }
 
-// variableCache holds per-evaluation-pass cached results for a named variable.
+// Per-evaluation-pass cached results for a named variable.
 // All APLValueVariableRef instances referencing the same variable name share
 // the same cache, but each has its own resolved APLValue expression tree
 // (since newAPLValue can have side effects like registering aura callbacks).
@@ -880,8 +880,7 @@ func (rot *APLRotation) newValueCompare(config *proto.APLValueCompare, uuid *pro
 	}
 }
 
-// What is wrong with the operator on the two values, or "" when nothing is. A group reference checks what it
-// rebuilds with it too, once its placeholders are filled.
+// What is wrong with the operator on the two values, or "" when nothing is.
 func mathTypeProblem(op proto.APLValueMath_MathOperator, lhs APLValue, rhs APLValue) string {
 	if lhs.Type() == proto.APLValueType_ValueTypeBool || rhs.Type() == proto.APLValueType_ValueTypeBool {
 		return "Bool types not allowed in Math Operations!"

@@ -83,9 +83,8 @@ export const SelectorModalView = ({ id, open, onOpenChange, onKeyDown, rail, tit
 				<div className="flex flex-col">
 					{sequence !== undefined &&
 						tabs.map(tab => (
-							// `active` comes from the selection, not from the panel's transition status: this strip has
-							// never staged `show` a frame behind `active`, and a panel reopened while it is still fading
-							// out reports `ending` for one frame after it is open again.
+							// `active` comes from the selection, not from the panel's transition status: a panel reopened
+							// while it is still fading out reports `ending` for one frame after it is open again.
 							<Tabs.Panel
 								key={`${sequence}-${tab.label}`}
 								value={tab.label}
@@ -132,7 +131,7 @@ export const SelectorModal = ({ state, id = DEFAULT_MODAL_ID, rail = true }: Sel
 	// Keyed on the slot's stored item, not on the whole gear: `Gear` copies the untouched slots' refs
 	// forward, so a change anywhere else leaves this one alone and the tab data is not rebuilt.
 	const storedItem = slot !== null ? gear.getEquippedItem(slot) : null;
-	// A gear source that is not the player's own — the batch's item pickers — has nothing in `gear`
+	// A gear source that is not the player's own (the batch's item pickers) has nothing in `gear`
 	// to key on, so its own notification is what says the item moved. An effect rather than
 	// `useStoreSubscribe`, which marks its snapshot stale as it subscribes and would rebuild every
 	// tab's data a second time on each open.
@@ -151,7 +150,6 @@ export const SelectorModal = ({ state, id = DEFAULT_MODAL_ID, rail = true }: Sel
 	const eligibility = useMemo(() => (slot !== null ? eligibilityFor({ player, slot }) : null), [player, slot]);
 
 	// The requested tab is resolved once per request; a tab the user picks afterwards is taken as-is.
-	// Falling back to the first tab avoids showing an empty body when the tab you were on no longer exists.
 	const requestedTab = request && eligibility ? resolveSelectedTab(request.tab, eligibility) : SelectorModalTabs.Items;
 	const currentTab = selected && request && selected.sequence === request.sequence ? selected.tab : requestedTab;
 	const activeTab = tabs.find(tab => tab.label === currentTab) ?? tabs[0] ?? null;

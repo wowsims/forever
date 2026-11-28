@@ -20,8 +20,7 @@ const (
 	categoryPetBuffID     int32 = 999109
 )
 
-// A pet's aura that its owner's major cooldown casts is filed with the cooldowns, where the owner's
-// spell is, not by the phase that registered it.
+// A pet's aura that its owner's major cooldown casts is filed with the cooldowns.
 func TestPetAuraOfAnOwnerCooldown(t *testing.T) {
 	withAuraItem(categoryPetTrinketID, proto.ItemType_ItemTypeTrinket)
 	core.NewItemEffect(categoryPetTrinketID, func(agent core.Agent) {
@@ -69,9 +68,7 @@ func registerCategoryTrinket() {
 	})
 }
 
-// Each aura and spell is filed by the phase that registered it, unless it names its own source, and a
-// major cooldown's buff is filed with the cooldown whatever registered it. A spell a talent grants
-// stays with the class's own spells.
+// Each aura and spell is filed by the phase that registered it, unless it names its own source.
 func TestActionCategories(t *testing.T) {
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)
 	for i := range items {

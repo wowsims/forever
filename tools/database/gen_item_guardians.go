@@ -92,10 +92,9 @@ func summonsIntoTotemSlot(summon dbc.SpellEffect) bool {
 	return slices.Contains(totemSlotSummonProperties, int32(summon.EffectMiscValues[1]))
 }
 
-// Writes item_guardians_auto_gen.go: a NewGuardianOnUse call for every use item whose spell summons a guardian, and
-// as comments the summons it does not register, those on a proc and those written by hand. Every summon whose
-// creature forever.GuardianCreatures does not hold, and that no hand-written effect covers, goes on the missing
-// effects list, so the gear tab says its creature is not simulated.
+// Writes item_guardians_auto_gen.go. Every summon whose creature forever.GuardianCreatures does not hold,
+// and that no hand-written effect covers, goes on the missing effects list, so the gear tab says its
+// creature is not simulated.
 func GenerateItemGuardians(instance *dbc.DBC, db *WowDatabase) error {
 	summons := itemSummons(instance, db, implementedByHand)
 	for _, s := range summons {

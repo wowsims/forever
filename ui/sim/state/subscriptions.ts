@@ -26,9 +26,8 @@ import type {
 import { PLAYER_FIELDS } from './sim_store';
 
 // Fields whose change counts as a "player settings change" for aggregate
-// subscribers: everything
-// the user edits. Server-derived `currentStats` is excluded — including it
-// would make stat recomputation re-trigger itself.
+// subscribers. Server-derived `currentStats` is excluded: including it would
+// make stat recomputation re-trigger itself.
 const PLAYER_CHANGE_FIELDS = PLAYER_FIELDS.filter(f => f !== 'currentStats');
 
 export const shallowArrayEquals = (a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>) => arrayEquals(a as Array<unknown>, b as Array<unknown>, Object.is);
@@ -54,11 +53,10 @@ function fromSelector<U>(store: SimStore, selector: (s: SimState) => U, equality
 	return sub;
 }
 
-// A source is a pure factory over (store, selector, equalityFn) — `subscribeGated` builds
-// the per-subscriber state on each call — so one identity can serve every subscriber.
-// React needs that identity to be stable: `useStoreSubscribe` re-subscribes whenever its
-// source changes identity, so a source rebuilt per render resubscribes per render. Anchored
-// on the owning facade, so a disposed player's sources are collected with it.
+// A source is a pure factory over (store, selector, equalityFn), so one identity can serve
+// every subscriber. React needs that identity to be stable: `useStoreSubscribe` re-subscribes
+// whenever its source changes identity. Anchored on the owning facade, so a disposed player's
+// sources are collected with it.
 const sourceCache = new WeakMap<object, Map<string, StoreSubscribe>>();
 
 function cached(owner: object, key: string, build: () => StoreSubscribe): StoreSubscribe {
@@ -158,8 +156,7 @@ export function partyTuple(s: SimState, index: number): Array<unknown> {
 	return [row, s.raid.partyBuffs[index], ...flattenKeys(row.map(key => (key == null ? null : playerChangeKey(s, key))))];
 }
 
-// Raid = the raid slice (buffs/debuffs/tanks/dummies/numActiveParties/
-// partyBuffs/composition) plus every member's player slice. Selectors run for
+// Raid = the raid slice plus every member's player slice. Selectors run for
 // every subscriber on every write, so the tuple is memoized per state object.
 let lastRaidState: SimState | null = null;
 let lastRaidTuple: Array<unknown> = [];
@@ -200,9 +197,8 @@ export function subscribeSimSettingsChange(sim: Sim): StoreSubscribe {
 	return cached(sim, 'settingsChange', () => fromSelector(sim.store, simSettingsKey, shallowArrayEquals));
 }
 
-// Settings + raid + encounter. Server-derived
-// state (currentStats, metadata, rng seed) and the reforge / stat-weight slices
-// are NOT included — subscribe to those explicitly where needed.
+// Settings + raid + encounter. Server-derived state (currentStats, metadata,
+// rng seed) and the reforge / stat-weight slices are NOT included.
 export function subscribeSimChange(sim: Sim): StoreSubscribe {
 	return cached(sim, 'change', () => fromSelector(sim.store, s => [...simSettingsKey(s), s.encounter, ...raidTuple(s)], shallowArrayEquals));
 }
@@ -219,9 +215,8 @@ export function subscribeReforgeField(settings: ReforgeSettings, field: ReforgeF
 	return cached(settings, `field:${field}`, () => fromSelector(settings.store, s => s.reforge[storeKey]?.v[field]));
 }
 
-// Same slice, reached from the player rather than the per-model ReforgeSettings
-// facade: the slice is keyed by `player.storeKey`, so a picker can name a reforge
-// field without holding the facade.
+// Same slice, reached from the player, so a picker can name a reforge field
+// without holding the facade.
 export function subscribePlayerReforgeField(player: Player<any>, field: ReforgeField): StoreSubscribe {
 	const storeKey = player.storeKey;
 	return cached(player, `reforge:${field}`, () => fromSelector(player.sim.store, s => s.reforge[storeKey]?.v[field]));

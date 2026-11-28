@@ -16,20 +16,14 @@ import (
 const alchemistsStoneSpellID int32 = 17619
 
 // A consumable whose on-use spell the potion builder runs on the user, or whose damage it deals to
-// enemies (consumableDamageSpell), on the item's cooldown and the category it shares. A potion is a
-// major cooldown only while the consumes pick it for an APL potion placeholder, the other potions are
-// the rotation's; a conjured item (a healthstone, mana gem, rune or tea) is one only while it is the
-// spec's chosen one; any other, such as the Flame Deflector's shield or the Scroll of Minor
-// Evocation's mana, whenever the spec names it.
+// enemies, on the item's cooldown and the category it shares. A potion is a major cooldown only while
+// the consumes pick it for an APL potion placeholder, the other potions are the rotation's; a conjured
+// item is one only while it is the spec's chosen one; any other is one whenever the spec names it.
 func NewSpellDataOnUseConsumable(itemID int32) {
 	registerSpellDataConsumable(itemID)
 }
 
-// Why the consumable builders cannot run the spell, or nil where they can. A spell that damages
-// enemies has to be one the damage builders run (DamageConsumableUnsupported), with nothing beside
-// it on the user. Otherwise every effect has to land on the user and be a heal, an absorb, a gain of
-// mana, rage or energy, damage to the user, or an aura the parser attaches, and the spell has to work
-// outside a seated rest.
+// Why the consumable builders cannot run the spell, or nil where they can.
 func ConsumableUnsupported(row *spelldata.Spell) []string {
 	_, unsupported := consumablePartsOf(row)
 	return unsupported
@@ -238,8 +232,7 @@ func registerSpellDataConsumable(itemID int32) {
 				gains[i].apply(sim)
 			}
 			if selfDamage != nil {
-				// Applied without a cast, so the hit logs no cast and draws no timeline row of its own, like
-				// an explosive's hit on its thrower.
+				// Applied without a cast, so the hit logs no cast and draws no timeline row of its own.
 				selfDamage.ApplyEffects(sim, &character.Unit, selfDamage)
 			}
 			if applyAura != nil {
@@ -273,7 +266,7 @@ func registerSpellDataConsumable(itemID int32) {
 			}
 		case proto.ConsumableType_ConsumableTypeConjured:
 			// The spec's conjured item keeps the manager's default, so a healthstone waits for a tank
-			// like any other defensive cooldown; another conjured item never fires on its own.
+			// like any other defensive cooldown.
 			if consumables.ConjuredId != itemID {
 				mcd.DisableAutocast = true
 			}
@@ -282,10 +275,8 @@ func registerSpellDataConsumable(itemID int32) {
 	})
 }
 
-// The item's own cooldown and the category cooldown it shares, which every consumable builder reads.
-// -1 on the item's row, and a category of 0, defer to the spell's row: the Spellblasting potions
-// 250932-250937 state neither and share potion category 4 for 120 s through their spells. A category
-// with no cooldown shares nothing, and is 0 here.
+// The item's own cooldown and the category cooldown it shares. -1 on the item's effect, and a category
+// of 0, defer to the spell: the Spellblasting potions 250932-250937 state neither.
 type consumableCooldowns struct {
 	cooldownMs, category, categoryMs int32
 }
@@ -312,7 +303,7 @@ func (c consumableCooldowns) longest() time.Duration {
 	return core.DurationFromMillis(max(c.cooldownMs, c.categoryMs, 0))
 }
 
-// The cast the spell's row states, on the item's cooldown and the category cooldown it shares.
+// The cast the spell states, on the item's cooldown and the category cooldown it shares.
 func consumableCast(character *core.Character, itemEffect *proto.ItemEffect, row *spelldata.Spell) core.CastConfig {
 	c := consumableCooldownsOf(itemEffect, row)
 	cast := spelldata.Cast(row)
@@ -325,8 +316,7 @@ func consumableCast(character *core.Character, itemEffect *proto.ItemEffect, row
 	return cast
 }
 
-// One gain of mana, rage or energy, at once or every period of the row's duration. A character
-// without the bar gets none.
+// One gain of mana, rage or energy, at once or every period of the spell's duration.
 type consumableGain struct {
 	power dbcenums.PowerType
 	apply func(*core.Simulation)

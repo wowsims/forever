@@ -15,8 +15,7 @@ func (druid *Druid) registerPounceSpell() {
 	bleedConfig := spelldata.SpellConfig(&druid.Unit, bleedRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	bleedTick := bleedRank.PeriodicDamageEffect()
 	bleedConfig.Dot = spelldata.DotConfig(bleedRank, bleedTick)
-	// Attack power is read at each tick, and Rend and Tear raises the ticks; the bleed itself counts as the
-	// bleed on the target.
+	// The bleed itself counts as the bleed on the target.
 	bleedConfig.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		damage := (bleedTick.AverageAt(druid.level()) + bleedTick.APCoeff()*dot.Spell.MeleeAttackPower(target)) * druid.rendAndTearMultiplier(target)
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, bleedRank.TickOutcome(dot))
@@ -33,9 +32,7 @@ func (druid *Druid) registerPounceSpell() {
 		return druid.ProwlAura.IsActive() && druid.BehindTarget()
 	}
 	// No Active Defense (Attributes 0x200000): the cast is never dodged, parried or blocked, but it can
-	// miss. A missed cast stuns nothing, awards no combo point, applies no bleed and refunds the row's
-	// share of its cost. A landed cast always stuns and awards the combo point; the bleed then rolls its
-	// own miss and dodge, and an avoided bleed refunds no energy.
+	// miss. The bleed rolls its own miss and dodge.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialHit)
 		if !result.Landed() {

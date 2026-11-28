@@ -74,9 +74,8 @@ type ProcTrigger struct {
 	// (SpellItemEnchantment.Effect 1, e.g. Mongoose, Crusader, poisons, imbues).
 	// The game casts these off every melee or ranged hit that lacks SpellFlagSuppressWeaponProcs,
 	// whether or not that hit was itself a proc, so SpellFlagProc and CanProcFromProcs are ignored.
-	// An ability that requires a shield or has magic or no DefenseType is no weapon hit and casts none.
-	// A weapon proc's own strike is such a hit unless its cast carries the flag, which a melee strike
-	// does where anything but a main-hand white swing of the weapon cast it (R-0040).
+	// A weapon proc's melee strike carries the flag unless a main-hand white swing of the weapon
+	// cast it (R-0040).
 	// Which hand's hits qualify is still the DPM's or ProcMask's job.
 	IsWeaponProc bool
 }
@@ -85,16 +84,12 @@ type ProcTrigger struct {
 // matched. Weapon procs (Player::CastItemCombatSpell) hear only melee and ranged hits, and of those
 // skip the spells with Suppress Weapon Procs; a hit with no melee or ranged mask, such as the damage
 // of a magic item proc, never casts them. They also skip an ability that is no weapon hit: one whose
-// row requires a shield (SpellEquippedItems), which strikes with the shield, and one whose DefenseType
+// spell requires a shield (SpellEquippedItems), which strikes with the shield, and one whose DefenseType
 // is magic or none. Auto attacks are exempt, since a wand's shots carry magic DefenseType and cast them.
-// No chance-on-hit effect or combat enchant hears Shield Slam, Shield Bash or Thunder Clap, while an
-// equip proc such as Dreadfrost Saber's hears Shield Slam (EV-0021). A special with no DefenseType,
-// such as Sweeping Strikes' copied hit 12723, is no weapon hit either, while its normalized hit 26654,
-// with melee DefenseType, is (EV-0007). Aura procs (Aura::IsProcTriggeredOnEvent) skip triggered spells that lack Not a
-// Proc, unless the listener carries Can Proc From Procs. Auto attacks, extra attacks included, carry
-// neither flag and so are always eligible. A dot's tick is no cast, so it reaches them whatever laid
-// the dot; a tick that is the hit of a spell the aura casts (SpellFlagTicksAreCasts) is a cast like
-// any other (EV-0226).
+// Shield hits in EV-0021. Specials with no DefenseType in EV-0007. Aura procs
+// (Aura::IsProcTriggeredOnEvent) skip triggered spells that lack Not a Proc, unless the listener
+// carries Can Proc From Procs. Auto attacks, extra attacks included, carry neither flag and so are
+// always eligible. Dot ticks in EV-0226.
 func (config *ProcTrigger) canProcFrom(spell *Spell, tick bool) bool {
 	if config.IsWeaponProc {
 		if !spell.ProcMask.Matches(ProcMaskMeleeOrRanged) || spell.Flags.Matches(SpellFlagSuppressWeaponProcs) {
@@ -145,7 +140,7 @@ func (config *ProcTrigger) matchesSpell(spell *Spell, tick bool) bool {
 
 // The proc mask the listener hears a hit with: a counted swing its mask would not hear is a main-hand
 // auto attack to a listener that hears counted swings, so a procs-per-minute manager prices it on the
-// main hand's speed. A listener whose mask hears the hit already takes it as it is.
+// main hand's speed.
 func (config *ProcTrigger) procMaskOf(spell *Spell) ProcMask {
 	if config.HearsCountedSwings && spell.Flags.Matches(SpellFlagCountsAsSwing) &&
 		config.ProcMask != ProcMaskUnknown && !spell.ProcMask.Matches(config.ProcMask) {
@@ -221,8 +216,8 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 			return
 		}
 
-		// Deferred-proc records (PendingAction + result snapshot) come from a
-		// per-trigger free list and return to it when they fire or are cleaned up.
+		// Deferred-proc records come from a per-trigger free list and return to it when they fire or
+		// are cleaned up.
 		var dp *deferredProc
 		if n := len(freeDeferred); n > 0 {
 			dp = freeDeferred[n-1]
@@ -371,8 +366,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 	}
 
 	// A death has no spell and deals no damage, so only the ICD, the condition and the chance gate it.
-	// The handler gets a nil spell and a result whose Target is the dead unit. The trigger reuses that one
-	// result for every death; a deferred handler gets a copy of it.
+	// The trigger reuses one result for every death; a deferred handler gets a copy of it.
 	if config.Callback.Matches(CallbackOnTargetDies | CallbackOnKill) {
 		deathResult := &SpellResult{}
 		onDeath := func(aura *Aura, sim *Simulation, target *Unit) {
@@ -534,9 +528,9 @@ type TemporaryStatBuffWithStacksConfig struct {
 	Duration             time.Duration
 	TickImmediately      bool
 	// Set when stacks come from an event rather than a timer. The window aura is still built and
-	// still bounds the stacking aura, but nothing ticks - the caller adds stacks from its own
-	// trigger. The stacking aura is then given no duration of its own and is dropped when the
-	// window ends, which is what a child aura with no duration in the game files does.
+	// still bounds the stacking aura, but nothing ticks. The stacking aura is then given no duration of
+	// its own and is dropped when the window ends, which is what a child aura with no duration in the
+	// game files does.
 	StacksFromEvent bool
 }
 
@@ -575,8 +569,6 @@ func (character *Character) NewTemporaryStatBuffWithStacks(config TemporaryStatB
 				})
 			},
 			OnExpire: func(aura *Aura, sim *Simulation) {
-				// The window owns the stacking aura's lifetime in the event case, because there
-				// the child has no duration of its own to expire on.
 				if config.StacksFromEvent {
 					stackingAura.Deactivate(sim)
 				}
@@ -596,8 +588,7 @@ func (character *Character) NewTemporaryStatsAura(auraLabel string, actionID Act
 
 // Alternative that allows modifying the Aura config.
 func (character *Character) NewTemporaryStatsAuraWrapped(auraLabel string, actionID ActionID, buffs stats.Stats, duration time.Duration, modConfig func(*Aura)) *StatBuffAura {
-	// If one of the stat bonuses is a health bonus, then set up healing metrics for the associated
-	// heal, since all temporary max health bonuses also instantaneously heal the player.
+	// All temporary max health bonuses also instantaneously heal the player.
 	var healthMetrics *ResourceMetrics
 	amountHealed := buffs[stats.Health]
 	includesHealthBuff := amountHealed > 0
@@ -699,9 +690,6 @@ func (character *Character) NewTemporaryStatMultiplierAura(config Aura, multipli
 }
 
 // Creates a new ProcTriggerAura that is dependent on a parent Aura being active
-// This should only be used if the dependent Aura is:
-// 1. On the a different Unit than parent Aura is registered to (usually the Character)
-// 2. You need to register multiple dependent Aura's for the same Unit
 func (parentAura *Aura) MakeDependentProcTriggerAura(unit *Unit, config ProcTrigger) *Aura {
 	oldExtraCondition := config.ExtraCondition
 	config.ExtraCondition = func(sim *Simulation, spell *Spell, result *SpellResult) bool {
@@ -714,8 +702,6 @@ func (parentAura *Aura) MakeDependentProcTriggerAura(unit *Unit, config ProcTrig
 }
 
 // Attaches a ProcTrigger to a parent Aura
-// Preffered use-case.
-// For non standard use-cases see: MakeDependentProcTriggerAura
 // Returns parent aura for chaining
 func (parentAura *Aura) AttachProcTrigger(config ProcTrigger) *Aura {
 	parentAura.AttachProcTriggerCallback(parentAura.Unit, config)

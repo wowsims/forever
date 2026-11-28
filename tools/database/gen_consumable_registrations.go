@@ -154,10 +154,9 @@ func registrationFamilyOf(c *proto.Consumable, catalogued *dbc.Consumable, routi
 
 // The equip spells of a temporary enchant that the imbue builder parses: those that add no stat,
 // resistance or weapon damage to the enchant's own fields, whose every effect lands on the user, and
-// whose every aura the builder's parse, counted once per hand, attaches. Consecrated Sharpening
-// Stone's enchant 2684 names 28893, its attack power against Undead; a wizard oil's equip spell is
+// whose every aura the builder's parse, counted once per hand, attaches. A wizard oil's equip spell is
 // already the enchant's spell damage. An equip spell that procs is taken where the builder can
-// build its listener: Scroll of Imbue Manablade's enchant 8715 names 1308913, mana on melee hits.
+// build its listener.
 func parsedEquipSpells(enchant dbc.TemporaryEnchant) []int32 {
 	var spellIDs []int32
 	for slot, effect := range enchant.Effects {

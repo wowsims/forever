@@ -21,8 +21,8 @@ const afterTime = (val: string) =>
 const wait = (val: string) => APLAction.create({ action: { oneofKind: 'wait', wait: { duration: constant(val) } } });
 
 /**
- * Three levels: the pane's sections, their rows, and the lists inside a row — an `and` condition's
- * operands and a sequence's actions. Nothing in it names a spell, so it renders without the database.
+ * Three levels: the pane's sections, their rows, and the lists inside a row. Nothing in it names a
+ * spell, so it renders without the database.
  */
 const threeLevels = () =>
 	APLRotation.create({

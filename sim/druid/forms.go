@@ -105,8 +105,7 @@ func (druid *Druid) feralWeapon(swingSpeed float64) core.Weapon {
 	return paw
 }
 
-// A bear's auto attack takes the two-hander rage factor whatever it holds, 4.5 rage per second of the bear's
-// 2.5 second swing (EV-0037). No druid row states a rage multiplier of its own.
+// Bear rage factor in EV-0037. No druid rage multiplier in game files.
 const BearRageIsTwoHanded = true
 
 func (druid *Druid) GetBearWeapon() core.Weapon {
@@ -137,7 +136,7 @@ func (druid *Druid) RegisterCatFormAura() {
 }
 
 // Bear Form (Passive2) 21178 holds the bear forms' threat, an A_MOD_THREAT on every school. Neither
-// form's row names it, so the store carries it as an extra spell.
+// form's spell names it, so the store carries it as an extra spell.
 const bearFormThreatSpellID = 21178
 
 func (druid *Druid) RegisterBearFormAura() {
@@ -150,8 +149,7 @@ func (druid *Druid) RegisterBearFormAura() {
 func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.Spell, kind DruidForm, starting bool) *core.Aura {
 	aura := druid.registerFormAura(form, starting)
 	aura.AttachStatDependency(druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1))
-	// Armor from items, base and bonus, health, attack power and the Faerie Fire spell mods are parsed.
-	// In game, the forms' health is flat and follows the level as their passives' rows state (EV-0037).
+	// Form health in EV-0037.
 	// TODO: Ingame research needed -- effect 4 of Bear Form and Dire Bear Form is aura 668, which core
 	// does not name.
 	spelldata.ParseEffects(&druid.Character, aura, passive)
@@ -164,7 +162,6 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 		if !druid.Env.MeasuringStats {
 			druid.AutoAttacks.SetMH(druid.GetBearWeapon())
 			// A swing replacement also asks the rotation to queue an attack before the swing.
-			// Only Bear forms can queue Maul.
 			druid.AutoAttacks.SetReplaceMHSwing(druid.TryMaul)
 		}
 	})
@@ -278,9 +275,7 @@ func (druid *Druid) rememberCatEnergy(sim *core.Simulation, energy float64) {
 	druid.furorLeftCatAt = sim.CurrentTime
 }
 
-// A bear form stops energy regeneration (effect 5, -100% energy regeneration) and keeps the pool: the bar
-// holds the stored energy through the form, and its exit stores what the bar holds, so energy gained in the
-// form, Nature's Bounty's ticks, comes back with Cat Form (EV-0144).
+// A bear form stops energy regeneration and keeps the pool. Bear form energy in EV-0144.
 func (druid *Druid) pauseCatEnergy(sim *core.Simulation) {
 	if !druid.HasEnergyBar() || druid.Env.MeasuringStats {
 		return
@@ -307,15 +302,13 @@ func (druid *Druid) setEnergy(sim *core.Simulation, energy float64) {
 
 // The tooltip's rule, priced with $m2: the energy left in Cat Form, with what the bar gained in a bear
 // form, plus ${10*($m2/100)} for each second spent outside Bear Form or Dire Bear Form, up to
-// ${100*($m2/100)}. At 5/5 that is 10 a second, the Cat Form rate. With the talent untaken the cat comes
-// back with none. In game 0/5 and 5/5 follow it, whether the cat left by a shift or by cancelling Cat Form
-// (EV-0037).
+// ${100*($m2/100)}. Talent ranks in EV-0037.
 func (druid *Druid) restoreCatEnergy(sim *core.Simulation) {
 	if !druid.HasEnergyBar() || druid.Env.MeasuringStats {
 		return
 	}
 	// Only the starting Cat Form finds nothing stored, and it keeps the pull's bar: the cat was in Cat Form
-	// before the pull. In game every entry takes Furor's share, the first after a login included (EV-0037).
+	// before the pull. Furor's share on every entry in EV-0037.
 	// TODO: Ingame research needed -- what death does to the stored energy.
 	if !druid.furorStoredValid {
 		return
@@ -356,8 +349,7 @@ func (druid *Druid) RegisterMoonkinFormAura() {
 		return
 	}
 	druid.MoonkinFormAura = druid.registerFormAura(spellData.MoonkinForm.Highest(), druid.StartingForm.Matches(Moonkin))
-	// Moonkin Form (Passive) 24905 states the form's armor from items, base and bonus, and its Arcane
-	// and Nature damage done. The crit of Moonkin Aura 24907 is the raid buff AddRaidBuffs turns on.
+	// The crit of Moonkin Aura 24907 is the raid buff AddRaidBuffs turns on.
 	spelldata.ParseEffects(&druid.Character, druid.MoonkinFormAura, spellData.MoonkinFormTriggered.ByID(24905))
 	// Of the form's own effects only Omen of Clarity's proc chance and proc cooldown have a sim kind.
 	spelldata.ParseEffects(&druid.Character, druid.MoonkinFormAura, spellData.MoonkinForm.Highest(), spelldata.Effects(5, 6))

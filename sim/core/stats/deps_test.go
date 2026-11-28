@@ -154,8 +154,7 @@ func TestUnmultipliedStatDependencyStaysOutOfTheSameStatMultiplier(t *testing.T)
 	}
 }
 
-// The dependencies give a change of stats as they give whole stats: under the doubling, a change of
-// 300 armor is 600 and a change of 100 ArmorNoMods is 100 armor.
+// The dependencies give a change of stats as they give whole stats.
 func TestUnmultipliedStatDependencyAppliesToAChange(t *testing.T) {
 	sdm := NewStatDependencyManager()
 	sdm.MultiplyStat(Armor, 2)

@@ -57,12 +57,9 @@ const offeredTo =
 	(player: Player<any>) =>
 		consumableAllowed(consumable, player) && (!trimmed(consumable, relevance, player) || picked(player)) && (!includeIf || includeIf(consumable, player));
 
-// Defaults are the stats and percents the spec weighs consumables by and the stats it displays, as the
-// buffs' filter counts them (a pseudo-stat by its root rating); the universe adds every one a
-// consumable grants. A default no consumable grants (a resource stat the restore rule reads) stays
-// in the universe, so the defaults show in full. What the consumables grant is worked out once per
-// database, as it walks every consumable, and the scope once per player and database, so the
-// pickers and the filters popover share it.
+// Defaults are the stats and percents the spec weighs consumables by and the stats it displays (a
+// pseudo-stat by its root rating); the universe adds every one a consumable grants. A default no
+// consumable grants stays in the universe, so the defaults show in full.
 const grantedByDatabase = new WeakMap<Database, UnitStat[]>();
 const scopeByPlayer = new WeakMap<Player<any>, { db: Database; scope: StatFilterScope }>();
 
@@ -87,13 +84,11 @@ export const consumableFilterScope = (player: Player<any>, db: Database): StatFi
 const STORE_FIELDS: Array<StoreField> = ['consumables', 'gear', 'profession1', 'profession2', 'prof1Rank', 'prof2Rank', 'race', 'sim:filters'];
 
 // Every field a consumable picker reads: `itemSwap` because the swap imbues' includeIf reads the swap
-// weapons and their showWhen whether item swap is on. The toggles read only STORE_FIELDS, and the inputs with an
-// overwritten badge OVERWRITTEN_PICKER_FIELDS.
+// weapons and their showWhen whether item swap is on.
 export const CONSUMABLE_PICKER_FIELDS: ReadonlyArray<StoreField> = [...STORE_FIELDS, 'itemSwap'];
 
-// The fields the inputs with an overwritten badge read: the elixir and scroll picks, the miscellaneous toggles of the
-// consumables that count with the elixirs, and MultiToggle, whose trigger shows its toggle's badge. The badges follow
-// the raid buffs' inputs, since a raid buff turned on overwrites the scrolls and elixirs of its stat.
+// The fields the inputs with an overwritten badge read. The badges follow the raid buffs' inputs, since a raid buff
+// turned on overwrites the scrolls and elixirs of its stat.
 export const OVERWRITTEN_PICKER_FIELDS: ReadonlyArray<StoreField> = [...CONSUMABLE_PICKER_FIELDS, 'raid:buffs'];
 
 // The columns a consumable menu lays its offers out in, by how many there are.
@@ -210,11 +205,9 @@ const grantedKeys = (consumable: Consumable): Set<string> => {
 	return new Set(unitStatsOf({ stats, pseudoStats }).map(stat => stat.getKey()));
 };
 
-// The groups in the order the spec's character stats panel shows the stat every consumable of a group grants: for a
-// warrior a group of Strength elixirs early and the crit elixirs where melee crit sits, for a mage the crit elixirs
-// where spell crit sits and the Strength ones late. The panel's headed groups (`STAT_GROUPS`) come first and its health
-// and mana after them. A group whose consumables share no stat the spec shows goes last, and groups that tie keep their
-// order.
+// The groups in the order the spec's character stats panel shows the stat every consumable of a group grants. The
+// panel's headed groups (`STAT_GROUPS`) come first and its health and mana after them. A group whose consumables share
+// no stat the spec shows goes last, and groups that tie keep their order.
 export const inDisplayOrder = <T extends ReadonlyArray<Consumable>>(groups: ReadonlyArray<T>, displayStats: ReadonlyArray<UnitStat>): Array<T> => {
 	const panel = [...STAT_GROUPS.filter(group => group.key !== 'primary'), ...STAT_GROUPS.filter(group => group.key === 'primary')];
 	const shown = new Set(displayStats.map(stat => stat.getKey()));
@@ -302,13 +295,11 @@ function lostTo(amounts: Map<string, number>, rivals: ReadonlyArray<{ other: Gra
 
 const tying = (rivals: ReadonlyArray<Grants>) => rivals.map(other => ({ other, ties: true }));
 
-// The sim counts each stat and percent the elixirs and scrolls grant at the largest amount among them and the raid
-// buffs that overwrite them (R-0054), so a pick adds nothing where the other picks and those buffs grant as much of everything it
-// grants. The picks are set aside one at a time, those granting the fewest stats and percents first and, among those,
-// the one later in the spec's lists first (the elixir ids, then the extra ids), so of two that grant the same only one
-// is. One granting nothing the picker can read is never set aside. Answers the picks set aside and the picks left that
-// lose some of what they grant, by id, each with what it loses to whom. A pick left loses to a raid buff of an equal
-// amount, and to a pick of an equal amount earlier in the lists.
+// Elixir stacking in R-0054. A pick is set aside when the other picks and the raid buffs grant as much of
+// everything it grants. The picks are set aside one at a time, those granting the fewest stats and
+// percents first and, among those, the one later in the spec's lists first, so of two that grant the same
+// only one is. One granting nothing the picker can read is never set aside. A pick left loses to a raid
+// buff of an equal amount, and to a pick of an equal amount earlier in the lists.
 function elixirOverwrites(
 	picks: ReadonlyArray<PickGrants>,
 	buffs: ReadonlyArray<Grants>,
@@ -353,11 +344,10 @@ interface Overwritten {
 	partly: boolean;
 }
 
-// The overwritten badges of the elixir and scroll picks, read off the picks among `counted`, the elixirs, the scrolls
-// and the other consumables that count with the elixirs, in the spec's elixir and extra ids and the raid buffs that
-// are on. A badge answers for a consumable as if it were picked in place of its group's pick, so an option in a
-// group's menu reads what it would add. Of each exclusive group only the first pick counts, as the sim selects them
-// (`selectedConsumableIDs` in sim/core/consumes.go).
+// The overwritten badges of the elixir and scroll picks, read off the picks among `counted` in the spec's elixir and
+// extra ids and the raid buffs that are on. A badge answers for a consumable as if it were picked in place of its
+// group's pick, so an option in a group's menu reads what it would add. Of each exclusive group only the first pick
+// counts, as the sim selects them (`selectedConsumableIDs` in sim/core/consumes.go).
 export function overwrittenTooltips(counted: ReadonlyArray<Consumable>) {
 	const grants = new Map(counted.map(consumable => [consumable.id, grantsOf(consumable)]));
 	const groupOf = new Map(counted.map(consumable => [consumable.id, consumable.groupKey]));

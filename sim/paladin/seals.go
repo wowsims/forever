@@ -13,15 +13,14 @@ const SealCategory = "PaladinSeal"
 
 // A white swing, with a Windfury Totem hit as one more swing: what Seal of Command, Seal of Fury
 // and Seal of Righteousness fire off (EV-0002), and what refreshes the judgement debuffs (EV-0117).
-// Seal of Light and Seal of Wisdom hear melee abilities through their rows, the Windfury Totem hit among them.
+// Seal of Light and Seal of Wisdom hear melee abilities through their spells, the Windfury Totem hit among them.
 const swingMask = core.ProcMaskMeleeWhiteHit | core.ProcMaskMeleeMHSpecial
 
 func hearsSwing(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 	return spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || buffs.IsWindfuryTotemStrike(spell)
 }
 
-// One rank of one seal: the castable spell's row, the aura the cast puts up, the judgement it
-// unleashes, and the per-hit effect Unsealed Wrath's Echo can replay.
+// One rank of one seal.
 type sealConfig struct {
 	rank      *spelldata.Spell
 	classMask int64
@@ -30,7 +29,7 @@ type sealConfig struct {
 	judgement *core.Spell
 
 	// Unsealed Wrath: the Echo that stores this seal (0 for the seals none stores), and what one
-	// stored copy does to the target when it is spent, with the seal's own chance (nil where the
+	// stored copy does to the target when it is used, with the seal's own chance (nil where the
 	// seal's effect has no place in the sim).
 	echoID int32
 	echo   func(sim *core.Simulation, target *core.Unit)
@@ -46,8 +45,7 @@ const (
 	echoOfWisdomID        = 1328206
 )
 
-// Unsealed Wrath: the copy of a seal's hit that a spent Echo casts, tagged with the Echo's spell id so
-// its damage reports apart. Nil without the talent.
+// Unsealed Wrath: the copy of a seal's hit that a used Echo casts.
 func (paladin *Paladin) registerEchoHit(config core.SpellConfig, echoID int32) *core.Spell {
 	if !paladin.Talents.UnsealedWrath {
 		return nil
@@ -63,7 +61,7 @@ type sealEcho struct {
 	seal *sealConfig
 }
 
-// The seals' rows as the game files state them. Seal of Command is a talent and registers from
+// The seal spells as the game files state them. Seal of Command is a talent and registers from
 // registerTalentSpells.
 var (
 	SealOfRighteousnessRankMap = spellData.SealOfRighteousness
@@ -89,7 +87,7 @@ func (paladin *Paladin) makeSealExclusive(aura *core.Aura) *core.Aura {
 	return aura
 }
 
-// The castable seal spell: instant, on the GCD, priced as the row says.
+// The castable seal spell: instant, on the GCD, priced as the spell says.
 func (paladin *Paladin) registerSealSpell(cfg *sealConfig) *core.Spell {
 	config := spelldata.SpellConfig(&paladin.Unit, cfg.rank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty
@@ -136,9 +134,7 @@ func afterBatch(sim *core.Simulation, priority core.ActionPriority, onAction fun
 	}))
 }
 
-// The judgement debuffs Light, Wisdom, Justice and the Crusader put up: the paladin's white swings
-// and Windfury Totem hits refresh them, and Judgement has to find the aura for the target it
-// judges.
+// The judgement debuffs Light, Wisdom, Justice and the Crusader put up.
 func (paladin *Paladin) newJudgementAuras(makeAura func(target *core.Unit) *core.Aura) core.AuraArray {
 	auras := paladin.NewEnemyAuraArray(makeAura)
 	paladin.JudgementAuras = append(paladin.JudgementAuras, auras)

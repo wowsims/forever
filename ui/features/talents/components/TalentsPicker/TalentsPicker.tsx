@@ -47,7 +47,7 @@ export const TalentsHeaderView = ({ pointsRemaining, getTalentsString }: Talents
 );
 
 // The picker opens on the middle tree. Below `lg` the three scroll-snap horizontally, so that
-// is a scroll position rather than a selection, and the browser drives it from there.
+// is a scroll position rather than a selection.
 const INITIAL_TREE_IDX = 1;
 
 export const TalentsPicker = <TalentsProto,>({ config }: TalentsPickerProps<TalentsProto>) => {

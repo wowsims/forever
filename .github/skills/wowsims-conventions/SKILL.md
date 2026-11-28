@@ -43,9 +43,11 @@ These apply to every file and every piece of GitHub text, in Go and TypeScript a
   logs to call final, whose `Reason` cites the id. A
   rule no single file owns goes into the subject skill, or into its own `docs/rulings/` file under an `R-` id
   (`docs/rulings/README.md`) that cites its evidence the same way; code that follows it may cite `(R-<n>)`.
-- **A hand-written item, set or enchant effect's comment describes the effect.** Below the name and Wowhead link it
-  gives the tooltip and a line or two on what the sim does, ending with the evidence id; which spells roll, the rates
-  per tier and the cases the logs settled stay in the evidence file. Only a ruling no evidence file holds is added.
+- **A hand-written item, set or enchant effect's comment is its name, Wowhead link and tooltip, then the id.** One
+  line names the rule and ends with the evidence id; which spells roll, the rates per tier and the cases the logs
+  settled stay in the evidence file. Only a trap or a ruling no evidence file holds adds a line.
+- **How much of a comment stays is `wowsims-comments`.** Run it over every comment a change adds or rewrites: what a
+  comment may hold, the size each kind gets, and the proof that a cutting pass touched comments only.
 - **Name a shared helper by its math.** A helper in `sim/core/utils.go` is named and documented by what it computes
   (`SymmetricMultiplierFromPercent`, `MultiplierFromPercent(-p)`), and the game meaning sits at the call site.
 
@@ -66,6 +68,20 @@ These apply to every file and every piece of GitHub text, in Go and TypeScript a
   never "cast bar" or a bare "bar" that means one.
 - **Windfury's extra attacks are hits.** A Windfury Weapon hit, a Windfury Totem hit, Windfury hits; never
   strikes. Identifiers keep theirs (`windfuryTotemStrike`).
+- **"Full block".** A block that takes all of a hit's damage is a full block, and the hit is fully blocked: "full
+  blocks still fire it". Never "a block that leaves no damage" or "blocked in full".
+- **"Use", never "spend".** A cast, hit or tick uses a charge, a stack, a buff or a resource: "the next cast uses the
+  charge". "Spent" stays where it means time or talent points ("time spent out of mana"). Identifiers keep theirs
+  (`AttachChargeSpender`).
+- **"ICD".** An internal cooldown is an ICD: "the spell has no ICD".
+- **"The spell's" and "the game files state"; "row" for a table's rows only.** A property of a spell is the spell's:
+  "every copy lasts the spell's duration", not "the row's duration". Where the source matters (a value the data lacks,
+  one the sim does not follow, a disagreement with a tooltip or a log), name the game files: "the game files state no
+  chance". "Row" stays for a literal row: an override row, a row of a named game table, a row the spell store code
+  builds or looks up, a row of a test table or of a list in the UI.
+- **"Not in game files."** A sentence that only says the data lacks something is that short: "The tooltip: "These
+  effects cause no threat." Not in game files.", "No rate in game files; the item's entry carries it." Never "The
+  game files state it in no field".
 
 ## Plain prose
 

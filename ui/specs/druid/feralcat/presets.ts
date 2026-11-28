@@ -48,8 +48,7 @@ export const DefaultEp = CatEp;
 export const DefaultEpWeights = PresetUtils.makePresetEpWeights('Cat', DefaultEp);
 export const HybridEpWeights = PresetUtils.makePresetEpWeights('Hybrid', HybridEp);
 
-// Uses Thistle Tea and optional Sapper, with racial actions gated by availability.
-// Uses Dash for the approach; Sapper can be used without leaving Cat Form.
+// Sapper can be used without leaving Cat Form.
 export const JVMES_APL = {
 	...PresetUtils.makePresetAPLRotation('Adaptive Cat', AdaptiveApl),
 	tooltip: 'Maintains Faerie Fire and bleeds, and uses optional consumables and racials. Supports an MCP opener from the weapon swap slot.',

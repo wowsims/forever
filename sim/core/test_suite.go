@@ -45,10 +45,9 @@ func (testSuite *IndividualTestSuite) TestCharacterStats(testName string, csr *p
 	env, raidStats, _ := NewEnvironment(csr.Raid, encounter, false, csr.SkipRotation)
 	finalStats := stats.FromUnitStatsProto(raidStats.Parties[0].Players[0].FinalStats)
 
-	// The ranged offsets, read with every build-phase aura up the way the final stats are: the sheet's
-	// ranged hit and crit beyond the physical percent. The sheet's melee row holds the main hand's
-	// weapon-bound mods, so the ranged row less the melee row is no ranged offset once the two weapons'
-	// mods differ.
+	// The ranged offsets, read with every build-phase aura up the way the final stats are. The sheet's
+	// melee row holds the main hand's weapon-bound mods, so the ranged row less the melee row is no
+	// ranged offset once the two weapons' mods differ.
 	character := env.Raid.Parties[0].Players[0].GetCharacter()
 	character.applyBuildPhaseAuras(CharacterBuildPhaseAll)
 	pseudoStats := character.GetPseudoStatsProto()
@@ -140,7 +139,6 @@ const tolerance = 0.00001
 func (testSuite *IndividualTestSuite) writeToFile() {
 	str := prototext.Format(testSuite.testResults)
 	// For some reason the formatter sometimes outputs 2 spaces instead of one.
-	// Replace so we get consistent output.
 	str = strings.ReplaceAll(str, "  ", " ")
 	data := []byte(str)
 
@@ -291,7 +289,6 @@ func RunTestSuite(t *testing.T, suiteName string, generators []TestGenerator) {
 
 					// The purpose of this test is not only to confirm concurrency result combination to work,
 					// but also to check if the sim resets everything properly between iterations.
-					// If there are differences in results it hints towards state leaking into following iterations.
 					if rsr != nil {
 
 						t.Run(testName+"/CompareResults", func(t *testing.T) {

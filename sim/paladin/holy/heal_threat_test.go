@@ -9,8 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// Holy Light, Flash of Light and Holy Shock's heal make 0.25 threat a point healed in game, half of
-// what other heals make, before the paladin's own threat modifiers (EV-0057, EV-0058).
+// Healing threat in EV-0057, EV-0058.
 func TestPaladinHealsMakeQuarterHealingThreat(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Class:         proto.Class_ClassPaladin,
@@ -31,7 +30,7 @@ func TestPaladinHealsMakeQuarterHealingThreat(t *testing.T) {
 	for name, id := range map[string]int32{
 		"Holy Light":     paladin.HolyLightRankMap.Highest().ID,
 		"Flash of Light": paladin.FlashOfLightRankMap.Highest().ID,
-		// The heal is its own spell, registered under the heal row's id.
+		// The heal is its own spell, registered under the heal spell's id.
 		"Holy Shock": paladin.HolyShockRankMap.Highest().Refs()[1].ID,
 	} {
 		heal := pally.GetSpell(core.ActionID{SpellID: id})

@@ -167,8 +167,8 @@ export const ENCHANT_NOTICES = new Map<number, ItemNoticeData>(
 	[...MISSING_ENCHANT_EFFECTS].map(([effectID, tooltips]): [number, ItemNoticeData] => [effectID, missingEffectNotice('enchant', tooltips)]),
 );
 
-// The rates the database carries on items and enchants: a known rate as a line, an unvalidated one as a warning
-// after the notice the gear already has. Runs before registerSetBonusNotices, which adds each piece's set rates.
+// The rates the database carries on items and enchants. Runs before registerSetBonusNotices, which adds each piece's
+// set rates.
 export const registerProcRateNotices = (db: Database) => {
 	for (const item of db.getAllItems()) {
 		if (!item.procRate) continue;
@@ -275,7 +275,7 @@ const addSetBonusNotices = <T,>(
 };
 
 // A set piece can also miss an item effect or carry a rate of its own, so the set notice joins the
-// notice it already has. Each set bonus rate also goes after the piece's own rate line in ITEM_RATE_NOTICES.
+// notice it already has.
 export const registerSetBonusNotices = (db: Database) => {
 	const itemIdsBySet = new Map<number, number[]>();
 	for (const id of db.getAllItemIds()) {
@@ -292,8 +292,7 @@ export const registerSetBonusNotices = (db: Database) => {
 		rates.set(setId, (rates.get(setId) ?? new Map<number, ProcRate>()).set(pieces, rate));
 	}
 
-	// By set id, then by piece count: what each bonus leaves out, a missing effect, a partial one, an
-	// untested reading or an unvalidated rate, in that order.
+	// By set id, then by piece count: the notices of what each bonus leaves out.
 	const setBonusNotices = new Map<number, Map<number, ReactNode[]>>();
 	addSetBonusNotices(setBonusNotices, MISSING_SET_BONUSES, tooltips => <NotYetImplementedBonus tooltips={tooltips} />);
 	addSetBonusNotices(setBonusNotices, PARTLY_IMPLEMENTED_SET_BONUSES, text => <PartlyImplementedBonus text={text} />);

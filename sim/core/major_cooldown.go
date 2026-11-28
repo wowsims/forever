@@ -33,7 +33,6 @@ func (ct CooldownType) Matches(other CooldownType) bool {
 type CooldownActivationCondition func(*Simulation, *Character) bool
 
 // Function for activating a cooldown.
-// Returns whether the activation was successful.
 type CooldownActivation func(*Simulation, *Character)
 
 type MajorCooldown struct {
@@ -47,18 +46,14 @@ type MajorCooldown struct {
 	// cooldowns have a non-zero cast time, which should go before an instant one.
 	Priority int32
 
-	// Internal category, used for filtering. For example, mages want to disable
-	// all DPS cooldowns during their regen rotation.
+	// Internal category, used for filtering.
 	Type CooldownType
 
 	// If False, the MCD will not be queued up before the GCD has fully expired.
-	// This is desirable for auto-chaining multiple MCDs just before a GCD ability.
 	AllowSpellQueueing bool
 
 	// Whether the cooldown meets all optional conditions for activation. These
 	// conditions will be ignored when the user specifies their own activation time.
-	// This is for things like mana thresholds, which are optimizations for better
-	// automatic timing.
 	ShouldActivate CooldownActivationCondition
 
 	// Autocast Other Cooldowns uses it only at a timing set in the cooldown settings; otherwise only the APL casts it.
@@ -298,8 +293,6 @@ func (mcdm *majorCooldownManager) removeInitialMajorCooldown(actionID ActionID) 
 	// Also remove any other MCDs that share the same CD timer pointer (e.g.
 	// Berserking 10%/15%/20%/25%/30% all share one timer).  This prevents
 	// auto-casting a different variant while the player controls one manually.
-	// Spells with independent timers (e.g. two trinkets that share no cooldown)
-	// are left alone.
 	for i := len(mcdm.initialMajorCooldowns) - 1; i >= 0; i-- {
 		mcd := &mcdm.initialMajorCooldowns[i]
 		if mcd.Spell.CD.Timer == removedTimer && mcd.Spell.SameActionIgnoreTag(actionID) {
@@ -380,10 +373,7 @@ func (mcdm *majorCooldownManager) getFirstReadyMCD(sim *Simulation) *MajorCooldo
 		// before the next spell, rather than immediately after the previous spell. This is
 		// true even for MCDs which do not require the GCD. The one exception to this rule
 		// is explosives, which should instead be cast right *after* incurring a GCD, since
-		// they are off-GCD but have small cast times. One whose cast fits in the shortest GCD
-		// also waits while less of the GCD is left than its cast, so that it never delays the
-		// next spell; a longer one, which the shortest GCD would not cover, goes whenever the
-		// GCD runs.
+		// they are off-GCD but have small cast times.
 		switch {
 		case mcd.Spell.Flags.Matches(SpellFlagReactive):
 		case mcd.Type.Matches(CooldownTypeExplosive):
@@ -421,7 +411,6 @@ func (mcdm *majorCooldownManager) sort() {
 }
 
 // Add a major cooldown to the given agent, which provides a temporary boost to a single stat.
-// This is use for effects like Icon of the Silver Crescent and Bloodlust Brooch.
 func RegisterTemporaryStatsOnUseCD(character *Character, auraLabel string, tempStats stats.Stats, duration time.Duration, config SpellConfig) *StatBuffAura {
 	aura := character.NewTemporaryStatsAura(auraLabel, config.ActionID, tempStats, duration)
 	cdType := aura.InferCDType()

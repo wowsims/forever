@@ -15,8 +15,7 @@ type VersusAuraEffect struct {
 }
 
 // Every versus aura and the stats it gives; the damage and crit damage multipliers give none. Flat
-// damage done against creature types reaches every school: Beastslayer 7784 adds its 2 to weapon hits
-// and spells alike.
+// damage done against creature types reaches every school.
 var versusAuras = map[dbcenums.EffectAuraType]VersusAuraEffect{
 	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS:  {Stats: []stats.Stat{stats.AttackPower}},
 	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS: {Stats: []stats.Stat{stats.RangedAttackPower}},
@@ -73,7 +72,7 @@ var creatureTypeMobTypes = [...]proto.MobType{
 }
 
 // The mob types a creature type mask names, as the versus auras' misc value and
-// TargetCreatureType state it: 4 is Demon, 32 Undead.
+// TargetCreatureType state it.
 func MobTypes(mask int32) []proto.MobType {
 	var out []proto.MobType
 	for creatureType, mobType := range creatureTypeMobTypes {

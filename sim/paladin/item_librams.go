@@ -14,8 +14,7 @@ var libramOfFervorSealBonus = spelldata.MustFind(28852).
 	Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_EFFECT1)).BaseValue()
 
 // The librams the game files ship unencrypted. Item effects apply before the spells register, so a
-// libram that changes a number a spell reads at registration sets it on the paladin and the spell
-// picks it up; one that changes a spell's cost, cooldown or crit chance is a spell mod.
+// libram that changes a number a spell reads at registration sets it on the paladin.
 //
 // Libram of Grace (22402) takes 25 mana off Cleanse, which the sim does not cast.
 func init() {

@@ -9,12 +9,9 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// An on-use item whose spell restores the wearer's mana, rage or energy, at once or over time, on the
-// item's cooldowns with the cast time and global cooldown the row states. Each aura the spell
-// triggers on the wearer goes up with the gain (WearerAuraTriggers). A character without that bar
-// does not register it. The cooldown manager uses it once the whole gain fits under the bar's
-// maximum. In the areas the row's area bonus names, each gain takes its factor: Second Wind's 15604
-// doubles in Mountainous areas.
+// An on-use item whose spell restores the wearer's mana, rage or energy, at once or over time. Each aura
+// the spell triggers on the wearer goes up with the gain. The cooldown manager uses it once the whole
+// gain fits under the bar's maximum.
 func NewSpellDataEnergizeOnUse(itemID int32) {
 	registerSpellDataOnUseCooldown(itemID, func(character *core.Character, row *spelldata.Spell) (core.SpellConfig, core.MajorCooldown, bool) {
 		effect := row.ProcEnergizeEffect()
@@ -74,8 +71,7 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 	})
 }
 
-// The on-use row's E_TRIGGER_SPELL effects whose spell puts auras on the wearer: Mindtap Talisman's
-// 1302205 triggers Tapped Mind 1302206, which lowers Intellect for its own duration.
+// The on-use spell's E_TRIGGER_SPELL effects whose spell puts auras on the wearer.
 func WearerAuraTriggers(row *spelldata.Spell) []*spelldata.Effect {
 	var triggers []*spelldata.Effect
 	for i := range row.Effects {
@@ -133,7 +129,7 @@ func effectGain(character *core.Character, gain *spelldata.Effect, actionID core
 	return func(sim *core.Simulation) { restore(sim, 1) }, true
 }
 
-// The same, the roll multiplied by a factor.
+// One roll of the effect's gain, multiplied by a factor, into the bar its misc value names.
 func scaledEffectGain(character *core.Character, gain *spelldata.Effect, actionID core.ActionID) (func(*core.Simulation, float64), bool) {
 	if gain == spelldata.NilEffect {
 		return nil, false
@@ -157,10 +153,8 @@ func EnergizesABar(power dbcenums.PowerType) bool {
 	return false
 }
 
-// An item or enchant proc whose trigger's row fires a spell that restores the wearer's mana, rage or
-// energy, read off the trigger alone the way FiredSpellUnsupported reads it: Idol of Longevity
-// 23004's 28847 refunds 28848's mana on each Healing Touch cast. A wearer without that bar registers
-// no listener.
+// An item or enchant proc whose trigger fires a spell that restores the wearer's mana, rage or
+// energy, read off the trigger alone the way FiredSpellUnsupported reads it.
 func NewSpellDataEnergizeProc(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataEnergizeProc)
 }
@@ -182,7 +176,7 @@ func registerSpellDataEnergizeProc(cfg SpellDataProc) {
 	})
 }
 
-// Why the spell a proc row fires cannot be built, or nil where it can: the row states no effect
+// Why the spell a proc fires cannot be built, or nil where it can: the proc states no effect
 // beside its proc, and the spell it fires (FiredSpell) puts mana, rage or energy into the wearer's
 // bar at once or changes the cooldown of one of the wearer's spell categories.
 func FiredSpellUnsupported(row *spelldata.Spell) []string {
@@ -213,7 +207,7 @@ func FiredSpellUnsupported(row *spelldata.Spell) []string {
 	return unsupported
 }
 
-// What the spell a proc row fires does, or nil where the wearer has no bar its gain fills. A
+// What the spell a proc fires does, or nil where the wearer has no bar its gain fills. A
 // cooldown change moves the whole category's timer, which is where a spell whose only recovery is
 // its category's keeps its cooldown; the game files state a reduction as a negative time, Spark's
 // 1306610 -100000.

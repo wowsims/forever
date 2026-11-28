@@ -21,9 +21,9 @@ type BulkSimStageProgressTracker struct {
 	lastProgressEmit                    time.Time
 }
 
-// Binds the parts of a stage's progress reporting that never change between emits, so
-// call sites pass only what actually moves. Stage totals are only known after the
-// baseline probe, so a stage uses one emitter for the probe and another for the rest.
+// Binds the parts of a stage's progress reporting that never change between emits. Stage
+// totals are only known after the baseline probe, so a stage uses one emitter for the probe
+// and another for the rest.
 type bulkSimStageProgressEmitter struct {
 	progress        chan *proto.ProgressMetrics
 	stage           proto.BulkSimStage

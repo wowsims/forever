@@ -34,18 +34,16 @@ func physicalMultiplier(character *core.Character) float64 {
 	return character.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical]
 }
 
-// The masks a melee weapon's damage done row is parsed under here: Physical alone, as the warrior's
-// Two-Handed Weapon Specialization 12163 names, and Physical and Holy, on a row whose aura stays on its
-// weapon.
+// The masks a melee weapon's damage done row is parsed under here: Physical alone, as Two-Handed
+// Weapon Specialization 12163 names, and Physical and Holy.
 var weaponDamageDoneMasks = map[string]int32{
 	"a mask of Physical":          int32(core.SpellSchoolPhysical),
 	"a mask of Physical and Holy": int32(core.SpellSchoolPhysical | core.SpellSchoolHoly),
 }
 
 // A melee weapon's damage done row gives its percent on Physical and on the melee-defense Holy spells
-// such as the Seal of Righteousness hit, and nothing on a magic-defense Holy spell such as Exorcism or
-// a ranged-defense one such as Hammer of Wrath, whether its mask names Holy or not. A physical spell
-// takes the percent through the school multiplier alone.
+// such as the Seal of Righteousness hit, and nothing on a magic-defense Holy spell or a ranged-defense
+// one, whether its mask names Holy or not.
 func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 	for name, misc := range weaponDamageDoneMasks {
 		row := weaponDamageDoneRow(misc, dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SWORD_2H)
@@ -80,9 +78,8 @@ func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 }
 
 // A melee weapon's damage done row whose aura reaches beyond its weapon gives every school its mask
-// names as a school multiplier while the weapon is equipped, so a Holy spell of any defense type takes
-// it through that multiplier alone. A school past the mask keeps the percent on its melee-defense
-// spells. With a weapon the row does not name it gives nothing.
+// names as a school multiplier while the weapon is equipped. A school past the mask keeps the percent
+// on its melee-defense spells.
 func TestWeaponDamageDoneRowReachingBeyondItsWeapon(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
@@ -193,8 +190,7 @@ func TestWeaponDamageDoneRowNeedsItsWeapon(t *testing.T) {
 	}
 }
 
-// The row follows the weapon through item swaps: nothing with a bow alone, the bonus once a sword is
-// swapped in, and nothing again once it is swapped out.
+// The row follows the weapon through item swaps.
 func TestWeaponDamageDoneRowFollowsItemSwaps(t *testing.T) {
 	row := weaponDamageDoneRow(1, dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SWORD_1H)
 	r := parseScopedWith(t, row, core.WeaponTestSlots(0, 0, core.WeaponTestBowID),
@@ -261,7 +257,7 @@ func TestWeaponDamageDoneRowReportsItsMeleeDefensePart(t *testing.T) {
 
 // A melee-defense spell of several schools takes the part by the school its SchoolIndex reads. Under a
 // Physical row, Physical and Holy, such as Infernal Strike 412790, reads Physical and takes none, its
-// multiplier carrying the bonus; Holy and Shadow reads Holy and takes it, under a Shadow row as well.
+// multiplier carrying the bonus.
 func TestWeaponDamageDoneRowCountsOnceOnSeveralSchools(t *testing.T) {
 	for _, tc := range []struct {
 		row    core.SpellSchool

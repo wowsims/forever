@@ -26,7 +26,7 @@ export const Timeline = ({ active }: TimelineProps) => {
 	const shown = useHeldSimResult(active);
 	const [view, setView] = useState<ChartView>('rotation');
 	// GCD spans are model rows and model items, not a CSS overlay: a row hidden with display still
-	// owns its height in the windower's prefix sums. So the toggle rebuilds the model.
+	// owns its height in the windower's prefix sums.
 	const [showGcd, setShowGcd] = useState(false);
 	// The versus marks are only hidden, so the toggle leaves the model alone.
 	const [showVersus, setShowVersus] = useState(true);
@@ -57,8 +57,8 @@ export const Timeline = ({ active }: TimelineProps) => {
 		}
 	}, [shown, player, duration, showGcd]);
 
-	// The rotation is the default view and the two are alternatives, so the chart's series are built
-	// only once someone has asked for them — and then kept, so switching back and forth is free.
+	// The chart's series are built only once someone has asked for them, and then kept, so switching
+	// back and forth is free.
 	const chartVisible = view === 'dps';
 	const [armed, setArmed] = useState<{ player: UnitMetrics; duration: number } | null>(null);
 	useEffect(() => {

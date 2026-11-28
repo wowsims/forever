@@ -22,9 +22,8 @@ export interface StatTooltipBodyProps {
 const bonusDisplayStats = (hand: UnitStat, bonusStats: Stats, bonusStatValue: number): Stats =>
 	hand.isPseudoStat() && hand.isPercentRating() ? bonusStats.withPseudoStat(hand.getPseudoStat(), hand.convertRatingToPercent(bonusStatValue)!) : bonusStats;
 
-// One hand's stage breakdown. `handLabel`, given only on a combined row while dual wielding, heads the
-// list so the two tooltips read apart. As a component rather than a plain function, its `show()` calls
-// run only once react-tooltip actually opens it, not on every StatRow render.
+// One hand's stage breakdown. As a component, its `show()` calls run only once react-tooltip opens it,
+// not on every StatRow render.
 export const StatTooltipBody = ({ hand, handLabel, attribution, show, bonusStats, bonusStatValue, total, rangedWeaponSpeed }: StatTooltipBodyProps) => (
 	<>
 		{handLabel && (

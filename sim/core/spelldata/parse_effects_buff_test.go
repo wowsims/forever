@@ -85,7 +85,7 @@ func TestBuffAuraRows(t *testing.T) {
 	}
 }
 
-// The rage a warrior's own row ticks is not mana, and a buff row that ticks nothing has no rate.
+// The rage a warrior's own spell ticks is not mana, and a buff spell that ticks nothing has no rate.
 func TestBuffManaTicksAreManaOnly(t *testing.T) {
 	rage := buffRow(7010, Effect{Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_ENERGIZE,
 		Misc: int32(dbcenums.POWER_RAGE), BasePoints: 10, PeriodMs: 1000})
@@ -416,8 +416,7 @@ func TestExclusivePerStat(t *testing.T) {
 }
 
 // The raid buff overwrites the elixir and the scroll of its stat, of which only the stronger counts, in
-// any order they come up: it counts by its own category, and its bid in the elixirs' category only
-// keeps a weaker elixir or scroll from counting. One that outbids it counts beside it.
+// any order they come up. One that outbids it counts beside it.
 func TestOverwrites(t *testing.T) {
 	type auras struct{ raid, elixir, scroll *core.Aura }
 	setUp := func(raid, elixir, scroll float64) (*core.Character, auras) {
@@ -471,8 +470,8 @@ func TestOverwrites(t *testing.T) {
 	}
 }
 
-// Two copies of the raid buff at the same amount, such as a priest's own prayer beside the raid's,
-// count it once in any order, and the one left up counts it once the other goes.
+// Two copies of the raid buff at the same amount count it once in any order, and the one left up
+// counts it once the other goes.
 func TestOverwritesTwoEqualCopies(t *testing.T) {
 	setUp := func() (*core.Character, []*core.Aura) {
 		character := buffTestWarrior()

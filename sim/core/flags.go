@@ -193,10 +193,10 @@ const (
 	SpellFlagIgnoreResists            SpellFlag = 1 << iota // skip spell resist/armor
 	SpellFlagIgnoreTargetModifiers                          // skip target damage modifiers
 	SpellFlagIgnoreAttackerModifiers                        // skip attacker damage modifiers
-	SpellFlagApplyArmorReduction                            // Its periodic physical damage meets the target's whole armor; spelldata.SpellConfig sets it from the row (EV-0194).
+	SpellFlagApplyArmorReduction                            // Its periodic physical damage meets the target's whole armor; spelldata.SpellConfig sets it from the spell (EV-0194).
 	SpellFlagNoActiveDefense                                // The physical hit roll skips dodge, parry and block.
 	SpellFlagIncludeTargetBonusDamage                       // Spell benefits from Gift of Arthas and Hemorrhage.
-	SpellFlagBinary                                         // The hit roll resists it in full at the target's average resist, and a landed one takes no partial resist; a physical one is blocked whole. spelldata.SpellConfig sets it from the row.
+	SpellFlagBinary                                         // The hit roll resists it in full at the target's average resist, and a landed one takes no partial resist; a physical one is fully blocked. spelldata.SpellConfig sets it from the spell.
 	SpellFlagChanneled                                      // Spell is channeled
 	SpellFlagDisease                                        // Spell is categorized as disease
 	SpellFlagPoison                                         // Spell is categorized as poison
@@ -218,28 +218,28 @@ const (
 	SpellFlagNoSpellMods                                    // Indicates that no spell mods should be applied to this spell
 	SpellFlagCanCastWhileMoving                             // Allows the cast to be casted while moving
 	SpellFlagPassiveSpell                                   // Indicates this spell is applied/cast as a result of another spell
-	SpellFlagSuppressWeaponProcs                            // The Suppress Weapon Procs attribute (Attributes[4] 0x800000): weapon procs, and auras marked "aura is weapon proc", ignore this spell's hits. In TBC that is Seal of Blood, Righteousness and Martyr damage plus a few CC spells.
-	SpellFlagSuppressCasterProcs                            // The Suppress Caster Procs attribute (Attributes[3] 0x10000): no ProcTrigger on the caster hears the spell's cast completing, hits, ticks or heals, which still land in full, e.g. Warblade of Caer Darrow's on-hit (EV-0165). No listener the sim builds can proc from suppressed spells (Attributes[7], [12]), so those attributes are not read.
+	SpellFlagSuppressWeaponProcs                            // The Suppress Weapon Procs attribute (Attributes[4] 0x800000): weapon procs, and auras marked "aura is weapon proc", ignore this spell's hits.
+	SpellFlagSuppressCasterProcs                            // The Suppress Caster Procs attribute (Attributes[3] 0x10000): no ProcTrigger on the caster hears the spell's cast completing, ticks, heals or hits (EV-0165), which still land in full. No listener the sim builds can proc from suppressed spells (Attributes[7], [12]), so those attributes are not read.
 	SpellFlagSuppressTargetProcs                            // The Suppress Target Procs attribute (Attributes[3] 0x20000): no ProcTrigger on the target hears the spell's hits or ticks, which still land in full.
 	SpellFlagProc                                           // Not a DBC attribute. The spell is cast by an aura or item effect and lacks Not a Proc (Attributes[3] 0x200), so aura procs only hear its hits when they can proc from procs. Weapon procs do not care.
 	SpellFlagSupressDoTApply                                // If present this spell will not apply dots (Used for DTR dot supression)
 	SpellFlagSwapped                                        // Indicates that this spell is not useable because it is from a currently swapped item
 	SpellFlagCastWhileIncapacitated                         // Allows the cast while the unit is incapacitated, e.g. Berserker Rage breaking a Fear.
-	SpellFlagFullResistanceTicks                            // Its ticks meet the target's full resistance, as direct hits do, where other ticks, a channel's included, meet a tenth; a binary spell's ticks then take the Spell Piercing bonus in full (EV-0142).
-	SpellFlagTenthResistance                                // Its hits roll their partial resist against a tenth of the target's average resist, as most ticks do, and take no Spell Piercing bonus, e.g. Flamestrike's ground ticks. Its periodic physical damage meets a tenth of the target's armor, after armor penetration; spelldata.SpellConfig sets it from the row, and SpellFlagApplyArmorReduction wins (EV-0194).
+	SpellFlagFullResistanceTicks                            // Its ticks meet the target's full resistance, as direct hits do (EV-0142).
+	SpellFlagTenthResistance                                // Its hits roll their partial resist against a tenth of the target's average resist and take no Spell Piercing bonus, e.g. Flamestrike's ground ticks. Its periodic physical damage meets a tenth of the target's armor (EV-0194), after armor penetration. spelldata.SpellConfig sets it from the spell, and SpellFlagApplyArmorReduction wins.
 	SpellFlagNoPartialResist                                // The spell's hits never lose damage to a partial resist and gain no Spell Piercing bonus, binary or not (EV-0142).
-	SpellFlagNoSpellPiercing                                // The caster's Spell Piercing does not reach its hits, e.g. Magma Totem's and Searing Totem's attacks (EV-0142).
+	SpellFlagNoSpellPiercing                                // The caster's Spell Piercing does not reach its hits (EV-0142).
 	SpellFlagPushback                                       // Damage taken while hardcasting pushes the cast back: SpellInterrupts.InterruptFlags 0x2.
 	SpellFlagKeepsSwingTimer                                // Completing a cast of the spell leaves the melee swing timer running: Do Not Reset Combat Timers (Attributes[2] 0x20000), or an explosive.
 	SpellFlagDropsQueuedSwing                               // Starting a cast of the spell drops the attack queued for the next swing, e.g. a thrown dynamite.
 	SpellFlagBleed                                          // A bleed: the whole cast misses a bleed-immune target, and its Dot does not land there.
 	SpellFlagStun                                           // The spell's mechanic is stun (SpellCategories.Mechanic 12): the whole cast misses a stun-immune target.
 	SpellFlagMovesToTarget                                  // The cast moves the caster toward its target, e.g. Charge or Blink. Not enforced, just a signal for the APL validation.
-	SpellFlagPhysicalSchoolDamage                           // A physical row that deals school damage: it takes the caster's flat physical damage bonus at its BonusCoefficient, where a weapon strike takes it whole.
-	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) and the caster's spell damage against the target's creature type (an item's mob type stats, e.g. Courier's Clasp; EV-0141) add nothing to the spell's hits, though its other spell power applies at its coefficient: a damage shield.
+	SpellFlagPhysicalSchoolDamage                           // A physical spell that deals school damage: it takes the caster's flat physical damage bonus at its BonusCoefficient, where a weapon strike takes it whole.
+	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) and the caster's spell damage against the target's creature type (EV-0141) add nothing to the spell's hits: a damage shield.
 	SpellFlagNoDamageVersus                                 // The caster's damage against a creature type (aura 168, e.g. Beast Slaying) adds nothing to the spell's hits, though its other damage done multipliers apply: a totem's attack.
 	SpellFlagCountsAsSwing                                  // Its hits count as main-hand melee swings: landed ones grant rage as an auto attack's do, and a listener with HearsCountedSwings hears them, e.g. a Windfury Totem hit.
-	SpellFlagTicksAreCasts                                  // Its ticks are the hits of a spell its aura casts each period, so they reach a listener as casts do (canProcFrom). spelldata.SpellConfig sets it from the row (EV-0226).
+	SpellFlagTicksAreCasts                                  // Its ticks are the hits of a spell its aura casts each period, so they reach a listener as casts do (EV-0226). spelldata.SpellConfig sets it from the spell.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1
@@ -253,10 +253,8 @@ const (
 type SpellSchool byte
 
 // The bit values are the game files'. SpellMisc.SchoolMask uses exactly this order, so a generated
-// spell row carries the number the DBC states rather than a translation of it. Nothing outside this
-// file depends on the numbers: the conversions to stats.SchoolIndex, the resistance stat and the
-// school damage stat are all switches over these names, stats.SchoolIndex is its own enum for array
-// positions, and proto.SpellSchool is separate again.
+// spell row carries the number the DBC states. Nothing outside this file depends on the numbers:
+// stats.SchoolIndex is its own enum for array positions, and proto.SpellSchool is separate again.
 const (
 	SpellSchoolNone     SpellSchool = 0
 	SpellSchoolPhysical SpellSchool = 1

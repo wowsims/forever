@@ -30,8 +30,8 @@ export const BulkModeMenuView = ({ tab, onPick }: BulkModeMenuViewProps) => {
 
 	// `nativeButton`: the tab renders a native button, which the kit cannot tell from the element, and a non-native
 	// trigger's role="button" would replace role="tab". Each item picks on click, so the current mode still opens the tab.
-	// A press opens the tab in its mode like any other tab. A mouse press leaves the hover menu alone, since a toggle
-	// would keep it open after the pointer leaves; a tap opens it too, having no hover to open it with.
+	// A mouse press leaves the hover menu alone, since a toggle would keep it open after the pointer leaves; a tap opens the
+	// menu as well as the tab, having no hover to open it with.
 	return (
 		<Menu
 			surface="menu"

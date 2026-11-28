@@ -110,8 +110,8 @@ func gainedFrom(caster *testCaster, itemID int32) (float64, int32) {
 	return 0, 0
 }
 
-// Renataki's Charm of Trickery 19954 casts 24532, E_ENERGIZE into energy (misc 3). The test's on-use
-// runs on a 3 min cooldown in category 1141, which the test's lasso shares.
+// Renataki's Charm of Trickery 19954 casts 24532, E_ENERGIZE into energy. The test's on-use shares its
+// cooldown category with the test's lasso.
 func TestOnUseEnergizeRestoresARoguesEnergy(t *testing.T) {
 	const charmID, lassoID int32 = 991301, 991302
 	sim, rogue := newBarSim(t, testRogue(),
@@ -173,7 +173,7 @@ func TestOnUseEnergizeRestoresARoguesEnergy(t *testing.T) {
 }
 
 // Gri'lek's Charm of Might 19951 casts 24571, E_ENERGIZE into rage (misc 1): the game files state
-// rage in tenths, and the tooltip reads a tenth of the row's amount.
+// rage in tenths, and the tooltip reads a tenth of the spell's amount.
 func TestOnUseEnergizeGivesAWarriorTheTooltipsRage(t *testing.T) {
 	const charmID int32 = 991303
 	sim, warrior := newBarSim(t, testWarrior(), testTrinket{charmID, NewSpellDataEnergizeOnUse, grileksOnUse()})
@@ -228,7 +228,7 @@ func TestOnUseEnergizeRestoresAManaUsersMana(t *testing.T) {
 	}
 }
 
-// Earthen Sigil 20525 casts 24884, A_PERIODIC_ENERGIZE mana every period for the row's duration.
+// Earthen Sigil 20525 casts 24884, A_PERIODIC_ENERGIZE mana every period for the spell's duration.
 func TestOnUseEnergizeRestoresManaOverTime(t *testing.T) {
 	const sigilID int32 = 991306
 	sim, mage := newBarSim(t, testMage(), testTrinket{sigilID, NewSpellDataEnergizeOnUse, sigilOnUse()})
@@ -250,7 +250,7 @@ func TestOnUseEnergizeRestoresManaOverTime(t *testing.T) {
 }
 
 // Mindtap Talisman 18371 casts 1302205, mana over time, whose E_TRIGGER_SPELL puts Tapped Mind 1302206
-// on the wearer: its Intellect loss is up for that row's duration.
+// on the wearer: its Intellect loss is up for that spell's duration.
 func TestOnUseEnergizePutsUpTheAuraItTriggers(t *testing.T) {
 	const talismanID int32 = 991310
 	sim, mage := newBarSim(t, testMage(), testTrinket{talismanID, NewSpellDataEnergizeOnUse, mindtapOnUse()})
@@ -274,8 +274,7 @@ func TestOnUseEnergizePutsUpTheAuraItTriggers(t *testing.T) {
 	}
 }
 
-// A character without the bar the gain fills does not register it: a rogue has no mana, a warrior no
-// energy, a mage no rage.
+// A character without the bar the gain fills does not register it.
 func TestOnUseEnergizeSkipsACharacterWithoutTheBar(t *testing.T) {
 	for _, tc := range []struct {
 		name   string
@@ -296,7 +295,7 @@ func TestOnUseEnergizeSkipsACharacterWithoutTheBar(t *testing.T) {
 }
 
 // Second Wind 11819 casts 15604, mana every period, and each gain doubles in the Mountainous areas its
-// row's area bonus names.
+// spell's area bonus names.
 func TestOnUseEnergizeTakesItsAreaBonus(t *testing.T) {
 	const windID int32 = 991311
 	row := spelldata.MustFind(15604)

@@ -6,7 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The rows ItemSetSpell names for each set's thresholds.
+// The spells ItemSetSpell names for each set's thresholds.
 var (
 	bonescytheHeadRush = spelldata.MustFind(28812) // 4pc: Head Rush, the proc
 	bonescytheThreat   = spelldata.MustFind(28811) // 6pc: less threat
@@ -33,8 +33,8 @@ const bonescytheStrikes = RogueSpellBackstab | RogueSpellSinisterStrike | RogueS
 
 // "Your Backstab, Sinister Strike, and Hemorrhage critical hits cause you to regain 5 energy."
 //
-// The row hears every landed melee ability, and its class flags name Eviscerate, Shank and Mutilate too. The
-// tooltip's three spells and its crit are set here; the cooldown is the row's.
+// The spell hears every landed melee ability, and its class flags name Eviscerate, Shank and Mutilate too. The
+// tooltip's three spells and its crit are set here.
 func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 	rogue := agent.(RogueAgent).GetRogue()
 	trigger := spelldata.ProcTrigger(&rogue.Character, bonescytheHeadRush, nil)
@@ -49,10 +49,8 @@ func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 // "Your Eviscerate has a chance per combo point to reveal a flaw in your opponent's armor, granting a 100%
 // critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage."
 //
-// A landed Eviscerate rolls 28814's chance per combo point it spent, the effect's points per resource, and grants
-// 28815's one charge; 28815's cooldown does not limit the roll. The buff's class flags name Shank, Mutilate and the
-// Season of Discovery strikes too; the crit and the charge are the tooltip's three here. A crit of one of them spends
-// the charge, as the row's proc states.
+// 28815's cooldown does not limit Eviscerate's roll for the buff. The buff's class flags name Shank, Mutilate and
+// the Season of Discovery strikes too; here its crit and its charge cover the tooltip's three spells alone.
 func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
 	rogue := agent.(RogueAgent).GetRogue()
 	buff := rogue.RegisterAura(spelldata.AuraConfig(revealedFlaw)).AttachSpellMod(core.SpellModConfig{
@@ -68,7 +66,7 @@ func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
 			trigger.ClassSpellMask = bonescytheStrikes
 		})
 
-	// Eviscerate spends its combo points before its hit is dealt, so they are read as it applies.
+	// Eviscerate uses its combo points before its hit is dealt, so they are read as it applies.
 	var comboPoints int32
 	eviscerate := bonescytheFlaw.EffectN(1).ClassFlags
 	setBonusAura.AttachProcTrigger(core.ProcTrigger{

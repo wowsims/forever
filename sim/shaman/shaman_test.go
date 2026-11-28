@@ -43,7 +43,7 @@ func enhancementRaid(talents string) *proto.Raid {
 	return core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{})
 }
 
-// A totem's trainer rank grants its own row's amount and takes the book rank's slot, and the book rank takes it back.
+// A totem's trainer rank grants its own amount and takes the book rank's slot, and the book rank takes it back.
 func TestTrainerTotemRanksBesideBookRanks(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       enhancementRaid(enhancementTalents),
@@ -132,8 +132,8 @@ func TestMeleeCritCapCountsElementalDevastation(t *testing.T) {
 
 }
 
-// Fire Nova's hits are a spell the cast triggers, and the row lacks Not a Proc, so Elemental
-// Devastation, which cannot proc from procs, never hears their crits. It hears an Earth Shock's.
+// Fire Nova's hits are a spell the cast triggers, and the spell lacks Not a Proc, so Elemental
+// Devastation, which cannot proc from procs, never hears their crits.
 func TestFireNovaHitsAreProcs(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       enhancementRaid(enhancementTalents),
@@ -179,8 +179,8 @@ func TestFireNovaHitsAreProcs(t *testing.T) {
 	}
 }
 
-// The cast deals no damage, so the results show Fire Nova as its hit's row, which holds every cast
-// and its GCD; the cast's row holds neither, so no table counts a Fire Nova twice.
+// The cast deals no damage, so the results show Fire Nova as its hit's row; no table counts a Fire Nova
+// twice.
 func TestFireNovaHitsHoldTheCastsAndCastTime(t *testing.T) {
 	const fireNova, searingTotem = 408345, 10438
 	castSpell := func(id int32) *proto.APLListItem {
@@ -234,8 +234,7 @@ func TestFireNovaHitsHoldTheCastsAndCastTime(t *testing.T) {
 	}
 }
 
-// A Dwarf's beast bonus reaches the shaman's own Fire Nova but not a fire totem's attack, which deals
-// the same damage to a beast as to any other creature.
+// A Dwarf's beast bonus reaches the shaman's own Fire Nova but not a fire totem's attack.
 func TestTotemAttacksTakeNoCreatureTypeBonus(t *testing.T) {
 	raid := enhancementRaid(enhancementTalents)
 	raid.Parties[0].Players[0].Race = proto.Race_RaceDwarf
@@ -267,8 +266,8 @@ func TestTotemAttacksTakeNoCreatureTypeBonus(t *testing.T) {
 	}
 }
 
-// Water Shield's tooltip: a hit taken or one of the shaman's spell crits spends a globe for 2% of
-// maximum mana, one globe every few seconds; a spell that does not crit spends none.
+// Water Shield's tooltip: a hit taken or one of the shaman's spell crits uses a globe for 2% of
+// maximum mana, one globe every few seconds.
 func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
 	player := &proto.Player{
 		Name:          "Water Shield",
@@ -308,7 +307,7 @@ func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
 			}
 		}
 	}
-	// Regen over a batch window is a fraction of a globe, so a spent globe is told apart by the
+	// Regen over a batch window is a fraction of a globe, so a used globe is told apart by the
 	// mana it adds.
 	expect := func(when string, hit func(), globes int32, spends bool) {
 		t.Helper()
@@ -341,7 +340,7 @@ func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
 	}, 1, true)
 }
 
-// Totemic Recall takes down the shaman's standing totems and returns the row's share of their base
+// Totemic Recall takes down the shaman's standing totems and returns the spell's share of their base
 // mana costs.
 func TestTotemicRecallReturnsAShareOfTheStandingTotemsBaseCosts(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
@@ -428,10 +427,7 @@ func TestMaelstromWeaponSkipsTheWindfuryTotemStrike(t *testing.T) {
 }
 
 // A Lightning Overload's launch rolls Elemental Focus once, a Chain Lightning overload's included
-// however many targets it hits. The Chain Lightning that launched the overload keeps the charge the
-// overload procced as it completes, and an Earth Shock in that instant spends it. A Lightning Bolt
-// overload launches after its bolt's cast has completed, so a Lightning Bolt of the same rank in that
-// instant spends the charge.
+// however many targets it hits.
 func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Targets = append(encounter.Targets, core.FreshDefaultTargetConfig(), core.FreshDefaultTargetConfig())
@@ -490,7 +486,7 @@ func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
 		launch(sim, target, spell)
 		gainedAtLaunch = clearcasting.IsActive()
 	}
-	// Earth Shock's own roll can refresh the charge it spends, so one spend over the loop is enough.
+	// Earth Shock's own roll can refresh the charge it uses, so one use over the loop is enough.
 	earthShock := sham.EarthShock[len(sham.EarthShock)-1]
 	kept, spent := 0, false
 	for range launches {
@@ -531,8 +527,7 @@ func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
 }
 
 // A Lightning Bolt that consumes five Maelstrom Weapon stacks keeps Clearcasting, and so does a
-// Chain Lightning cast while Maelstrom Ready! is up, which takes Maelstrom Ready! off and leaves the
-// stacks. Below five stacks a Lightning Bolt spends the charge.
+// Chain Lightning cast while Maelstrom Ready! is up.
 func TestMaelstromWeaponAtFiveStacksKeepsClearcasting(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       enhancementRaid(enhancementTalents),
@@ -576,8 +571,7 @@ func TestMaelstromWeaponAtFiveStacksKeepsClearcasting(t *testing.T) {
 		t.Errorf("after a Chain Lightning with Maelstrom Ready! up: Clearcasting up %v, Maelstrom Ready! up %v, %d stacks; want true, false, %d",
 			clearcasting.IsActive(), ready.IsActive(), maelstrom.GetStacks(), maelstrom.MaxStacks)
 	}
-	// Maelstrom Ready! is gone and the stacks stay, so the next Chain Lightning spends the charge;
-	// its own roll can refresh it, so one spend over the loop is enough.
+	// The next Chain Lightning uses the charge; its own roll can refresh it, so one use is enough.
 	spent := false
 	for range 100 {
 		clearcasting.Activate(sim)
@@ -630,8 +624,7 @@ func shamanWearingSpecs(t *testing.T, encounter *proto.Encounter, items []*proto
 }
 
 // Gift of the Gathering Storm's 3-piece bonus multiplies the share of the damage each Chain Lightning
-// jump keeps by its row's percent: the first target takes the same, the second that factor more and
-// the third its square.
+// jump keeps by its percent.
 func TestGiftOfTheGatheringStormRaisesEachChainLightningJump(t *testing.T) {
 	const bonusRow, chainRank = 26123, 10605
 	multiplier := 1 + spelldata.MustFind(bonusRow).EffectN(1).Percent()
@@ -644,8 +637,8 @@ func TestGiftOfTheGatheringStormRaisesEachChainLightningJump(t *testing.T) {
 		proto.ItemSlot_ItemSlotMainHand: 21398,
 	}
 
-	// What each of three targets takes from the same casts, with the bonus up or taken down. Both
-	// sims draw the same rolls, so the jumps' share alone sets them apart.
+	// The sims with the bonus up and taken down draw the same rolls, so the jumps' share alone sets them
+	// apart.
 	dealt := func(bonusUp bool) [3]float64 {
 		t.Helper()
 		encounter := core.MakeSingleTargetEncounter(0)
@@ -680,9 +673,8 @@ func TestGiftOfTheGatheringStormRaisesEachChainLightningJump(t *testing.T) {
 	}
 }
 
-// Stormcaller's Garb's 3-piece bonus grants Stormcaller's Wrath off Lightning Bolt, Chain Lightning and
-// the shocks, the spells its tooltip names, and never off Fire Nova, another harmful shaman spell the
-// row's listener would hear on its own.
+// Stormcaller's Garb's 3-piece bonus grants Stormcaller's Wrath off the spells its tooltip names, and
+// never off Fire Nova, another harmful shaman spell the buff's listener would hear on its own.
 func TestStormcallersGarbProcsOnlyOffTheSpellsItsTooltipNames(t *testing.T) {
 	const boltRank, chainRank, wrathRow = 15208, 10605, 26121
 	sim, sham := shamanWearing(t, core.MakeSingleTargetEncounter(0), map[proto.ItemSlot]int32{
@@ -734,8 +726,7 @@ func TestStormcallersGarbProcsOnlyOffTheSpellsItsTooltipNames(t *testing.T) {
 	}
 }
 
-// The Earthshatterer's 8-piece bonus gives the shaman its row's mana per 5 sec while Lightning Shield is
-// up, and none once it falls or with seven pieces worn.
+// The Earthshatterer's 8-piece bonus gives the shaman its mana per 5 sec while Lightning Shield is up.
 func TestEarthshattererGivesManaWhileLightningShieldIsUp(t *testing.T) {
 	want := spelldata.MustFind(28820).EffectN(1).BaseValue()
 	if want <= 0 {
@@ -796,7 +787,7 @@ func TestMagmaTotemPulsesAsItEnds(t *testing.T) {
 	}
 }
 
-// Lightning Shield's orb is a proc's spell hit, which Revelation, able to proc from procs, hears (EV-0149, R-0051).
+// Proc spell hits in R-0051, EV-0149.
 func TestLightningShieldOrbRollsRevelation(t *testing.T) {
 	const hits = 300
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)

@@ -379,8 +379,7 @@ func (generator *ItemsTestGenerator) init() {
 	}
 
 	generator.items = generator.ItemFilter.FindAllItems()
-	// A character whose default gear is a two-hander has no row for a shield or an off-hand item:
-	// nothing a player could wear beside the weapon.
+	// A character whose default gear is a two-hander has no row for a shield or an off-hand item.
 	if defaultGear := ProtoToEquipment(generator.Player.Equipment); defaultGear.MainHand().HandType == proto.HandType_HandTypeTwoHand {
 		generator.items = FilterSlice(generator.items, func(item Item) bool {
 			return item.Type != proto.ItemType_ItemTypeWeapon || item.HandType != proto.HandType_HandTypeOffHand
@@ -449,8 +448,7 @@ func equipTestItem(equipment *Equipment, item Item) {
 		equipment.EquipItem(item)
 		return
 	}
-	// The replaced weapon's enchant stays where it fits the test weapon, so the row measures the
-	// weapon and not the enchant it displaced.
+	// The replaced weapon's enchant stays where it fits the test weapon, so the row measures the weapon.
 	if worn := equipment[slots[0]]; worn.Enchant.EffectID != 0 && enchantRowAppliesToItem(worn.Enchant, item) {
 		item.Enchant = worn.Enchant
 	}
@@ -537,7 +535,7 @@ type CharacterSuiteConfig struct {
 	EPReferenceStat    proto.Stat
 }
 
-// defaultPlayerAndRaid builds the suite's default setup: the default race, gear, talents, spec
+// Builds the suite's default setup: the default race, gear, talents, spec
 // options and rotation, with full buffs unless the config sets its own.
 func (config CharacterSuiteConfig) defaultPlayerAndRaid() (*proto.Player, *proto.Raid) {
 	individualBuffs := Ternary(config.IndividualBuffs != nil, config.IndividualBuffs, FullIndividualBuffs)
@@ -588,9 +586,7 @@ func (config CharacterSuiteConfig) defaultPlayerAndRaid() (*proto.Player, *proto
 	return defaultPlayer, defaultRaid
 }
 
-// FullCharacterTestSuiteGenerator generates a full test suite for a character.
-// Also accepts JSON build config, Example:
-// core.GetTestBuildFromJSON(proto.Class_ClassWarrior, "../../../ui/specs/warrior/arms/builds", "default", ItemFilter, proto.Stat_StatStrength, nil)
+// Generates a full test suite for a character.
 func FullCharacterTestSuiteGenerator(configs []CharacterSuiteConfig) []TestGenerator {
 	testIndex := 0
 	return MapSlice(configs, func(config CharacterSuiteConfig) TestGenerator {
@@ -717,7 +713,6 @@ func FullCharacterTestSuiteGenerator(configs []CharacterSuiteConfig) []TestGener
 
 		// Add this separately, so it's always last, which makes it easy to find in the
 		// displayed test results.
-		// We only run this for the first test
 		if testIndex == 0 {
 			generator.subgenerators = append(generator.subgenerators, SubGenerator{
 				name: "Average",

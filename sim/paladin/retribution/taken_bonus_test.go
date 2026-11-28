@@ -129,9 +129,9 @@ func TestJudgementOfTheCrusaderLandsAfterDoneMultipliers(t *testing.T) {
 	}
 }
 
-// One Consecration on one enemy more than the ground marks, on the same seed, after setup has
-// changed the paladin, the ticks' spell or the enemies: per enemy, the damage its ticks deal and the
-// ticks that land, a crit counting as its multiplier. The last enemy is the one left unmarked.
+// One Consecration on one enemy more than the ground marks, on the same seed: per enemy, the damage
+// its ticks deal and the ticks that land, a crit counting as its multiplier. The last enemy is the
+// one left unmarked.
 func consecrationTicks(t *testing.T, setup func(*core.Simulation, *core.Character, *core.Spell)) (damage, landed []float64) {
 	t.Helper()
 	rank := paladin.ConsecrationRankMap.Highest()
@@ -142,7 +142,7 @@ func consecrationTicks(t *testing.T, setup func(*core.Simulation, *core.Characte
 	if spell == nil {
 		t.Fatal("Consecration is not registered")
 	}
-	// The ticks are the pulse row's spell, which holds the ground.
+	// The ticks are the pulse spell, which holds the ground.
 	ticks := spell.RelatedDotSpell
 	if ticks == nil {
 		t.Fatal("Consecration has no spell for its ticks")
@@ -162,10 +162,7 @@ func consecrationTicks(t *testing.T, setup func(*core.Simulation, *core.Characte
 	return damage, landed
 }
 
-// Consecration's marked tick takes Judgement of the Crusader and the spell damage against the
-// target's creature type at the bonus damage's coefficient: the spell damage under the done
-// multipliers, the judgement after them, which no done multiplier scales (EV-0143). The tick on an
-// unmarked enemy takes neither.
+// Marked tick bonuses in EV-0143.
 func TestConsecrationMarkedTickTakesJudgementOfTheCrusaderAfterDoneMultipliers(t *testing.T) {
 	coefficient := paladin.ConsecrationRankMap.Highest().Refs()[0].EffectN(2).Coeff()
 	if coefficient == 0 {

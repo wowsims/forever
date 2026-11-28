@@ -22,10 +22,8 @@ var (
 // Tier 1
 // https://www.wowhead.com/forever/item-set=2101/wildstalker-armor
 //
-// The game files ship four of the six pieces (shoulders, hands, legs, feet), so the 5-piece bonus
-// waits on the head and chest the ItemSet row lists. The 3-piece bonus takes 3 sec off Frost Trap and
-// Freezing Trap, which the sim does not cast. The 5-piece's mask names Aimed Shot alone; Multi-Shot
-// shares its cooldown category.
+// The game files ship four of the six pieces, so the 5-piece bonus waits on the head and chest the
+// ItemSet row lists. The 5-piece's mask names Aimed Shot alone; Multi-Shot shares its cooldown category.
 var ItemSetWildstalkerArmor = core.NewItemSet(core.ItemSet{
 	ID:   2101,
 	Name: "Wildstalker Armor",
@@ -85,9 +83,8 @@ var ItemSetTrappingsOfTheUnseenPath = core.NewItemSet(core.ItemSet{
 
 // Increases your pet's damage by 3%.
 //
-// The 3-piece's equip spell 26176 casts 29233 on the pet every 3 s, a 4 s aura raising the pet's
-// damage done in every school, so the pet has it exactly while it is out. The pet is the wearer's
-// one pet that is no guardian.
+// The 3-piece's equip spell 26176 casts 29233 on the pet every 3 s, a 4 s aura, so the pet has it
+// exactly while it is out.
 func applyBeastOfTheUnseenPath(agent core.Agent, setBonusAura *core.Aura) {
 	setBonusAura.ExposeToAPL(26176)
 	followPet(agent.GetCharacter(), setBonusAura, func(pet *core.Pet) []*core.Aura {
@@ -113,8 +110,7 @@ var ItemSetCryptstalkerArmor = core.NewItemSet(core.ItemSet{
 			mana := cryptstalkerAdrenalineMana.EnergizeEffect().Average()
 
 			// 28752 states "always" on ranged hits and its proc effect names Multi-Shot alone; the
-			// tooltip says your ranged critical hits, and the tooltip wins: the crit is the outcome
-			// and the mask comes off.
+			// tooltip says your ranged critical hits, and the tooltip wins.
 			trigger := spelldata.ProcTrigger(character, cryptstalkerAdrenalineProc,
 				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 					character.AddMana(sim, mana, manaMetrics)
@@ -134,8 +130,7 @@ var ItemSetCryptstalkerArmor = core.NewItemSet(core.ItemSet{
 // to cast on, and the 3 s recast keeps the 4 s aura from ever falling off, so both carry it exactly
 // while the pet is out. The pet's amount sits on its own aura, so inheritance never copies it; the
 // hunter's amount reaches the pet inside the 10% of the hunter's attack power it inherits.
-// ParseEffects reads no pet area aura, so the stats attach by hand. The pet is the wearer's one pet
-// that is no guardian.
+// ParseEffects reads no pet area aura, so the stats attach by hand.
 func applyStalkersAlly(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	bonus := stats.Stats{

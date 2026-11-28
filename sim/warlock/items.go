@@ -11,7 +11,7 @@ const blackBookItemID = 19337
 
 func init() {
 	// The Black Book: Blessing of the Black Book doubles the damage and the armor of the demon out. Every
-	// effect of the row lands on the pet, so the item cannot be used with no demon out.
+	// effect of the spell lands on the pet, so the item cannot be used with no demon out.
 	core.NewItemEffect(blackBookItemID, func(agent core.Agent) {
 		warlock := agent.(WarlockAgent).GetWarlock()
 		itemEffect := core.GetItemByID(blackBookItemID).ItemEffects[0]

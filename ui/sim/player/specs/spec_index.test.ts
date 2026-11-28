@@ -1,6 +1,4 @@
-// specIndex selects a spec's talent tree. It reads like a spec ordinal, nothing consumes it
-// today, and a wrong value therefore sits unnoticed until something does: an index past a
-// three-tree class throws and takes the rest of that page's construction with it, and an index
+// specIndex selects a spec's talent tree: an index past a three-tree class throws, and an index
 // one off silently selects a neighbouring tree. This pins every spec against the real tree data.
 import { Spec } from '@generated/proto/common';
 import { classTalentsConfig } from '@sim/talents/factory';

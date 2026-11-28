@@ -31,8 +31,8 @@ import { DamageResult } from '../DamageResult';
 import { EntityLabel } from '../EntityLabel';
 import { ActionLink } from './ActionLink';
 
-// One component per log kind. They stay in this file rather than taking one each: they are private
-// one-expression renderers for a single discriminated union, and the file is their unit.
+// One component per log kind. They stay in this file: they are private one-expression renderers
+// for a single discriminated union.
 const SourcePrefix = ({ log }: { log: CombatLog }) => <>{log.source && <EntityLabel entity={log.source} />}</>;
 
 // The sim's Stats.FlatString(), as in `{"Strength": 20.000,"CritRating": 14.000,}`, and one entry of it.
@@ -55,7 +55,7 @@ const amountAsShown = (name: string, amount: number, decimals: number): string =
 };
 
 // A += amount is per point of the source and in the destination's units, so a rating source reads per 1% of it. Three
-// decimals, as a two-decimal rating amount can be under 0.01%. A *= amount is a bare multiplier.
+// decimals, as a two-decimal rating amount can be under 0.01%.
 const dynamicDepAsShown = (_match: string, prefix: string, stat: string, multiplier?: string, source?: string, amount?: string): string => {
 	const name = translateProtoStatName(stat);
 	if (source === undefined) return `${prefix}${name} *= ${multiplier})`;
@@ -282,8 +282,7 @@ export interface LogLineProps {
 
 type LogOfKind<K extends CombatLog['kind']> = Extract<CombatLog, { kind: K }>;
 
-// A mapped type rather than a switch: the compiler then requires an entry for every kind, where a
-// switch only warns about a missing `return`.
+// A mapped type rather than a switch: the compiler then requires an entry for every kind.
 const LINE_BY_KIND: { [K in CombatLog['kind']]: ComponentType<{ log: LogOfKind<K> }> } = {
 	damage: DamageLine,
 	resource: ResourceLine,
@@ -308,8 +307,7 @@ const LINE_BY_KIND: { [K in CombatLog['kind']]: ComponentType<{ log: LogOfKind<K
 };
 
 export const LogLine = ({ log }: LogLineProps) => {
-	// TypeScript cannot correlate the looked-up component with the narrowed `log` — the correlated
-	// union limitation — so the cast is here, once, and every component above keeps its narrow props.
+	// TypeScript cannot correlate the looked-up component with the narrowed `log`, so the cast is here, once.
 	const Content = LINE_BY_KIND[log.kind] as ComponentType<LogLineProps>;
 	return <Content log={log} />;
 };

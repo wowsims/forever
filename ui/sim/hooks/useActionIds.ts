@@ -15,8 +15,7 @@ const fillIcon = (actionId: ActionId) => (isFilled(actionId) ? undefined : actio
  * A list of `ActionId`s, each resolved into what a component takes, index for index. `seed` gives an id's value on the
  * render that brings it, and `resolve` fetches the rest, answering `undefined` for an id with nothing to fetch, which
  * keeps its seed. A fetch that fails resolves its slot to `undefined` without holding back the others, and its
- * rejection surfaces once they settle. The ids are compared by content, so a fresh array of the same ids per render
- * neither refetches nor changes the returned array.
+ * rejection surfaces once they settle.
  */
 export const useResolvedActionIds = <R>(
 	actionIds: ReadonlyArray<ActionId | undefined>,

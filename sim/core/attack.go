@@ -7,7 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// ReplaceMHSwing is called right before a main hand auto attack fires.
+// Called right before a main hand auto attack fires.
 // It must never return nil, but either a replacement spell or the passed in regular mhSwingSpell.
 // This allows for abilities that convert a white attack into a yellow attack.
 type ReplaceMHSwing func(sim *Simulation, mhSwingSpell *Spell) *Spell
@@ -345,7 +345,7 @@ type WeaponAttack struct {
 	previousSwing time.Duration
 
 	// When the next swing would naturally complete, ignoring holds. For ranged attacks this is
-	// the release, and 0 marks the opening shot before windup starts. Used for the timeline's auto delay.
+	// the release, and 0 marks the opening shot before windup starts.
 	naturalReadyAt time.Duration
 
 	// Set by swing() immediately before firing the cast, read by the ranged
@@ -487,9 +487,9 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 	return wa.swingAt
 }
 
-// logSwingDelay logs how late a player's swing went off against an uncontested rotation, for the
-// timeline's delay band. It names the spell the swing casts, so a queued Heroic Strike or Raptor
-// Strike carries the delay too. Under 1ms is rounding and stays silent.
+// Logs how late a player's swing went off against an uncontested rotation. It names the spell the
+// swing casts, so a queued Heroic Strike or Raptor Strike carries the delay too. Under 1ms is
+// rounding and stays silent.
 func (wa *WeaponAttack) logSwingDelay(sim *Simulation, spell *Spell, isRanged bool) {
 	if sim.Log == nil || wa.unit.Type != PlayerUnit || wa.pendingSwingDelay <= time.Millisecond {
 		return
@@ -646,7 +646,7 @@ func (unit *Unit) EnableAutoAttacks(agent Agent, options AutoAttackOptions) {
 		DefenseType:  DefenseTypeRanged,
 		ProcMask:     Ternary(options.ProcMask == ProcMaskUnknown, ProcMaskRangedAuto, options.ProcMask),
 		Flags:        SpellFlagMeleeMetrics | SpellFlagIncludeTargetBonusDamage,
-		MissileSpeed: 40, // Auto Shot's speed; the hunter reads it from the row.
+		MissileSpeed: 40, // Auto Shot's speed; the hunter reads it from the spell.
 		MinRange:     unit.AutoAttacks.ranged.MinRange,
 		MaxRange:     unit.AutoAttacks.ranged.MaxRange,
 
@@ -848,8 +848,7 @@ func (aa *AutoAttacks) UpdateRangedRange(sim *Simulation) {
 	}
 }
 
-// Stops the auto swing action for the rest of the iteration. Used for pets
-// after being disabled.
+// Stops the auto swing action for the rest of the iteration.
 func (aa *AutoAttacks) CancelAutoSwing(sim *Simulation) {
 	aa.CancelMeleeSwing(sim)
 	aa.CancelRangedSwing(sim)
@@ -971,8 +970,8 @@ func (aa *AutoAttacks) resumeHeldRangedSwing(sim *Simulation) {
 	aa.ranged.scheduleRangedSwing(sim)
 }
 
-// scheduleMeleeWeaveWakeup wakes the rotation when the out-of-range MH swing comes
-// ready, so a weaver parked behind its GCD can move back into melee on time.
+// Wakes the rotation when the out-of-range MH swing comes ready, so a weaver parked behind its GCD
+// can move back into melee on time.
 func (aa *AutoAttacks) scheduleMeleeWeaveWakeup(sim *Simulation) {
 	if !aa.AutoSwingMelee || !aa.AutoSwingRanged {
 		return
@@ -998,10 +997,9 @@ func (aa *AutoAttacks) cancelMeleeWeaveWakeup(sim *Simulation) {
 	aa.meleeWeaveWakeup = nil
 }
 
-// weaveWakeupAfterCast wakes the rotation the instant a hardcast finishes so a
-// weaver can move in for a pending out-of-range swing during GCD downtime. Gated
-// on an outstanding weave wakeup, which is only scheduled for ranged-swing units
-// mid-excursion (so turret/non-weaving units are never woken).
+// Wakes the rotation the instant a hardcast finishes so a weaver can move in for a pending
+// out-of-range swing during GCD downtime. Gated on an outstanding weave wakeup, which is only
+// scheduled for ranged-swing units mid-excursion (so turret/non-weaving units are never woken).
 func (aa *AutoAttacks) weaveWakeupAfterCast(sim *Simulation) {
 	if aa.meleeWeaveWakeup != nil && aa.mh.swingAt <= sim.CurrentTime {
 		aa.mh.unit.ReactToEvent(sim, false, true)
@@ -1032,7 +1030,6 @@ func (aa *AutoAttacks) RangedPendingSwingDelay() time.Duration {
 }
 
 // Optionally replaces the given swing spell with an Agent-specified MH Swing replacer.
-// This is for effects like Heroic Strike or Raptor Strike.
 func (aa *AutoAttacks) MaybeReplaceMHSwing(sim *Simulation, mhSwingSpell *Spell) *Spell {
 	if aa.mh.replaceSwing == nil {
 		return mhSwingSpell
@@ -1108,8 +1105,8 @@ func (aa *AutoAttacks) DesyncOffHand(sim *Simulation, readyAt time.Duration) {
 	}
 }
 
-// StopMeleeUntil should be used whenever a non-melee spell is cast. It stops melee, then restarts it
-// at end of cast, but with a reset swing timer (as if swings had just landed).
+// Stops melee, then restarts it at end of cast, but with a reset swing timer (as if swings had just
+// landed).
 func (aa *AutoAttacks) StopMeleeUntil(sim *Simulation, readyAt time.Duration) {
 	if !aa.AutoSwingMelee { // if not auto swinging, don't auto restart.
 		return
@@ -1168,10 +1165,9 @@ func (aa *AutoAttacks) DelayMeleeBy(sim *Simulation, delay time.Duration) {
 	}
 }
 
-// PauseMeleeBy will prevent any swing from completing for the specified time.
+// Prevents any swing from completing for the specified time.
 // This replicates a /stopattack and /startattack with a brief "pause" in the middle.
 // It's possible that no swing time is lost if the pauseTime is less than the remaining swing time.
-// Used by Rogue Gouge
 func (aa *AutoAttacks) PauseMeleeBy(sim *Simulation, pauseTime time.Duration) {
 	if !aa.AutoSwingMelee {
 		return
@@ -1214,11 +1210,10 @@ func (aa *AutoAttacks) SwingAt() (mhAt time.Duration, ohAt time.Duration) {
 	return aa.mh.swingAt, aa.oh.swingAt
 }
 
-// ResumeMeleeAt undoes the unused part of a PauseMeleeBy, restoring the swing
-// times it pushed out. The swing timer is treated as having kept running, so a
-// swing that came due during the pause fires as soon as it ends. Swings are
-// only ever moved earlier, never past their original time and never into the
-// past.
+// Undoes the unused part of a PauseMeleeBy, restoring the swing times it pushed out. The swing
+// timer is treated as having kept running, so a swing that came due during the pause fires as soon
+// as it ends. Swings are only ever moved earlier, never past their original time and never into
+// the past.
 func (aa *AutoAttacks) ResumeMeleeAt(sim *Simulation, mhAt time.Duration, ohAt time.Duration) {
 	if !aa.AutoSwingMelee {
 		return

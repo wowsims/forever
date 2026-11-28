@@ -274,11 +274,10 @@ func registerSkyborneCasts(character *Character, spellID int32, castTime time.Du
 	return aura
 }
 
-// Command raises the damage of hunter and warlock pets by 5%. Its rows, 20576 for the hunter and 20575 for
-// the warlock, add a flat 5 to every effect of Tamed Pet Passive (8875 hunter, 18727 to 18730 warlock),
-// whose one effect is A_MOD_DAMAGE_PERCENT_DONE 0 on every school. The spell store carries neither the
-// rows nor the passives, so the 5% is applied here. The pets exist from construction, and a pet's
-// PseudoStats set after finalize do not survive a reset.
+// Command's rows, 20576 for the hunter and 20575 for the warlock, add a flat 5 to every effect of Tamed
+// Pet Passive (8875 hunter, 18727 to 18730 warlock), whose one effect is A_MOD_DAMAGE_PERCENT_DONE 0 on
+// every school. The spell store carries neither the rows nor the passives, so the 5% is applied here.
+// The pets exist from construction, and a pet's PseudoStats set after finalize do not survive a reset.
 func applyCommand(character *Character) {
 	if character.Class != proto.Class_ClassHunter && character.Class != proto.Class_ClassWarlock {
 		return
@@ -289,7 +288,7 @@ func applyCommand(character *Character) {
 }
 
 // Beast Slaying 20557, Big Game Hunter 1259721 and Elemental Insight 1259707 state one effect, aura 168:
-// 5% damage against the creature type. Their rows carry no aura 547, the critical damage half that
+// 5% damage against the creature type. They state no aura 547, the critical damage half that
 // Humanoid Slaying 19151 states.
 func applyDamageVersus(character *Character, spellID int32, mobType proto.MobType) {
 	character.Env.RegisterPostFinalizeEffect(func() {
@@ -308,8 +307,8 @@ func applyExpansiveMind(character *Character) {
 	}
 }
 
-// One class's Eureka! row: the class mask and the fraction of its idx0 SPELLMOD_COST, idx1
-// SPELLMOD_DAMAGE and idx2 SPELLMOD_DOT, zero where the row states no SPELLMOD_DOT, and the row's
+// One class's Eureka! spell: the class mask and the fraction of its idx0 SPELLMOD_COST, idx1
+// SPELLMOD_DAMAGE and idx2 SPELLMOD_DOT, zero where the spell states no SPELLMOD_DOT, and its
 // duration and cooldown.
 type EurekaMods struct {
 	CostFlags, DamageFlags, ChannelFlags ClassFlags
@@ -326,8 +325,8 @@ func RegisterEurekaMods(read func(spellID int32) EurekaMods) {
 }
 
 // Eureka! scopes its mods to each class's abilities by the game files' class masks, for as long as
-// the buff is up: idx0 of each row names the spells whose cost it lowers, idx1 the ones whose direct
-// damage it raises, and idx2, on the warlock and priest rows only, the channels whose ticks it raises.
+// the buff is up: idx0 of each spell names the spells whose cost it lowers, idx1 the ones whose direct
+// damage it raises, and idx2, on the warlock and priest spells only, the channels whose ticks it raises.
 // Other periodic damage takes no bonus. A tick takes the bonus when Eureka! is up as it lands, so a
 // channel started before the buff gains it and one running past its end loses it.
 // TODO: Ingame test needed: whether a channel still running when the buff runs out keeps the bonus to
@@ -409,7 +408,7 @@ func applyEureka(character *Character) {
 }
 
 // The drain takes no downrank scaling from a low-level trigger and no Shadow modifiers. Its amount (5%
-// of max health), chance and 15 s cooldown are the row's values, typed in here; the logs agree with
+// of max health), chance and 15 s cooldown are the game files' values, typed in here; the logs agree with
 // the cooldown (EV-0022).
 func applyTouchOfTheGrave(character *Character) {
 	auraID, procChance := int32(1260201), 0.3

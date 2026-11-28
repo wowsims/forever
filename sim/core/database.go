@@ -28,8 +28,8 @@ var spellEffectsById = map[int32]*proto.SpellEffect{}
 // through an accessor below that holds dbMu; do not export them.
 var dbMu sync.RWMutex
 
-// The only bulk scan of the item map - everything else looks items up by ID. Runs fn for
-// every item that belongs to a set, under the read lock, stopping early if fn returns false.
+// The only bulk scan of the item map. Runs fn for every item that belongs to a set, under the
+// read lock, stopping early if fn returns false.
 func forEachSetItem(fn func(item Item) bool) {
 	dbMu.RLock()
 	defer dbMu.RUnlock()
@@ -555,9 +555,8 @@ func ProtoToEquipmentSpec(es *proto.EquipmentSpec) EquipmentSpec {
 }
 
 func NewItem(itemSpec ItemSpec) Item {
-	// AddToDatabase writes these maps while other requests are mid-flight, so every
-	// lookup below has to be under the lock. Held across the whole function rather
-	// than reacquired per lookup; nothing in here takes dbMu again.
+	// The lock is held across the whole function rather than reacquired per lookup; nothing
+	// in here takes dbMu again.
 	dbMu.RLock()
 	defer dbMu.RUnlock()
 
@@ -705,8 +704,7 @@ func ItemEquipmentBaseStats(item Item) stats.Stats {
 	equipStats = equipStats.Add(item.Stats)
 	equipStats = equipStats.Add(stats.FromPseudoStatsProto(item.PseudoStats))
 
-	// The game rounds each suffix stat to the nearest point: 4106 Intellect allocation on a ring of 16
-	// random property points is 6.57, shown and applied as 7. Multiplying before dividing keeps an exact
+	// The game rounds each suffix stat to the nearest point. Multiplying before dividing keeps an exact
 	// half exact (47500 at 6 points is 28.5, shown as 29).
 	for stat, allocation := range item.RandomSuffix.Stats {
 		equipStats[stat] += math.Round(allocation * float64(item.RandPropPoints) / 10000)

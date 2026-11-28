@@ -3,8 +3,8 @@ import type { IconPickerProps } from '@ui-kit/IconPicker';
 
 import type { InputConfig, KeptInput, OverwrittenInput, StoreBinding } from '../../input';
 
-// One icon input, e.g. one for arcane brilliance and another for kings. ModObject is the object being
-// modified (Sim, Player or Target); ValueType is a number or a boolean.
+// One icon input. ModObject is the object being modified (Sim, Player or Target); ValueType is a
+// number or a boolean.
 interface IconPickerBase<ModObject, ValueType>
 	extends InputConfig<ModObject, ValueType>, KeptInput<ModObject, ValueType>, OverwrittenInput<ModObject, ValueType>, Pick<IconPickerProps, 'states'> {
 	actionId: ActionId;

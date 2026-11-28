@@ -4,7 +4,8 @@ import type { BuildInfo } from '../../tools/vite/build_info.mjs';
 
 /**
  * A release as a build reads it: Feral Cat with every part, Mage, a one-spec class, with its presets,
- * and DPS Warrior with only its game build, as a shallow clone reads it. Vitest and Storybook define no VITE_BUILD_INFO, so BUILD_INFO is empty there.
+ * and DPS Warrior with only its game build, as a shallow clone reads it. Vitest and Storybook define
+ * no VITE_BUILD_INFO, so BUILD_INFO is empty there.
  */
 export const RELEASE: BuildInfo = {
 	date: '2026-10-18',

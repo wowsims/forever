@@ -1,7 +1,7 @@
 # EV-0160: Krol'dok Battlegear's heal on blocks and its Stamina stacks
 
 - Claim: Krol'dok Battlegear's 4-piece Krol'dok Resolve (1324298) casts its heal 1324296 on the wearer on every
-  blocked melee or ranged hit, a block that leaves no damage too, at most once a second; a hit not blocked, a spell, a
+  blocked melee or ranged hit, a full block too, at most once a second; a hit not blocked, a spell, a
   tick, a hit a channel fires and Grievous Garrote never heal. The heal is 18 spread from 14 to 22 outside Strongholds
   and Cities, and a flat 44 inside them (area group 9326), 66 on a crit. The 5-piece Ogre Dominance (1324309) adds a
   stack of 1324308's Stamina on every landed melee or ranged hit taken, one that deals no damage too, at most once

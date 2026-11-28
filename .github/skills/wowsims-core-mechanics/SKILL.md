@@ -5,10 +5,10 @@ description: "Use when WoWSims Forever Go code depends on what sim/core does aro
 
 # wowsims-core-mechanics
 
-A row says what a spell is; `sim/core` decides when its effects run, what the cast spends, which targets it reaches and
-whose state it reads, so a spell that matches its row can still be wrong here. The rule this skill exists for: a claim
-about core's timing (an order, a spend, a refund) is proven at runtime, never by reading the call order alone. The
-rulings the code follows are in `references/rulings.md`; text here follows `wowsims-conventions`.
+The game files say what a spell is; `sim/core` decides when its effects run, what the cast uses, which targets it
+reaches and whose state it reads, so a spell that matches the game files can still be wrong here. The rule this
+skill exists for: a claim about core's timing (an order, a use, a refund) is proven at runtime, never by reading the
+call order alone. The rulings the code follows are in `references/rulings.md`; text here follows `wowsims-conventions`.
 
 ## Where things live
 
@@ -30,7 +30,7 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 | You are…                                                                     | Open                                                                        |
 | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | asking what the rotation sees at a hardcast end                              | `docs/rotation.md`, then `wowsims-apl`                                      |
-| deciding a hit, roll, regen, OOM or pet rule the row leaves open             | `references/rulings.md`                                                     |
+| deciding a hit, roll, regen, OOM or pet rule the game files leave open       | `references/rulings.md`                                                     |
 | chasing a trap: an item swap, weapon reach, `GainHealth`, pets, a proto bool | `references/traps.md`                                                       |
 | looking for the review case behind a section below                           | `.github/skills/wowsims-review/references/defects.md`, the matching section |
 
@@ -45,17 +45,17 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **`CallbackOnCastComplete` carries no result**, so `Outcome` and `RequireDamageDealt` are never read and no manager
   rolls (`aura_helpers.go`). A proc off the cast's hit roll uses `CallbackOnCastResult` (`spell_result.go`). Prove an order at runtime: `wowsims-testing` `## Proving a claim at runtime`.
 
-## What a cast spends
+## What a cast uses
 
-- **Core spends the cost at the cast; a refund is the spell's own call.** `spell.IssueRefund(sim)` gives back the cost's
+- **Core uses the cost at the cast; a refund is the spell's own call.** `spell.IssueRefund(sim)` gives back the cost's
   `Refund` share and a mana cost refunds nothing (`mana.go`). `SpellConfig` sets the share from the row's `MissRefund()`
-  (0.8 where the row flags Discount Power On Miss), the default unless verified spell-specific behaviour differs.
-- **Combo points are not part of the cost.** The spell spends them through `SpendComboPoints` (`energy.go`), each
+  (0.8 where the spell flags Discount Power On Miss), the default unless verified spell-specific behaviour differs.
+- **Combo points are not part of the cost.** The spell uses them through `SpendComboPoints` (`energy.go`), each
   resource on its own: a failed Ferocious Bite gets 80% of its base cost back and keeps its points and its extra
-  energy. The points sit on one unit: a gain on another unit drops them (spent on the gain's metrics), a target swap
+  energy. The points sit on one unit: a gain on another unit drops them (used on the gain's metrics), a target swap
   alone keeps them, and finishers and Current Combo Points read the points on their cast or given target.
-- **A one-charge buff is spent by the cast it modifies**; the spender is `wowsims-procs`. A spell's own charges
-  (`MaxCharges`) are spent by `ConsumeCharge` and refuse the cast at zero.
+- **A one-charge buff is used by the cast it modifies**; the spender is `wowsims-procs`. A spell's own charges
+  (`MaxCharges`) are used by `ConsumeCharge` and refuse the cast at zero.
 
 ## What scales
 
@@ -71,14 +71,14 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   reads attack power once, on its first target, passes the stat and the damage a point of it adds (`core.StatRead`)
   to `CalcCleaveDamageReading` or `CalcAoeDamageReading`. Each target's hit then takes its own versus share of the
   stat, and its tag names the stat only when that share is not 0 (Whirlwind, Thunder Clap, Cleave, Multi-Shot,
-  Ravager's Bladestorm). The weapon helpers' `PerAttackPower` forms (`sim/core/attack.go`) and a row's
+  Ravager's Bladestorm). The weapon helpers' `PerAttackPower` forms (`sim/core/attack.go`) and a spell's
   `WeaponPercent` give the damage per point. The other area and cleave iterations (`CalcAoeDamage`,
   `CalcCleaveDamage` and their deal and periodic forms) hand the marks read before them to every target's result.
   The attack power a target grants its attackers (`BonusAttackPower`, and `BonusRangedAttackPower` from Hunter's
   Mark) still comes from the first target alone. A formula that adds a versus
   stat by hand reads it through `spell.VersusStat` (Seal of Command), not the attack table. A read outside the damage
   stays off the tag: threat's attack power share, an expected-damage value, and a read before the cast or tick. An
-  item's versus bonus is named by the item when its row is parsed with `spelldata.ForItem`.
+  item's versus bonus is named by the item when its spell is parsed with `spelldata.ForItem`.
 - **Spell power read by hand takes no spell damage against the target's creature type.** `BonusDamage`, which a spell's
   or dot's `BonusCoefficient` adds, takes it, and `MeleeAttackPower(target)` and `RangedAttackPower(target)` take the
   attack power; `spell.SpellDamage(target)` leaves it out. A formula that multiplies `spell.SpellDamage(target)` itself
@@ -94,7 +94,7 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   fires only, or more often, against some targets sets `VersusProc` ("x3 proc chance", "proc only"). The header names
   the target's family when an entry matched it by its family. A versus factor on something other than damage, such as
   a stun's duration or a restore, and a cast allowed only on some targets, get no tag. Which targets an effect names is
-  a `core.VersusTargets` (`Matches`, `AnyIn`): a row's `TargetCreatureTypes()`, a mask's `spelldata.TargetCreatures`,
+  a `core.VersusTargets` (`Matches`, `AnyIn`): a spell's `TargetCreatureTypes()`, a mask's `spelldata.TargetCreatures`,
   and `shared.OnlyAgainst` for a proc that fires only on hits against them. A target of a creature family and no mob
   type of its own counts as the family's mob type in every versus check (`creatureFamilyMobTypes` in
   `sim/core/versus.go`, which `NewTarget` reads; `gen_db -gen=go-to-ts` copies it for the UI's `targetMobType` in
@@ -110,13 +110,13 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **An area factor goes through `character.RegisterArea`** (`sim/core/area.go`) with a `core.AreaBonus` (the
   `AreaTargets` and the factor) and a `VersusEffectKind` (`Effect` for stats, regeneration or a heal). It returns the
   factor in the encounter, 1 outside its areas, since the areas are fixed for the run, and lists it on the stats sheet
-  under its area in every encounter. A row's `overrides.AreaBonuses` entry reads as `spelldata.Spell.AreaBonus()`. A
+  under its area in every encounter. A spell's `overrides.AreaBonuses` entry reads as `spelldata.Spell.AreaBonus()`. A
   rule on top of the factor stays at its site (Everlook Delivery Bot's halved counts rounded down, listed as
   `HitsNeeded`). A flat amount in
   the areas goes through `character.RegisterAreaAmount`, which lists the amount and returns whether the encounter is
   in them (Krol'dok Battlegear's `FlatHeal`); a check with nothing to list is `AreaTargets.In` or `Encounter.InArea`.
-- **Periodic physical damage meets the armor its row's attributes name** (EV-0194). `SpellConfig` reads them: none
-  where the row sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
+- **Periodic physical damage meets the armor its attributes name** (EV-0194). `SpellConfig` reads them: none
+  where the spell sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
   leaves where it sets only Attributes[0] 0x40000 (`SpellFlagTenthResistance`, the weapons' Rends), and the whole armor
   where it sets neither (`SpellFlagApplyArmorReduction`, Wound). A periodic spell built by hand with no row ignores
   armor, and one that pays out damage that already met armor (Death Mark, Lacerating Strikes) sets
@@ -164,7 +164,7 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **`MakePermanent` sets `NeverExpires` and re-activates the aura in its `OnReset`** (`aura_helpers.go`); an aura with
   duration 0 panics on activation (`aura.go`).
 - **A dot tick rolls its amount, not its hit** (`docs/spell_data/auras-and-dots.md`); a spell whose ticks roll hit
-  passes `Spell.OutcomeTickMagicHitAndCrit` or `Dot.OutcomeTickMagicHit`. Always Hit on a triggered row:
+  passes `Spell.OutcomeTickMagicHitAndCrit` or `Dot.OutcomeTickMagicHit`. Always Hit on a triggered spell:
   `.github/skills/wowsims-abilities-auras/references/rulings.md`.
 - **`Dot.Apply` on an active dot deactivates and reactivates it, so its tick timer restarts** (`dot.go`). A stack that
   keeps the tick grid calls `Dot.Refresh` and then sets the stacks: `SetStacks` in Lacerate, `AddStack` in Deadly
@@ -212,8 +212,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target` or the cast's
   target, never the encounter's first target. Each target keeps only the times it reaches 35% and 20%, at the
   encounter's execute proportions of the fight, and 25% two thirds of the way between them (`resetExecutePhases`);
-  `IsBelowExecuteHealth` reads any of the three. An enemy has no health bar to read. A buff row a
-  target's phase grants sits on the caster and carries to another target (Decimation's 440873); a bonus whose rows
+  `IsBelowExecuteHealth` reads any of the three. An enemy has no health bar to read. A buff a
+  target's phase grants sits on the caster and carries to another target (Decimation's 440873); a bonus whose spells
   state no buff counts per target (Quietus, Early Demise).
 - **Fights are time-based**: there is no health-based fight length, and no damage taken moves a target's execute
   phases.

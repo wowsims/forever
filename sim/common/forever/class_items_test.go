@@ -23,8 +23,7 @@ import (
 	_ "github.com/wowsims/forever/sim/warrior" // registers the warrior's item effects.
 )
 
-// The stand-ins' spells, under the class flags of the spells the items name: Hamstring (family 4
-// bit 1), Arcane Shot (family 9 bit 11), Multi-Shot (family 9 bit 12), and the pet's claw.
+// The stand-ins' spells, under the class flags of the spells the items name.
 var (
 	stubHamstring  = core.ActionID{SpellID: 993101}
 	stubArcaneShot = core.ActionID{SpellID: 993102}
@@ -37,8 +36,7 @@ func init() {
 	enhancement.RegisterEnhancementShaman()
 	priest.RegisterPriest()
 
-	// The warrior stand-in: a rage bar, which the game files' tenths of rage are read against, and a
-	// Hamstring costing 10 rage.
+	// The warrior stand-in: a rage bar, which the game files' tenths of rage are read against.
 	testagent.Register(proto.Player_ProtectionWarrior{}, proto.Spec_SpecProtectionWarrior, func(player *proto.Player, spec any) {
 		player.Spec = spec.(*proto.Player_ProtectionWarrior)
 	}, func(agent *testagent.Agent) {
@@ -48,8 +46,7 @@ func init() {
 		agent.RegisterSpell(hamstring)
 	})
 
-	// The hunter stand-in, on the warlock's spec because the hunter's is taken by the shot stand-in:
-	// an Arcane Shot costing 100 mana, a Multi-Shot, and a pet.
+	// The hunter stand-in, on the warlock's spec because the hunter's is taken by the shot stand-in.
 	testagent.Register(proto.Player_Warlock{}, proto.Spec_SpecWarlock, func(player *proto.Player, spec any) {
 		player.Spec = spec.(*proto.Player_Warlock)
 	}, func(agent *testagent.Agent) {
@@ -252,8 +249,7 @@ func priestWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulatio
 	return sim, sim.Raid.Parties[0].Players[0].(priest.PriestAgent).GetPriest()
 }
 
-// Finery of Infinite Wisdom's 3-piece bonus 26172 raises Shadow Word: Pain's ticks by the row's
-// percentage and leaves Mind Blast alone.
+// Finery of Infinite Wisdom's 3-piece bonus 26172 raises Shadow Word: Pain's ticks and leaves Mind Blast alone.
 func TestFineryOfInfiniteWisdomRaisesShadowWordPain(t *testing.T) {
 	sim, wearer := priestWearing(t, map[proto.ItemSlot]int32{
 		proto.ItemSlot_ItemSlotMainHand: 21410,
@@ -279,8 +275,8 @@ func TestFineryOfInfiniteWisdomRaisesShadowWordPain(t *testing.T) {
 	}
 }
 
-// Raiments of Conviction's 4-piece bonus 1301087 adds its amount to the priest's spell damage against
-// the creature types its effect names, Undead, and nothing against a Humanoid. Three pieces add none.
+// Raiments of Conviction's 4-piece bonus 1301087 adds spell damage against Undead and nothing against
+// a Humanoid.
 func TestRaimentsOfConvictionAddSpellDamageAgainstUndead(t *testing.T) {
 	versus := func(wearer *priest.Priest, target *core.Unit) float64 {
 		return wearer.AttackTables[target.UnitIndex].VersusStats[stats.SpellDamage]
@@ -307,9 +303,8 @@ func TestRaimentsOfConvictionAddSpellDamageAgainstUndead(t *testing.T) {
 	}
 }
 
-// Arcane Infused Gem 19336 grants Arcane Infused 23721 for the row's duration, on the cooldowns its
-// on-use effect states. A landed Aimed Shot leaves it; the next landed Arcane Shot fires Arcane
-// Detonation 23722, its whole amount rolled by the row's variance, at every target, and spends it.
+// Arcane Infused Gem 19336 grants Arcane Infused 23721. A landed Aimed Shot leaves it; the next landed
+// Arcane Shot fires Arcane Detonation 23722 at every target and uses it.
 func TestArcaneInfusedGemDetonatesOnTheNextArcaneShot(t *testing.T) {
 	const gem = 19336
 	infused, damage := spelldata.MustFind(23721), spelldata.MustFind(23722).DamageEffect()
@@ -352,8 +347,8 @@ func TestArcaneInfusedGemDetonatesOnTheNextArcaneShot(t *testing.T) {
 	}
 }
 
-// Renataki's Charm of Beasts 19953 resets the shots' cooldowns, on the cooldowns its on-use effect
-// states, and is only worth using while a shot is cooling down.
+// Renataki's Charm of Beasts 19953 resets the shots' cooldowns, and is only worth using while a shot
+// is cooling down.
 func TestRenatakisCharmOfBeastsResetsTheShots(t *testing.T) {
 	const charm = 19953
 	sim, hunter := hunterTrinketWearer(t, charm)
@@ -378,7 +373,7 @@ func TestRenatakisCharmOfBeastsResetsTheShots(t *testing.T) {
 }
 
 // Old Guard Retaliator 208222's 418509 hears a killing blow, and the next attack gets the crit chance
-// its dummy effect states. A death with no kill credit grants nothing, and the attack spends the buff.
+// its dummy effect states.
 func TestOldGuardRetaliatorCritsTheAttackAfterAKill(t *testing.T) {
 	sim, warrior := modWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotMainHand, 208222)
 	target := sim.Encounter.AllTargets[0]
@@ -471,8 +466,7 @@ func TestFerrasCollarRaisesThePetsDamage(t *testing.T) {
 }
 
 // Cryptstalker Armor's 4-piece bonus gives the hunter and the pet Stalker's Ally 28758's attack power
-// and ranged attack power while the pet is out: both lose it when the pet is dismissed and have it
-// again when it returns. Three pieces give none, and a hunter with no pet gets none.
+// and ranged attack power while the pet is out.
 func TestCryptstalkerArmorGivesAttackPowerWhileThePetIsOut(t *testing.T) {
 	const stalkersAlly = 28758
 	row := spelldata.MustFind(stalkersAlly)
@@ -535,8 +529,8 @@ func TestCryptstalkerArmorGivesAttackPowerWhileThePetIsOut(t *testing.T) {
 	}
 }
 
-// Burning Totem 272433's equip spell 1291077 states a flat duration on Flame Shock, family 11 mask
-// 0x10000000: every rank's dot lasts that much longer.
+// Burning Totem 272433's equip spell 1291077 states a flat duration on Flame Shock: every rank's dot
+// lasts that much longer.
 func TestBurningTotemExtendsFlameShock(t *testing.T) {
 	_, without := enhancementShamanWithTotem(t, 0)
 	_, with := enhancementShamanWithTotem(t, 272433)
@@ -554,8 +548,7 @@ func TestBurningTotemExtendsFlameShock(t *testing.T) {
 }
 
 // Totem of the Storm 272432 lets a landed Lightning Bolt grant a Maelstrom Weapon stack at the share
-// of a main-hand hit's chance its dummy 1291078 states. Chain Lightning and the copy Lightning
-// Overload casts never do.
+// of a main-hand hit's chance its dummy 1291078 states.
 func TestTotemOfTheStormLetsLightningBoltGrantMaelstromWeapon(t *testing.T) {
 	sim, wearer := enhancementShamanWithTotem(t, 272432)
 	if wearer.Talents.MaelstromWeapon == 0 {
@@ -776,8 +769,7 @@ func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
 	}
 }
 
-// Enraged Idol's 1291060 states its rage as a flat modifier on Enrage's first effect, the rage each tick
-// restores, in tenths of rage.
+// Enraged Idol's 1291060 states its rage as a flat modifier on Enrage's first effect, in tenths of rage.
 func TestEnragedIdolRaisesEveryEnrageTick(t *testing.T) {
 	enrage := spelldata.MustFind(5229)
 	ticks := float64(rowTickCount(enrage, enrage.PeriodicEffect()))

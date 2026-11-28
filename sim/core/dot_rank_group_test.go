@@ -99,7 +99,7 @@ func stepTo(t *testing.T, sim *core.Simulation, until time.Duration) {
 	}
 }
 
-// A rank whose cast puts the row's periodic on the target, with the row's direct damage first where it
+// A rank whose cast puts the spell's periodic on the target, with its direct damage first where it
 // states one.
 func registerTargetDot(c *core.Character, id int32) *core.Spell {
 	row := spelldata.MustFind(id)
@@ -131,9 +131,9 @@ func TestDotRankHigherReplacesLower(t *testing.T) {
 	}
 }
 
-// Shadow Word: Pain's only effect is the periodic, so its lower rank is refused before it spends
+// Shadow Word: Pain's only effect is the periodic, so its lower rank is refused before it uses
 // anything wherever the dot lives; a rank registered with Proc() has no cast requirement and casts,
-// with its periodic skipped. The higher rank runs on to its own expiry either way.
+// with its periodic skipped.
 func TestDotRankLowerPureRankUnderHigher(t *testing.T) {
 	for _, tc := range []struct {
 		name     string

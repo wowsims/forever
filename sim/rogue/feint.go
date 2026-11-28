@@ -18,7 +18,7 @@ func (rogue *Rogue) registerFeintSpell() {
 func (rogue *Rogue) registerFeintRank(rank *spelldata.Spell) {
 	config := spelldata.SpellConfig(&rogue.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
-	// The row lacks No Active Defense, so the target can dodge it and, from the front, parry it.
+	// The spell lacks No Active Defense, so the target can dodge it and, from the front, parry it.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
 		result := spell.CalcAndDealDamage(sim, target, 0, spell.OutcomeMeleeSpecialHit)

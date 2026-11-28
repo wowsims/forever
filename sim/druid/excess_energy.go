@@ -15,12 +15,9 @@ type pendingRefresh struct {
 	cost float64
 }
 
-// The energy the cat can spend now without delaying a coming Rip or Rake refresh.
-//
-// A refresh counts when its bleed is up and the fight lasts long enough after it runs out for a new one
-// to be worth casting: Rip at 5 combo points with 10s of fight left, Rake with a full Rake left. Taking
-// the refreshes in time order, the energy regenerated before each one pays for it; what regeneration
-// cannot cover has to be kept from now. The result is the current energy minus what has to be kept.
+// The energy the cat can use now without delaying a coming Rip or Rake refresh. Taking the refreshes in
+// time order, the energy regenerated before each one pays for it; what regeneration cannot cover has to be
+// kept from now.
 func (druid *Druid) excessEnergy(sim *core.Simulation) float64 {
 	target := druid.CurrentTarget
 	remaining := sim.GetRemainingDuration()
@@ -65,8 +62,7 @@ func (druid *Druid) excessEnergy(sim *core.Simulation) float64 {
 			keep += refresh.cost - gain
 			regenUsedUntil = refresh.at
 		} else {
-			// Regeneration covers it: only the time it takes to pay is used. A cost below zero gives time
-			// back, so the next refresh gets that much more regeneration.
+			// Regeneration covers it: only the time it takes to pay is used.
 			regenUsedUntil += core.DurationFromSeconds(refresh.cost / regen)
 		}
 	}

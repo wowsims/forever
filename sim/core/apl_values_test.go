@@ -285,10 +285,9 @@ func TestValueVariables(t *testing.T) {
 	})
 }
 
-// A group reference fills the group's placeholders in its actions' values, those of an action inside a sequence
-// included, as it does in their conditions, and checks what it builds as the constructors do. A fill of a type the
-// value cannot take, or one that is empty, leaves the placeholder reading zero with a warning, and a placeholder
-// left unfilled is an error.
+// A group reference fills the group's placeholders in its actions' values as it does in their conditions.
+// A fill of a type the value cannot take, or one that is empty, leaves the placeholder reading zero with a
+// warning, and a placeholder left unfilled is an error.
 func TestGroupFillsActionValues(t *testing.T) {
 	placeholder := func(name string) *proto.APLValue {
 		return &proto.APLValue{Value: &proto.APLValue_VariablePlaceholder{VariablePlaceholder: &proto.APLValueVariablePlaceholder{Name: name}}}

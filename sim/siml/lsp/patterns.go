@@ -13,9 +13,7 @@ import (
 )
 
 // Common APL patterns as JSON fragments of an APLRotation, each with the values a reader fills in, for Insert
-// Pattern. The shapes are the ones the repository's APL files use: the toggle groups of the warrior files, the
-// `Use ...` switch variables of the hunter and retribution files, DoT and debuff refreshes, execute rows and prepull
-// casts.
+// Pattern. The shapes are the ones the repository's APL files use.
 
 // A value a pattern takes. Kind is what it takes: a spell, an aura on the player (aura) or one on the target
 // (target_aura), each an ActionID of the spec's names; or a duration, number, group, variable or choice.
@@ -374,8 +372,8 @@ var patterns = []pattern{
 	},
 }
 
-// Seconds from a time as a const reads one: a number, or a time string ("1.5s", "500ms", "2m30s", "-3"). False for
-// text the sim reads as no number, and for NaN or an infinity, which order against nothing.
+// Seconds from a time as a const reads one: a number, or a time string ("1.5s", "-3"). False for text the sim reads
+// as no number, and for NaN or an infinity, which order against nothing.
 func seconds(value any) (float64, bool) {
 	switch v := value.(type) {
 	case float64:

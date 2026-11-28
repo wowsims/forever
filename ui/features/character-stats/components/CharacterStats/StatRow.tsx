@@ -65,8 +65,6 @@ export const StatRowView = ({
 	const spellPiercing = attribution.final.getStat(Stat.StatSpellPiercing);
 	const piercingTooLow = unitStat.equalsStat(Stat.StatSpellPiercing) && spellPiercing > 0 && spellPiercing < MIN_SPELL_PIERCING;
 
-	// A row with an off-hand half shows each hand on its own line, prefixed MH and OH, while dual
-	// wielding with hands that differ, and the main-hand value alone otherwise.
 	// Each hand's final display string, computed once and shared by its anchor and its tooltip's Total row.
 	const mainHandTotal = show(attribution.final, unitStat, true);
 	const offHandTotal = dualWielding && offHandStat ? show(attribution.final, offHandStat, true) : mainHandTotal;

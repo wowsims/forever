@@ -217,10 +217,9 @@ export class Sim {
 		this.raid = new Raid(this);
 		this.encounter = new Encounter(this);
 
-		// Stats recompute on any raid/encounter change — one selector, so a batch
+		// Stats recompute on any raid/encounter change: one selector, so a batch
 		// touching both recomputes once. Skipped while the initial settings load
-		// is applying, so the load's many writes cost one recompute, which
-		// applyLoadedSettings runs when it finishes.
+		// is applying, so the load's many writes cost one recompute.
 		subscribeStatsInputs(this)(() => {
 			if (this.applyingLoadedSettings) return;
 			this.updateCharacterStats();
@@ -230,9 +229,8 @@ export class Sim {
 		this.store.setState(s => ({ ui: { ...s.ui, language: getLang() } }));
 	}
 
-	// True only while loadIndividualSettings is applying stored settings; see the
-	// stats subscription in the constructor. Subscribers mint their own event ids,
-	// so the load cannot be recognised by its EventID.
+	// True only while loadIndividualSettings is applying stored settings. Subscribers
+	// mint their own event ids, so the load cannot be recognised by its EventID.
 	private applyingLoadedSettings = false;
 
 	// Runs `apply` with the initial-settings-load flag set. Anything that does not
@@ -256,16 +254,12 @@ export class Sim {
 		try {
 			this.isNative = !(await this.isWasm());
 		} catch {
-			// Probe failed - fall back to the hostname heuristic (a local host runs the
-			// native sim, an external one runs wasm).
+			// Probe failed: fall back to the hostname heuristic.
 			this.isNative = environmentOf(this.env.location.hostname) === 'local';
 		}
 	}
 
-	/**
-	 * Check if workers are running wasm.
-	 * @returns true if workers are running wasm.
-	 */
+	/** Check if workers are running wasm. */
 	isWasm() {
 		return this.workerPool.isWasm();
 	}
@@ -507,13 +501,10 @@ export class Sim {
 					).map((gear, index) => ({ index, gear }))
 				: null;
 			if (!this.getFixedRngSeed()) {
-				// Derive the seed from the run's content instead of Math.random(): the same
-				// setup then reproduces bit-identical results (the whole pipeline is
-				// deterministic given a seed), while any change to the setup draws a fresh
-				// sample. An explicit fixed RNG seed still takes precedence above. The parts
-				// (the baseline as given or the live gear, the settings and any explicit
-				// candidates) are hashed individually (they are already JSON) and the
-				// digests combined, avoiding a second full serialization pass.
+				// Derive the seed from the run's content: the same setup then reproduces
+				// bit-identical results, while any change to the setup draws a fresh
+				// sample. The parts are hashed individually and the digests combined,
+				// avoiding a second full serialization pass.
 				const candidatesHash = explicitCandidates
 					? hashString(explicitCandidates.map(candidate => EquipmentSpec.toJsonString(candidate.gear)).join(','))
 					: '';
@@ -625,7 +616,7 @@ export class Sim {
 	}
 
 	// Stats for a hypothetical gear set, without touching the player's own current stats or
-	// metadata. Used by the gear optimizer.
+	// metadata.
 	async getCharacterStatsForGear(gear: Gear): Promise<PlayerStats> {
 		await this.waitForInit();
 
@@ -764,8 +755,7 @@ export class Sim {
 				: [];
 			// `toDatabase()` fills items and enchants only, so without this the request carries
 			// no consumables or spell effects. lib.wasm is built without the `with_db` tag, so a
-			// worker that has not already handled a full sim request cannot resolve them and computes
-			// the stat's sub-sims with no flask, elixir, food or potion.
+			// worker that has not already handled a full sim request cannot resolve them.
 			const playerProto = player.toProto(false, true);
 			extendPlayerProtoWithMissingEffects(playerProto, this.db);
 
@@ -1068,7 +1058,7 @@ export class Sim {
 			if (filters.armorTypes.length == 0) {
 				if (this.type == SimType.SimTypeIndividual) {
 					// There is no armor specialization, so a class can wear every armor type it
-					// is proficient in -- a druid leather and cloth, a shaman mail down to cloth.
+					// is proficient in.
 					filters.armorTypes = this.raid.getActivePlayers()[0].getPlayerClass().armorTypes.slice();
 				} else {
 					filters.armorTypes = Sim.ALL_ARMOR_TYPES.slice();

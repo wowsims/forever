@@ -10,7 +10,7 @@ var deathMarkRank = spellData.DeathMark.Highest()
 
 // The mark's rates are stated only in the tooltip: description variables 1021 give $ratio and $maxAP, and the text of
 // rank 4 (1325758), the rank the sim registers, caps the payout at
-// ((156 + 245 per point + $maxAP*AP per point) * ($mcrit/100 + 1)) * $coup. The store carries neither.
+// ((156 + 245 per point + $maxAP*AP per point) * ($mcrit/100 + 1)) * $coup.
 const (
 	deathMarkStoredPerPoint = 0.12 // $ratio: 12% of the damage per combo point.
 	deathMarkCapAPPerPoint  = 0.04 // $maxAP.
@@ -18,19 +18,16 @@ const (
 	deathMarkCapPerPoint    = 245.0
 )
 
-// The mark stores a share of the physical damage the rogue's attacks and bleeds deal its target, twice the share for
-// Garrote and Rupture, and none of the poisons' or other magic damage (EV-0192). It deals what it stored when it
-// ends, up to a cap that its combo points, attack power and melee crit chance raise. The stored damage already
-// carries every modifier and the target's armor, so the payout takes neither again.
+// Stored damage in EV-0192. The stored damage already carries every modifier and the target's armor, so
+// the payout takes neither again.
 func (rogue *Rogue) registerDeathMark() {
 	if !rogue.Talents.DeathMark {
 		return
 	}
 
-	// Coup de Grace raises the storage rate and the cap, each on its own: below the cap the stored amount carries it,
-	// and the cap is raised by it too. Its second effect is a SPELLMOD_DAMAGE on Death Mark's class flags, which the
-	// sim applies to direct hits only, and the payout is a tick, so it is read here. The tooltip's $coup reads the
-	// talent's first effect, which states the same values.
+	// Coup de Grace's second effect is a SPELLMOD_DAMAGE on Death Mark's class flags, which the sim applies to direct
+	// hits only, and the payout is a tick, so it is read here. The tooltip's $coup reads the talent's first effect,
+	// which states the same values.
 	coupDeGrace := spellData.CoupDeGrace.EffectAt(2).MultiplierAt(rogue.Talents.CoupDeGrace)
 	var comboPoints int32
 

@@ -7,11 +7,10 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Granted by the Shadowburn talent. The 15 sec cooldown is the row's category cooldown, and the Soul Shard
-// each cast takes the row's reagent. A hit that lands leaves effect 1 (A_CHANNEL_DEATH_ITEM) on the target
-// for the row's 8 sec, and the target dying under it returns a Soul Shard, whoever lands the killing blow.
-// The effect is kept as the time its window ends on each target, not as an aura: an aura's expiry on the
-// target would add a step to every fight and shift the order of the events at that time.
+// Granted by the Shadowburn talent. A hit that lands leaves effect 1 (A_CHANNEL_DEATH_ITEM) on the target,
+// and the target dying under it returns a Soul Shard, whoever lands the killing blow. The effect is kept as
+// the time its window ends on each target, not as an aura: an aura's expiry on the target would add a step
+// to every fight and shift the order of the events at that time.
 func (warlock *Warlock) registerShadowBurn() {
 	rankedSpell := spellData.Shadowburn.ByID(18871)
 	shadowburnHit := rankedSpell.DamageEffect()
@@ -42,7 +41,7 @@ func (warlock *Warlock) registerShadowBurn() {
 		}
 	}
 
-	// Calculate expected damage from the row's average hit
+	// Calculate expected damage from the spell's average hit
 	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
 		return spell.CalcDamage(sim, target, shadowburnHit.Average(), spell.OutcomeExpectedMagicCrit)
 	}

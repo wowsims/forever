@@ -5,8 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.ConeOfCold lists.
+// Only the highest rank is registered.
 func (mage *Mage) registerConeOfColdSpell() {
 	mage.registerConeOfColdRank(spellData.ConeOfCold.Len(), spellData.ConeOfCold.Highest())
 }
@@ -19,7 +18,7 @@ func (mage *Mage) registerConeOfColdRank(_ int32, rank *spelldata.Spell) {
 	damage := rank.DamageEffect()
 
 	// Winter's Chill raises the coefficient against each target by that target's own stacks, which
-	// this hit then spends, so each target is calculated on its own.
+	// this hit then uses, so each target is calculated on its own.
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		for _, aoeTarget := range sim.Encounter.ActiveTargetUnits {
 			bonusCoefficient := mage.wintersChillCoefficient(aoeTarget)

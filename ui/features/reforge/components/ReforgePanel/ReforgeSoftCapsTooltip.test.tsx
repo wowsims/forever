@@ -15,8 +15,7 @@ const critTaken = () =>
 
 describe('ReforgeSoftCapsTooltip', () => {
 	// Prot Paladin's only soft cap is ReducedCritTakenPercent, which has no single rating
-	// conversion, so the post-cap EP cell gets null here; a .toFixed() on it would take the whole
-	// sidebar down when the Suggest Reforges button is hovered.
+	// conversion, so the post-cap EP cell gets null here.
 	it('renders a soft cap whose stat has no percent conversion', () => {
 		const { container } = render(<ReforgeSoftCapsTooltip playerClass={Class.ClassPaladin} softCaps={[critTaken()]} additionalInformation={{}} />);
 

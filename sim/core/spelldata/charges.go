@@ -5,28 +5,26 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
-// Attaches to a charged buff the listener that spends its charges, as the buff's row states it, and
-// returns that listener. A cast spends one charge however many targets it hits. The spells that
-// spend one are the ones the row's proc effect names; a row whose proc effect names none states them
+// Attaches to a charged buff the listener that uses its charges, as the buff spell states it, and
+// returns that listener. A cast uses one charge however many targets it hits. The spells that
+// use one are the ones the buff's proc effect names; a buff whose proc effect names none states them
 // on its spell modifiers instead, and the charge goes to the spells the buff modifies. An option that
-// sets the trigger to CallbackOnCastComplete spends the charge as the cast completes, once its hits
+// sets the trigger to CallbackOnCastComplete uses the charge as the cast completes, once its hits
 // have rolled, so no spell landing after it takes the charge.
-// A condition an option sets narrows the spells that spend it, and a hit it turns away marks no
+// A condition an option sets narrows the spells that use it, and a hit it turns away marks no
 // channel. A charge gained while a channel the class flags name is running is still kept for that
 // channel's end.
 //
-// A channel is one cast for a buff whose row names its spells by class flags: the charge stays up for
-// every tick and every target, and is spent when the channel ends. A channel the buff's class flags
-// name spends it once the channel has started, even when its cast lands nothing itself, and so does
-// one already running when the charge comes. A listener on the cast counts a channeled cast as the
-// channel only while the channel runs, so one that starts none spends the charge like any other cast.
-// A tick that is a proc the row cannot proc from is not heard, so a channel of such ticks the class
-// flags do not name leaves the charge up. Wand Shoot is no such channel: each shot spends a charge
-// like any hit, and so do other hits while wanding. A buff whose row names no spells keeps nothing for
-// a channel: the first hit it hears spends the charge as it lands, a channel's missile included
-// (EV-0162).
+// A channel is one cast for a buff that names its spells by class flags: the charge stays up for
+// every tick and every target, and is used when the channel ends. A channel the buff's class flags
+// name uses it once the channel has started, even when its cast lands nothing itself. A listener on
+// the cast counts a channeled cast as the channel only while the channel runs, so one that starts none
+// uses the charge like any other cast. A tick that is a proc the buff cannot proc from is not heard,
+// so a channel of such ticks the class flags do not name leaves the charge up. Wand Shoot is no such
+// channel: each shot uses a charge like any hit, and so do other hits while wanding. Charge use
+// in EV-0162.
 // TODO: For a buff that names its spells, a tick that lands after its channel ends, a missile still in
-// flight, misses the charge. For one that names none, a missile in flight when a crit spends the charge
+// flight, misses the charge. For one that names none, a missile in flight when a crit uses the charge
 // keeps the crit it rolled with the buff up.
 func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, name string, opts ...ProcOpt) core.ProcTrigger {
 	classFlags := chargeClassFlags(character, s)

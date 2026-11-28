@@ -18,9 +18,6 @@ const kindTooltip = (shortDescription: string, fullDescription: string | undefin
 
 /**
  * The value kinds a player may pick, in the table's own insertion order.
- *
- * `isPrepull` and `isGroup` are the list's property, not the picker's, so they arrive through
- * `AplContext` rather than being read off the DOM.
  */
 export const valueKindOptions = (player: Player<any>, isPrepull: boolean, isGroup: boolean): Array<KindOption<ValidAPLValueKind>> =>
 	(Object.keys(valueKinds) as Array<ValidAPLValueKind>)

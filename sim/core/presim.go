@@ -9,10 +9,6 @@ import (
 
 // A presim is a full simulation run with multiple iterations, as a preparation
 // step for testing out settings before starting the recorded iterations.
-//
-// To use this, just implement this interface on your Agent.
-//
-// If you don't know what this is, you probably don't need it.
 type Presimmer interface {
 	GetPresimOptions(*proto.Player) *PresimOptions
 }
@@ -62,7 +58,7 @@ func (sim *Simulation) runPresims(request *proto.RaidSimRequest) *proto.RaidSimR
 	}
 
 	// Nothing to presim: skip before cloning the request, which is otherwise paid
-	// by every sim (including every bulk sim candidate) for no reason.
+	// by every sim for no reason.
 	if remainingAgents == 0 {
 		return nil
 	}

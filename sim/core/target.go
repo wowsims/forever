@@ -99,8 +99,8 @@ func (encounter *Encounter) updateAOECapMultiplier() {
 	encounter.aoeCapMultiplier = AOECapMultiplierOf(len(encounter.ActiveTargets))
 }
 
-// The share of its damage an uncapped area deals each of the targets it reaches: all of it up to 20
-// targets, 20 / targets past them. With no target the division gives +Inf, which the min keeps at 1.
+// The share of its damage an uncapped area deals each of the targets it reaches. With no target the
+// division gives +Inf, which the min keeps at 1.
 func AOECapMultiplierOf(targets int) float64 {
 	return min(20/float64(targets), 1)
 }
@@ -196,13 +196,11 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 	if target.Level == 0 {
 		target.Level = defaultRaidBossLevel
 	}
-	// A raid boss cannot be stunned: a stun explosive comes back immune, its damage included (EV-0088).
+	// Stun immunity in EV-0088.
 	target.StunImmune = target.Level >= defaultRaidBossLevel
 
 	// Default Crit chance for NPCs depends only on their level relative to the level of their
-	// player target. If there is a need to model a custom Crit % for a Target, this can be
-	// accomplished by specifying the extra (or reduced) Crit within the CritRating field of the
-	// proto stats array. Any specified CritRating will be applied as an OFFSET to the default
+	// player target. Any specified CritRating will be applied as an OFFSET to the default
 	// level-based values, rather than as a replacement.
 	target.stats[stats.PhysicalCritPercent] += UnitLevelFloat64(target.Level-CharacterLevel, 5.0, 5.2, 5.4, 5.6)
 	target.addUniversalStatDependencies()
@@ -284,8 +282,7 @@ func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 
 	// A channel on the target ends with no further tick, before the expiry below could land one. A ground
 	// channel lives on its caster and runs on. While the sim resets, the raid still holds the last
-	// iteration's state and has not reset yet: the target only starts the iteration disabled, and the pull
-	// moves the raid off it.
+	// iteration's state: the target only starts the iteration disabled, and the pull moves the raid off it.
 	if !sim.isResetting {
 		for _, unit := range sim.Raid.AllUnits {
 			if channel := unit.ChanneledDot; channel != nil && channel.Unit == &target.Unit {
@@ -462,8 +459,7 @@ type AttackTable struct {
 	Ranged AttackTableHand
 
 	// Raised only by A_MOD_CRIT_PERCENT_VERSUS effects. The game files state one only on Humanoid Slaying
-	// 19151, which no class learns. A_MOD_DAMAGE_DONE_VERSUS effects, Beast Slaying 20557 among them, raise
-	// damage alone.
+	// 19151, which no class learns. A_MOD_DAMAGE_DONE_VERSUS effects raise damage alone.
 	CritMultiplier float64
 
 	DamageDealtMultiplier       float64 // attacker buff, applied in applyAttackerModifiers()
@@ -568,8 +564,7 @@ func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item, slot proto
 	// Parry, glance chance and crit suppression count skill only up to the level-based maximum.
 	baseSkillDiff := float64(levelDiff*5) - min(bonus, 0)
 	// The spell table's level difference, capped at +3, less skill above the level-based maximum / 5,
-	// truncated toward zero, so 5 points of skill short of the maximum count as one more target level and
-	// 5 above it as one less.
+	// truncated toward zero.
 	skillLevelDiff := int32(float64(levelDiff) - bonus/5)
 
 	hand := AttackTableHand{

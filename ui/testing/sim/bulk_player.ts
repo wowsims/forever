@@ -6,8 +6,7 @@ import { createSimStore } from '@sim/state/sim_store';
 import { memoryEnv } from './memory_env';
 
 // A warrior over a real store with the batch settings seeded, which is all the batch and enchant preset models read.
-// Its storage is a map of its own, so what it stores loads back. `sim` parts are spread over the stub sim; every
-// other part sits on the player.
+// Its storage is a map of its own, so what it stores loads back.
 export const makeBulkPlayer = ({ sim, ...parts }: { sim?: object } & Record<string, unknown> = {}): Player<any> => {
 	const player = {
 		storeKey: 0,

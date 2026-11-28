@@ -21,15 +21,14 @@ export const applyBuild = (
 		if (talents) {
 			simUI.player.setTalentsString(talents.data.talentsString);
 		}
-		// A build may carry both. Builds are written by hand and routinely carry
-		// `rotationType: TypeSimple` *and* a rotation, and taking the first branch there drops the
-		// rotation on the floor: the Arms build would leave the Fury spec rotation in place.
+		// Builds routinely carry `rotationType: TypeSimple` *and* a rotation, and taking the first
+		// branch there drops the rotation on the floor.
 		if (rotationType && !rotation?.rotation.rotation) {
 			simUI.player.modifyAplRotation(aplRotation => {
 				aplRotation.type = rotationType;
 			});
 		} else if (rotation?.rotation.rotation) {
-			// Type first, as vanilla did: it lets a preset that differs from the current rotation
+			// Type first: it lets a preset that differs from the current rotation
 			// only by type short-circuit setAplRotation's equality check.
 			if (rotationType) {
 				simUI.player.modifyAplRotation(aplRotation => {
@@ -54,8 +53,6 @@ export const applyBuild = (
 			if (typeof settings.playerOptions?.distanceFromTarget === 'number') simUI.player.setDistanceFromTarget(settings.playerOptions.distanceFromTarget);
 			// Reachable only when the preset states a timing: `makePresetSettingsHelper` omits these
 			// two rather than copying a parsed 0, which a JSON that never mentioned them also yields.
-			// The three tank specs' default build is exactly that, and it was wiping their reaction
-			// time to 0 ms.
 			if (typeof settings.playerOptions?.reactionTimeMs === 'number') {
 				simUI.player.setReactionTime(settings.playerOptions.reactionTimeMs);
 				// A build that states its reaction and no top means a fixed reaction.

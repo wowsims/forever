@@ -57,9 +57,8 @@ func TestOnUseEnergizeRoutesFromTheSpellItCasts(t *testing.T) {
 	}
 }
 
-// A relic's cast proc whose dummy trigger names the spell it fires registers the gain through the
-// energize proc constructor, its class's mask read as the relic's lock. The same trigger on an item
-// of no relic type keeps the class mask refusal.
+// A relic's cast proc whose dummy trigger names the spell it fires registers the gain, its class's mask
+// read as the relic's lock. The same trigger on an item of no relic type keeps the class mask refusal.
 func TestRelicCastProcRoutesToTheGainItFires(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()

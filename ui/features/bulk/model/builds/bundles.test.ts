@@ -76,9 +76,8 @@ const CURRENT: CurrentBundle = {
 	settings: LIVE_SETTINGS,
 };
 
-// Two grouped presets and two saved sets, "Live copy" wearing the current gear; preset talents and rotations for Fury and
-// Arms, the talents "Live" holding the current string, the saved rotation "Live list" holding the current list; preset
-// settings for Fury and Arms and a saved "Live settings" entry that sims as the current settings.
+// Among these parts, "Live copy" wears the current gear, the talents "Live" hold the current string, the saved rotation
+// "Live list" holds the current list and the saved "Live settings" entry sims as the current settings.
 const PARTS: BulkBundleParts = {
 	gearSets: bulkGearSetEntries(
 		[

@@ -18,7 +18,7 @@ vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => result }));
 vi.mock('../MetricsTable/MetricsActionCell', () => ({ MetricsActionCell: ({ name }: { name: string }) => <span>{name}</span> }));
 
 // A target's actions. `makeNewTarget` gives every target a null `petActionId`, so `isPet` is false on
-// every row this table can build — which is the whole of defect 12.
+// every row this table can build.
 const targetResult = (...targets: Array<Array<ActionMetrics>>) =>
 	({
 		filter: {},

@@ -11,7 +11,7 @@ func (shaman *Shaman) registerChainLightningSpell() {
 	shaman.registerWithOverloads(chainLightningRanks, chainLightningOverloadRanks, shaman.newChainLightningSpellConfig)
 }
 
-// The cast, with the overload it may trigger; the overload itself, from its own row, where overload is
+// The cast, with the overload it may trigger; the overload itself, from its own spell, where overload is
 // nil. Both jump alike, so an overload reaches as many targets as the cast, starting on the target that
 // triggered it.
 func (shaman *Shaman) newChainLightningSpellConfig(row *spelldata.Spell, overload *core.Spell) core.SpellConfig {
@@ -40,9 +40,8 @@ func (shaman *Shaman) newChainLightningSpellConfig(row *spelldata.Spell, overloa
 			spell.DamageMultiplier *= bounce
 		}
 
-		// Each target the cast lands on rolls its own overload at a third of Lightning Bolt's chance,
-		// though the tooltip of 408438 states one chance for both spells (EV-0137). An overload rolls
-		// none of its own. DealDamage disposes the result, so Landed is read first.
+		// Overload rolls in EV-0137. The tooltip of 408438 states one chance for both spells. An
+		// overload rolls no overload of its own. DealDamage disposes the result, so Landed is read first.
 		var overloadTargets []*core.Unit
 		for _, result := range results {
 			landed, hitTarget := result.Landed(), result.Target
@@ -54,7 +53,7 @@ func (shaman *Shaman) newChainLightningSpellConfig(row *spelldata.Spell, overloa
 		}
 
 		// The overloads are priced once every hit of the cast has landed, so a debuff charge one of
-		// those hits spends, such as Stormstrike's, does not also raise an overload that jumps there.
+		// those hits uses, such as Stormstrike's, does not also raise an overload that jumps there.
 		for _, overloadTarget := range overloadTargets {
 			overload.Cast(sim, overloadTarget)
 		}

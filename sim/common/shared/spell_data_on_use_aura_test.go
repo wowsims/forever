@@ -27,7 +27,7 @@ const (
 	// enemy.
 	coldEye int32 = 1139
 
-	// Weakness Analyzer 272438's on-use: 1291101, A_MOD_CRIT_PCT on the wearer, with a charge spent by a
+	// Weakness Analyzer 272438's on-use: 1291101, A_MOD_CRIT_PCT on the wearer, with a charge used by a
 	// non-periodic crit.
 	analyzingWeaknesses int32 = 1291101
 
@@ -37,9 +37,7 @@ const (
 	sigmoidRevenge int32 = 1291099
 )
 
-// A threat reduction is worth nothing the sim scores, so the item is never used on its own: its major
-// cooldown files under no type and never asks to be used. Used by hand, it takes the row's share off
-// the wearer's threat for the row's duration.
+// A threat reduction is worth nothing the sim scores, so the item is never used on its own.
 func TestOnUseThreatReductionIsNeverUsedOnItsOwn(t *testing.T) {
 	row := spelldata.MustFind(eyeOfDiminution)
 	needAmount(t, "28862's threat", row.FirstAura(dbcenums.A_MOD_THREAT).Mean())
@@ -73,8 +71,7 @@ func TestOnUseThreatReductionIsNeverUsedOnItsOwn(t *testing.T) {
 }
 
 // The wearer's buff sorts the on-use: a block, dodge or parry chance or a damage shield makes it a
-// survival cooldown, spirit alone a mana cooldown, and a crit chance a DPS cooldown. Each row stands in
-// for the aura it carries on the wearer.
+// survival cooldown, spirit alone a mana cooldown, and a crit chance a DPS cooldown.
 func TestOnUseAuraCooldownTypeFollowsTheWearersBuff(t *testing.T) {
 	for i, tc := range []struct {
 		row  int32
@@ -104,7 +101,7 @@ func TestOnUseAuraCooldownTypeFollowsTheWearersBuff(t *testing.T) {
 	}
 }
 
-// What the wearer's damage shield, the spell under its row's id with tag 2, has dealt to the attacker,
+// What the wearer's damage shield, the spell under its id with tag 2, has dealt to the attacker,
 // once the handlers the hits queued have run.
 func shieldDamage(t *testing.T, sim *core.Simulation, wearer *auraTester, row int32, attacker *auraTester) float64 {
 	t.Helper()
@@ -124,7 +121,7 @@ func newShieldSim(items map[proto.ItemSlot]int32) (*core.Simulation, *auraTester
 	return sim, wearer, attacker
 }
 
-// Worn, Essence of the Pure Flame deals its row's Fire back to each melee attacker, and nothing back
+// Worn, Essence of the Pure Flame deals its Fire back to each melee attacker, and nothing back
 // for a spell.
 func TestEquipDamageShieldDealsItsAmountBackToAMeleeAttacker(t *testing.T) {
 	const itemID int32 = 992702
@@ -147,7 +144,7 @@ func TestEquipDamageShieldDealsItsAmountBackToAMeleeAttacker(t *testing.T) {
 	}
 }
 
-// Used, Fetish of Chitinous Spikes deals its row's Nature back to each melee attacker for the row's
+// Used, Fetish of Chitinous Spikes deals its Nature back to each melee attacker for the spell's
 // duration.
 func TestOnUseDamageShieldLastsTheRowsDuration(t *testing.T) {
 	const itemID int32 = 992703
@@ -182,7 +179,7 @@ func TestOnUseDamageShieldLastsTheRowsDuration(t *testing.T) {
 	}
 }
 
-// Cold Basilisk Eye slows the enemy's attacks by the row's share for the row's duration; its movement
+// Cold Basilisk Eye slows the enemy's attacks by the spell's share for the spell's duration; its movement
 // slow changes nothing the sim runs.
 func TestColdBasiliskEyeSlowsTheEnemysAttacks(t *testing.T) {
 	const itemID int32 = 992704
@@ -213,7 +210,7 @@ func TestColdBasiliskEyeSlowsTheEnemysAttacks(t *testing.T) {
 	}
 }
 
-// Weakness Analyzer adds its row's crit until the wearer's first crit, which spends its one charge: a
+// Weakness Analyzer adds its crit until the wearer's first crit, which uses its one charge: a
 // hit that does not crit leaves it up.
 func TestWeaknessAnalyzerDropsOnTheFirstCrit(t *testing.T) {
 	const itemID int32 = 992705
@@ -249,8 +246,8 @@ func TestWeaknessAnalyzerDropsOnTheFirstCrit(t *testing.T) {
 	}
 }
 
-// A crit that lands while a channel runs spends Weakness Analyzer's charge as it lands; the buff names
-// no spells, so the channel keeps nothing for its end (EV-0162).
+// Charge use in EV-0162. The buff names no spells, so a channel does not hold the charge for
+// its end.
 func TestWeaknessAnalyzerDropsOnACritInsideAChannel(t *testing.T) {
 	const itemID int32 = 992707
 	withAuraItem(itemID, proto.ItemType_ItemTypeTrinket, testOnUse(analyzingWeaknesses, 90000, 1141, 20000))

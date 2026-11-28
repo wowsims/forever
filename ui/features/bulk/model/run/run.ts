@@ -204,8 +204,7 @@ const abortBulkSimWork = async (host: IndividualSimHost<any>) => {
 	}
 
 	run.abortPromise = (async () => {
-		// Narrower than `All`: cancelling a batch must not also cancel a stat-weights or enchants
-		// optimizer run, which is the whole point of bulk having its own type.
+		// Narrower than `All`: cancelling a batch must not also cancel a stat-weights or enchants optimizer run.
 		await host.sim.signalManager.abortType(RequestTypes.BulkSim);
 	})();
 
@@ -273,10 +272,10 @@ const gearModePlan = (host: IndividualSimHost<any>, { talentsString, rotation }:
 	];
 };
 
-// Empty with no bundle or no encounter to run. A request's setups are keyed by the gear as sent, which is the gear the
-// sim's rows carry. Every request sends its candidates, an empty list too: given a baseline gear and no candidates, the
-// sim would generate them. Every request asks for the batch's top results, every candidate with All, so a cap that covers
-// a request's candidates sims them all at the high stage and culls none.
+// A request's setups are keyed by the gear as sent, which is the gear the sim's rows carry. Every request sends its
+// candidates, an empty list too: given a baseline gear and no candidates, the sim would generate them. Every request asks
+// for the batch's top results, every candidate with All, so a cap that covers a request's candidates sims them all at the
+// high stage and culls none.
 const buildsModePlan = (host: IndividualSimHost<any>, current: CurrentBuild, topResults: number): BulkEncounterPlan[] => {
 	const { sim, player } = host;
 	const slice = bulkState(player);
@@ -375,8 +374,8 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 	let runError: unknown = null;
 
 	try {
-		// Bulk owns its own request type now, so this has to name both: a batch still replaces an
-		// in-flight single sim, and it still replaces a previous batch, which naming one would drop.
+		// This has to name both: a batch replaces an in-flight single sim, and it replaces a previous
+		// batch, which naming one would drop.
 		await sim.signalManager.abortType(RequestTypes.IndividualSim | RequestTypes.BulkSim);
 		run.simStart = new Date().getTime();
 		const baseGear = player.getGear();

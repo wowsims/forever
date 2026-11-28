@@ -8,8 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// Each walk lands in its own action row, tag 0 for one the unit starts by hand and tag 1 for one a spell
-// causes, and counts one cast, for the owner and for its pet.
+// Each walk lands in its own action row and counts one cast, for the owner and for its pet.
 func TestWalksSplitByHandFromSpellCaused(t *testing.T) {
 	sim, owner := setupPetOwnerSim(&proto.RaidBuffs{}, &proto.PartyBuffs{})
 	pet := &owner.pet.Unit

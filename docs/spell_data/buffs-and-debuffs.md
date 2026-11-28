@@ -62,7 +62,7 @@ that grant no more add nothing (R-0054).
 carries a resistance of its own. Without `SingleAura`, each of its stats and pseudo-stats bids alone
 under `Category` + its key, priced per stack. A stronger debuff thus holds only the effects of its own
 kind, and Hex of Weakness keeps its healing taken under Demoralizing Shout's attack power. When an item
-proc puts a row that a raid debuff reads on the target, the aura is that debuff's player copy
+proc puts a spell that a raid debuff reads on the target, the aura is that debuff's player copy
 (`NewSpellDataDebuffAuraBySpell`). `newItemCountBuff` adds `Count`, so a party with several of the
 same item is worth that many copies of the amount.
 
@@ -237,11 +237,11 @@ delay, the metrics of a regen. The row compiles once the function is declared.
 
 A weapon's proc debuff (`armor_shatter`, `puncture_armor`) is one main-hand wielder: `rollWielderHits`
 rolls the item's procs per minute on its swings at the item's base speed and on 48 more landed hits a
-minute (EV-0147), and a landed roll refreshes the aura and adds a stack. A row on the melee hit table
+minute (EV-0147), and a landed roll refreshes the aura and adds a stack. A spell on the melee hit table
 (Puncture Armor's 17315 and 1293005) is cast as a strike, as the player's proc casts it (R-0040): the
 target dodges 6.5% of them, and one that lands off a swing rolls the proc once more (EV-0152). With the
 player wielding a weapon whose proc lands
-the same row (`playerWields`), the raid's copy is the player's own, as Sunder Armor's is with a
+the same spell (`playerWields`), the raid's copy is the player's own, as Sunder Armor's is with a
 warrior in the raid, so the player's procs stack and refresh it and the target carries one stack
 count. Vibroblade's 1293005 stays the raid's copy, since no wielder proc lands it. The driver reads the speed and the rate off the
 item database, and without the full database the sim knows only the items the request carries, so
@@ -340,7 +340,7 @@ slice and no row is dropped or moved (R-0050).
 manifest retypes makes `fromJson` throw on the enum name an older save spells out. Every `fromJson` of
 a settings envelope passes `ignoreUnknownFields`, so a field that only goes away costs nothing.
 
-**Drums are not a Forever consumable.** The game files describe no row for the TBC drums (35476, 35475
+**Drums are not a Forever consumable.** The game files describe no spell for the TBC drums (35476, 35475
 and 35478: Battle, War and Restoration) nor for their Greater variants, so there is nothing to model and
 no manifest row to hang them on. The only "Drums of War" in the game files is 1259907, fifteen seconds
 of party movement speed and no stat buff at all.
@@ -378,7 +378,7 @@ the row's `isPlayer=false` copy whenever the proto field is set, so a class port
 against each other, so the character sheet shows the buff once. The higher bid deactivates the other
 copy. On a tie the incumbent keeps the category when its remaining duration is the longer one, so a
 druid casting its own Thorns is turned away while the settings' permanent copy is up. The settings'
-copy bids its damage with `thorns_spell_power` folded in, and the druid's own copy bids the row's damage
+copy bids its damage with `thorns_spell_power` folded in, and the druid's own copy bids the spell's damage
 alone and adds its Nature spell power only when it deals the hit, so the settings' copy keeps the
 category even against a druid with more spell power. Battle Shout is the worked example.
 Neither copy is permanent, and the two are worth the same unless one side wears the tier 2 set, so

@@ -21,18 +21,15 @@ const (
 	auraChannelID  int32 = 992030
 
 	// Nature Aligned, Natural Alignment Crystal 19344's on-use: magic spell damage, healing and the mana
-	// cost of magic spells (A_MOD_POWER_COST_SCHOOL_PCT) raised on the wearer. The test's on-use puts
-	// it on a 5 min cooldown in category 1141 for 20 s.
+	// cost of magic spells (A_MOD_POWER_COST_SCHOOL_PCT) raised on the wearer.
 	natureAligned int32 = 23734
 
 	// Obsidian Mail Tunic 22191's equip spell: A_MOD_DAMAGE_TAKEN of magic schools, on the wearer.
 	spellDamageReduction int32 = 27518
 
-	// Beastmaster's Treads 226881: 27206 periodically casts 27205, A_MOD_DAMAGE_PERCENT_DONE on the
-	// pet. Beastmaster's Tunic 226886: 27225 casts 27208, A_MOD_BASE_RESISTANCE_PCT of armor on the pet,
-	// the same way. Beastmaster's Cap 226887: 27038 casts 27039, A_MOD_INCREASE_HEALTH_PERCENT, and
-	// Beastmaster's Gauntlets 226883: 27043 casts 27042, A_MOD_WEAPON_CRIT_PERCENT, both on the pet the
-	// same way.
+	// Beastmaster's Treads 226881: 27206 periodically casts 27205 on the pet. Beastmaster's Tunic 226886:
+	// 27225 casts 27208, the same way. Beastmaster's Cap 226887: 27038 casts 27039, and Beastmaster's
+	// Gauntlets 226883: 27043 casts 27042, both the same way.
 	increasedPetDamage int32 = 27206
 	increasedPetArmor  int32 = 27225
 	increasedPetHealth int32 = 27038
@@ -247,7 +244,7 @@ func percentMultiplier(t *testing.T, e *spelldata.Effect) float64 {
 }
 
 // Natural Alignment Crystal raises the wearer's spell damage, healing and its spells' mana cost by the
-// row's shares for the row's duration, and leaves a physical hit alone.
+// spell's shares for the spell's duration, and leaves a physical hit alone.
 func TestNaturalAlignmentCrystal(t *testing.T) {
 	const itemID int32 = 992101
 	withAuraItem(itemID, proto.ItemType_ItemTypeTrinket, testOnUse(natureAligned, 300000, 1141, 20000))
@@ -301,7 +298,7 @@ func hunter(name string, slotted map[proto.ItemSlot]int32) *proto.Player {
 	return auraPlayer(name, proto.Class_ClassHunter, &proto.Player_Hunter{}, slotted)
 }
 
-// The bolt of auraTester, 100, once the wearer of 27518 has taken its row's amount off it.
+// The bolt of auraTester, 100, once the wearer of 27518 has taken its spell's amount off it.
 func reducedBolt(t *testing.T) float64 {
 	t.Helper()
 	reduction := spelldata.MustFind(spellDamageReduction).FirstAura(dbcenums.A_MOD_DAMAGE_TAKEN).Mean()
@@ -309,7 +306,7 @@ func reducedBolt(t *testing.T) float64 {
 	return 100 + reduction
 }
 
-// Obsidian Mail Tunic takes its row's amount off every magic hit its wearer takes, and nothing off a
+// Obsidian Mail Tunic takes its spell's amount off every magic hit its wearer takes, and nothing off a
 // physical one or off a hit on anyone else.
 func TestObsidianMailTunicReducesAMagicHit(t *testing.T) {
 	const itemID int32 = 992201
@@ -334,8 +331,8 @@ func TestObsidianMailTunicReducesAMagicHit(t *testing.T) {
 	}
 }
 
-// A row restricted to an area applies in an encounter there and nowhere else. 27518 states no area,
-// so a copy requiring Forest and Grassland (group 9161) stands in for the rows that do.
+// A spell restricted to an area applies in an encounter there and nowhere else. A copy requiring Forest
+// and Grassland (group 9161) stands in for the spells that do.
 func TestEquipAuraAppliesOnlyInItsArea(t *testing.T) {
 	const itemID int32 = 992204
 	editRow(t, spellDamageReduction, func(s *spelldata.Spell) { s.RequiredAreas = 9161 })
@@ -361,7 +358,7 @@ func TestEquipAuraAppliesOnlyInItsArea(t *testing.T) {
 	}
 }
 
-// Beastmaster's Boots raise the pet's damage by the share their triggered row states, and do nothing
+// Beastmaster's Boots raise the pet's damage by the share their triggered spell states, and do nothing
 // for a wearer with no pet. The Tunic's pet armor share has no equipment share on a pet to scale, so it
 // registers nothing.
 func TestBeastmastersBootsRaiseThePetsDamage(t *testing.T) {
@@ -396,7 +393,7 @@ func TestBeastmastersBootsRaiseThePetsDamage(t *testing.T) {
 }
 
 // Beastmaster's Cap raises the pet's maximum health and Beastmaster's Gloves its crit by what their
-// triggered rows state, leaving the wearer's own alone, and do nothing for a wearer with no pet.
+// triggered spells state, leaving the wearer's own alone, and do nothing for a wearer with no pet.
 func TestBeastmastersCapAndGlovesRaiseThePetsHealthAndCrit(t *testing.T) {
 	const capID, glovesID int32 = 992205, 992206
 	withAuraItem(capID, proto.ItemType_ItemTypeHead)
@@ -444,7 +441,7 @@ func strikeAndStep(t *testing.T, sim *core.Simulation, wielder *auraTester, targ
 	stepPast(t, sim, sim.CurrentTime+core.SpellBatchWindow+time.Millisecond)
 }
 
-// Nightfall's debuff raises the spell damage the target takes by the row's share for the row's
+// Nightfall's debuff raises the spell damage the target takes by the spell's share for the spell's
 // duration, whoever casts at it, and leaves physical hits alone.
 func TestNightfallRaisesTheTargetsSpellDamageTaken(t *testing.T) {
 	const itemID int32 = 992301
@@ -497,8 +494,8 @@ func TestNightfallRaisesTheTargetsSpellDamageTaken(t *testing.T) {
 	}
 }
 
-// A weapon proc's buff on Heart of the Mountain's row adds the item effect's 10 to each physical hit
-// and 150 armor for the row's duration.
+// A weapon proc's buff on Heart of the Mountain's spell adds the item effect's 10 to each physical hit
+// and 150 armor for the spell's duration.
 func TestItemProcBuffAddsPhysicalDamageAndArmor(t *testing.T) {
 	duration := spelldata.MustFind(heartOfTheMountain).Duration()
 	const itemID int32 = 992302
@@ -562,16 +559,15 @@ func checkBuffArmor(t *testing.T, sim *core.Simulation, wearer *auraTester, buff
 	}
 }
 
-// An item buff's ArmorNoMods, the stat the generator writes for a buff row's A_MOD_ARMOR_NO_MODS armor,
-// stays outside the wearer's percent armor modifiers on an on-use, a proc and a stacking proc alike: the
-// wearer gains it whole for each stack and loses as much when the buff fades. The same amount of Armor
-// gains armor the modifiers scale. The wearer's neck doubles its armor.
+// An item buff's ArmorNoMods, the stat the generator writes for a buff spell's A_MOD_ARMOR_NO_MODS armor,
+// stays outside the wearer's percent armor modifiers on an on-use, a proc and a stacking proc alike. The
+// same amount of Armor gains armor the modifiers scale.
 func TestNoModsArmorFromAnItemStaysOutOfThePercentArmorModifiers(t *testing.T) {
 	noModsArmorFixtures(t)
 	armor := spelldata.MustFind(heartOfTheMountain).FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).BasePoints
 	needAmount(t, "1300752's armor", armor)
 
-	// The stacking cases come last: they give the row a stack count for the rest of the test.
+	// The stacking cases come last: they give the spell a stack count for the rest of the test.
 	const stacks = 3
 	for i, tc := range []struct {
 		stat   proto.Stat
@@ -620,7 +616,7 @@ func TestNoModsArmorFromAnItemStaysOutOfThePercentArmorModifiers(t *testing.T) {
 
 // A stacking on-use item's ArmorNoMods stays outside the percent armor modifiers for each stack, and
 // the wearer loses it whole when the buff fades. The same amount of Armor gains armor the modifiers
-// scale. The wearer's neck doubles its armor.
+// scale.
 func TestNoModsArmorFromAStackingOnUseStaysOutOfThePercentArmorModifiers(t *testing.T) {
 	noModsArmorFixtures(t)
 	armor := spelldata.MustFind(heartOfTheMountain).FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).BasePoints
@@ -666,8 +662,7 @@ const (
 )
 
 // A test chest, an enchant for it of ArmorNoMods and one of the same Armor, and a neck that doubles
-// the wearer's armor from items and then doubles its armor. The amount is the armor Lesser Arcane
-// Amalgamation's equip spell states with A_MOD_ARMOR_NO_MODS.
+// the wearer's armor from items and then doubles its armor.
 func noModsArmorFixtures(t *testing.T) float64 {
 	t.Helper()
 	armor := spelldata.MustFind(arcaneAmalgamationArmor).FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).BasePoints
@@ -704,9 +699,8 @@ func chestWearer(enchantID int32) *proto.Player {
 	return player
 }
 
-// An enchant's ArmorNoMods, the stat the generator writes for an equip spell's A_MOD_ARMOR_NO_MODS
-// armor, reaches the wearer whole past both the scaling of armor from items and a percent armor
-// modifier, while the same amount of Armor is scaled by both.
+// An enchant's ArmorNoMods reaches the wearer whole past both the scaling of armor from items and a
+// percent armor modifier, while the same amount of Armor is scaled by both.
 func TestNoModsArmorFromAnEnchantStaysOutOfEveryArmorScaling(t *testing.T) {
 	armor := noModsArmorFixtures(t)
 	armorWith := func(enchantID int32) float64 {
@@ -758,10 +752,9 @@ func TestItemSwapMovesArmorNoModsWhole(t *testing.T) {
 	}
 }
 
-// An item's spell whose row states a factor against some targets, Smokey's Lighter 17283 against Plants
-// at its second effect, deals that factor times as much to a target of them as to any other target from
-// the same rolls. The wearer's stats sheet lists the item's factor against them, and lists nothing while
-// the item is only in the item swap set.
+// An item's spell that states a factor against some targets, Smokey's Lighter 17283 against Plants
+// at its second effect, deals that factor times as much to a target of them. The wearer's stats sheet
+// lists the item's factor against them, and lists nothing while the item is only in the item swap set.
 func TestItemSpellDealsTheRowsFactorAgainstItsTargets(t *testing.T) {
 	const itemID int32 = 992090
 	factor := spelldata.MustFind(17283).EffectAtIndex(1).BaseValue()
@@ -808,7 +801,7 @@ func TestItemSpellDealsTheRowsFactorAgainstItsTargets(t *testing.T) {
 	}
 }
 
-// An item's damage over time whose row states a factor against some targets, Rend 14118 against
+// An item's damage over time that states a factor against some targets, Rend 14118 against
 // Dragonkin at its second effect, ticks for that factor times as much against them.
 func TestItemDotDealsTheRowsFactorAgainstItsTargets(t *testing.T) {
 	row := spelldata.MustFind(14118)

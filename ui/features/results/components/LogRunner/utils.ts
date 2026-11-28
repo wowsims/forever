@@ -88,8 +88,7 @@ export const keywordsOf = (text: string): Array<string> => {
 
 /**
  * The timeline narrows its unit list with this filter; the log has no unit rows, so the
- * equivalent is to keep the lines naming that target. Null whenever it would be a no-op, which
- * includes every single-target encounter.
+ * equivalent is to keep the lines naming that target. Null whenever it would be a no-op.
  */
 export const selectedTargetNumber = (resultData: SimResultData): number | null => {
 	if (resultData.result.getTargets().length < 2) return null;

@@ -17,8 +17,8 @@ func (mage *Mage) registerFireballSpell() {
 func (mage *Mage) registerFireballRank(rank *spelldata.Spell) {
 	damage := rank.DamageEffect()
 
-	// The DoT is its own spell (MageSpellFireballDot). Its ranks share one rank group, so a mage keeps one
-	// burn on a target and the higher rank holds it.
+	// The DoT's ranks share one rank group, so a mage keeps one burn on a target and the higher rank
+	// holds it.
 	dotConfig := spelldata.SpellConfig(&mage.Unit, rank,
 		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Tag(1))
 	dotConfig.ClassSpellMask = MageSpellFireballDot

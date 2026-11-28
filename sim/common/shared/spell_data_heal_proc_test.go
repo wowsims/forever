@@ -14,14 +14,14 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Recovery 8721's rows: the equip aura 1248761 and the E_HEAL_PCT heal 1248759 it casts. The aura
+// Recovery 8721's spells: the equip aura 1248761 and the E_HEAL_PCT heal 1248759 it casts. The aura
 // carries the hint its grant 1248760 states, "when you are Parried or Dodged".
 const (
 	recoveryTrigger int32 = 1248761
 	recoveryHeal    int32 = 1248759
 )
 
-// A caster wearing a test weapon enchanted with a heal proc on the given rows, at half health so a
+// A caster wearing a test weapon enchanted with a heal proc on the given spells, at half health so a
 // heal shows on the health bar, and with the spell crit given.
 func newHealProcSim(t *testing.T, weaponID, enchantID int32, healSpellID int32, spellCrit float64) (*core.Simulation, *testCaster, *core.Spell) {
 	t.Helper()
@@ -55,9 +55,7 @@ func swingHealed(sim *core.Simulation, caster *testCaster, outcome core.HitOutco
 
 // A stat buff carrying a proc is built where the proc fires a heal on the wearer, and refused where it
 // fires nothing the store carries, a spell that heals no one, a heal on someone else, a heal over time
-// with no period, or where the buff spends charges. Aegis Heal 23781 is the heal on the wearer,
-// Sulfuras's Fireball 21162 the damage, Recovery's 1248759 is reshaped into a heal on an ally, and
-// the proc heal over time 1297357 loses its period.
+// with no period, or where the buff uses charges.
 func TestCarriedProcUnsupported(t *testing.T) {
 	const healID, damageID, allyHealID int32 = 23781, 21162, 1248759
 	onWearer := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER}
@@ -113,9 +111,8 @@ func stepPast(t *testing.T, sim *core.Simulation, until time.Duration) {
 	}
 }
 
-// Recovery heals the wearer for its row's share of its maximum health when the target dodges or
-// parries the wearer's melee attack. A landed swing does not proc it, nor does the wearer dodging an
-// attack it takes, and a second avoided swing inside the trigger's ProcCategoryRecovery heals nothing.
+// Recovery heals the wearer for its spell's share of its maximum health when the target dodges or
+// parries the wearer's melee attack.
 func TestRecoveryHealsWhenTheWearersAttackIsDodgedOrParried(t *testing.T) {
 	sim, caster, heal := newHealProcSim(t, 990971, 990972, recoveryHeal, 0)
 	share := spelldata.MustFind(recoveryHeal).ProcHealEffect().Percent()
@@ -154,8 +151,8 @@ func TestRecoveryHealsWhenTheWearersAttackIsDodgedOrParried(t *testing.T) {
 	}
 }
 
-// A proc's heal crits at the caster's spell crit unless its row carries ATTR_EX_2_CANT_CRIT. 1248759
-// is not flagged, so a flagged copy stands in for the rows that are.
+// A proc's heal crits at the caster's spell crit unless its spell carries ATTR_EX_2_CANT_CRIT. 1248759
+// is not flagged, so a flagged copy stands in for the spells that are.
 func TestProcHealCritsUnlessTheRowRulesItOut(t *testing.T) {
 	sim, caster, heal := newHealProcSim(t, 990973, 990974, recoveryHeal, 100)
 	share := spelldata.MustFind(recoveryHeal).ProcHealEffect().Percent()
@@ -174,8 +171,8 @@ func TestProcHealCritsUnlessTheRowRulesItOut(t *testing.T) {
 	}
 }
 
-// Darkmoon Card: Heroism's 23682 states its heal as E_HEAL 198 with a 0.4 spread, which the proc
-// rolls rather than reading as a share of maximum health.
+// Darkmoon Card: Heroism's 23682 states its heal as E_HEAL with a spread, which the proc rolls rather
+// than reading as a share of maximum health.
 func TestProcHealRollsAStatedAmount(t *testing.T) {
 	const fixedHeal int32 = 23682
 	effect := spelldata.MustFind(fixedHeal).ProcHealEffect()
@@ -204,7 +201,7 @@ func editRow(t *testing.T, id int32, edit func(*spelldata.Spell)) {
 	t.Cleanup(func() { *row = original })
 }
 
-// A trigger whose row states no rate, rolled at 100% for the test.
+// A trigger whose spell states no rate, rolled at 100% for the test.
 func everyHit(t *testing.T, id int32) {
 	editRow(t, id, func(s *spelldata.Spell) {
 		s.ProcChance, s.ProcChanceSource, s.ProcChanceEffect = 100, spelldata.ProcChanceColumn, 0
@@ -220,7 +217,7 @@ func healedUntil(t *testing.T, sim *core.Simulation, caster *testCaster, start, 
 	return caster.CurrentHealth() - before
 }
 
-// The HoT lands nothing when it is applied, then heals the wearer its row's amount every period until
+// The HoT lands nothing when it is applied, then heals the wearer its spell's amount every period until
 // its duration runs out, measured as the spell's periodic healing.
 func TestProcHotTicksItsAmountEveryPeriodOnTheWearer(t *testing.T) {
 	sim, caster, hot := newHealProcSim(t, 990979, 990980, procHot, 0)
@@ -254,7 +251,7 @@ func TestProcHotTicksItsAmountEveryPeriodOnTheWearer(t *testing.T) {
 }
 
 // Each tick reads the healing power the wearer has when it lands. 1297357 states no spell power
-// share, so a copy stating 1 stands in for the rows that do.
+// share, so a copy stating 1 stands in for the spells that do.
 func TestProcHotTicksOnTheHealingPowerOfTheTick(t *testing.T) {
 	editRow(t, procHot, func(s *spelldata.Spell) { s.Effects[0].SPCoef = 1 })
 	sim, caster, _ := newHealProcSim(t, 990981, 990982, procHot, 0)
@@ -273,7 +270,7 @@ func TestProcHotTicksOnTheHealingPowerOfTheTick(t *testing.T) {
 	}
 }
 
-// A tick crits only where the row states Periodic Can Crit and does not rule crits out. 1297357
+// A tick crits only where the spell states Periodic Can Crit and does not rule crits out. 1297357
 // states the flag; a copy without it ticks plain at 100% spell crit.
 func TestProcHotCritsOnlyWhereTheRowLetsItsTicksCrit(t *testing.T) {
 	editRow(t, procHot, func(s *spelldata.Spell) {
@@ -310,8 +307,8 @@ func TestProcHotCritsOnlyWhereTheRowLetsItsTicksCrit(t *testing.T) {
 }
 
 // A second proc while the HoT runs starts it over: the ticks already landed stay landed and a full
-// run of ticks follows the second proc. 1248761's lockout is the earliest it can come; copies of the
-// rows fix a lockout that ends while the HoT still runs.
+// run of ticks follows the second proc. Copies of the spells fix a lockout that ends while the HoT still
+// runs.
 func TestProcHotStartsOverOnASecondProc(t *testing.T) {
 	editRow(t, recoveryTrigger, func(s *spelldata.Spell) { s.ICDMs = 10000 })
 	editRow(t, procHot, func(s *spelldata.Spell) {

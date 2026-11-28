@@ -87,9 +87,6 @@ type Pet struct {
 	// the pet on expiration.
 	timeoutAction *PendingAction
 
-	// Examples:
-	// DK Raise Dead is doing its whole RP thing by climbing out of the ground before attacking.
-	// Monk clones Rush towards targets before attacking.
 	startAttackDelay time.Duration
 }
 

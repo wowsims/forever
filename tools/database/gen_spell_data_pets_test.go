@@ -2,9 +2,8 @@ package database
 
 // The warlock's demon abilities sit on the demons' own skill lines with no class bit, so the class
 // file reaches them through the pet scaling spell those lines carry. The Felguard's line carries it
-// too, but no ability on it is trained: it is a Season of Discovery rune. The summons are on the
-// class's own Demonology line, each the one rank of its subtext "Summon". Reads SkillLineAbility,
-// which the store's inputs do not capture, so it skips without tools/database/wowsims.db.
+// too, but no ability on it is trained: it is a Season of Discovery rune. Reads SkillLineAbility, so
+// it skips without tools/database/wowsims.db.
 
 import (
 	"testing"

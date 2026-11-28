@@ -9,8 +9,6 @@ export enum IconEnumPickerDirection {
 export interface IconEnumOption<T> {
 	value: T;
 	// One of these should be set.
-	// If icon is set, shows that icon.
-	// If color is set, shows that color.
 	// If iconUrl is set, shows that icon as grayscale
 	icon?: ResolvedIcon;
 	color?: string;

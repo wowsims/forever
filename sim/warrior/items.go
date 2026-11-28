@@ -8,7 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The rows ItemSetSpell names for each set's thresholds, and the buffs those rows grant. None of
+// The spells ItemSetSpell names for each set's thresholds, and the buffs those spells grant. None of
 // them is a warrior class spell, so the generated table carries no reference to them.
 var (
 	mightBlockValue   = spelldata.MustFind(23562) // 3pc: Block Value 30
@@ -24,7 +24,7 @@ var ItemSetBattlegearOfMight = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		3: func(agent core.Agent, setBonusAura *core.Aura) {
 			// A_MOD_BLOCK_VALUE_FLAT has no sim kind in the parse table, so only the amount comes
-			// off the row.
+			// off the spell.
 			setBonusAura.AttachStatBuff(stats.BlockValue, mightBlockValue.EffectN(1).BaseValue())
 		},
 		5: func(agent core.Agent, setBonusAura *core.Aura) {
@@ -38,11 +38,10 @@ var ItemSetBattlegearOfMight = core.NewItemSet(core.ItemSet{
 			setBonusAura.AttachProcTrigger(trigger)
 		},
 		8: func(agent core.Agent, setBonusAura *core.Aura) {
-			// The row states A_ADD_PCT_MODIFIER on the threat, which the parse maps to
+			// The spell states A_ADD_PCT_MODIFIER on the threat, which the parse maps to
 			// SpellMod_ThreatMultiplier_Pct: that scales the threat a spell's damage makes, and
 			// Sunder Armor deals none. All of its threat is the flat bonus and its attack power
-			// share, which SpellMod_FlatThreatBonus_Pct scales together, so only the amount and the
-			// spells it names come off the row.
+			// share, which SpellMod_FlatThreatBonus_Pct scales together.
 			setBonusAura.AttachSpellMod(core.SpellModConfig{
 				ClassFlags: mightSunderThreat.EffectN(1).ClassFlags,
 				Kind:       core.SpellMod_FlatThreatBonus_Pct,
@@ -82,8 +81,8 @@ var ItemSetBattlegearOfWrath = core.NewItemSet(core.ItemSet{
 			buff := warrior.RegisterAura(spelldata.AuraConfig(wrathDiscountBuff))
 			spelldata.ParseEffects(&warrior.Character, buff, wrathDiscountBuff)
 
-			// The discount is spent at cast, so the buff goes when an ability is cast rather than
-			// when one lands, which is what the row's proc flags state.
+			// The discount is used at cast, so the buff goes when an ability is cast rather than
+			// when one lands, which is what the spell's proc flags state.
 			buff.AttachProcTrigger(core.ProcTrigger{
 				Name:               "Warrior's Wrath - Consume",
 				ClassFlags:         discounted,
@@ -111,9 +110,9 @@ var ItemSetBattlegearOfWrath = core.NewItemSet(core.ItemSet{
 				spelldata.Label("Battlegear of Wrath Parry")))
 			spelldata.ParseEffects(&warrior.Character, parry, wrathParryBuff)
 
-			// The attack that spends the buff is the one it parries, which is an outcome no proc
+			// The attack that uses the buff is the one it parries, which is an outcome no proc
 			// mask states and one that deals no damage. 23547 ships no tooltip, so there is nothing
-			// for the row to have read that from and both of its defaults go here.
+			// for the spell to have read that from and both of its defaults go here.
 			consume := spelldata.ProcTrigger(&warrior.Character, wrathParryBuff,
 				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 					parry.Deactivate(sim)
@@ -125,8 +124,7 @@ var ItemSetBattlegearOfWrath = core.NewItemSet(core.ItemSet{
 			parry.AttachProcTrigger(consume)
 
 			// The rate is the proc chance column, which the tooltip's $h% says is a real roll; the
-			// block it fires on is the row's, off its block hint, which the decoder reads as the
-			// outcome and as a hit that carries no damage.
+			// block it fires on is the spell's.
 			trigger := spelldata.ProcTrigger(&warrior.Character, wrathParryProc,
 				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 					parry.Activate(sim)
@@ -155,7 +153,7 @@ var ItemSetConquerorsBattlegear = core.NewItemSet(core.ItemSet{
 			warrior := agent.(WarriorAgent).GetWarrior()
 			spelldata.ParseEffects(&warrior.Character, setBonusAura, conquerorThunderClap)
 
-			// The one amount the row states raises the slow the tooltip names alongside the
+			// The one amount the spell states raises the slow the tooltip names alongside the
 			// damage, which thunder_clap.go reads.
 			setBonusAura.AttachAdditivePseudoStatBuff(&warrior.thunderClapEffectBonus, conquerorThunderClap.EffectN(1).Percent())
 		},
@@ -178,7 +176,7 @@ var ItemSetDreadnaughtsBattlegear = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: func(_ core.Agent, setBonusAura *core.Aura) {
 			// A_ADD_FLAT_MODIFIER on the damage has no sim kind in the parse table, so only the
-			// amount and the spell it names come off the row.
+			// amount and the spell it names come off the spell.
 			setBonusAura.AttachSpellMod(core.SpellModConfig{
 				ClassFlags: dreadnaughtRevenge.EffectN(1).ClassFlags,
 				Kind:       core.SpellMod_BaseDamage_Flat,
@@ -202,7 +200,7 @@ var ItemSetDreadnaughtsBattlegear = core.NewItemSet(core.ItemSet{
 					cheatDeath.Activate(sim)
 				})
 			trigger.Name = "Cheat Death - Trigger"
-			// The health threshold is the whole of the tooltip's condition and the row states none
+			// The health threshold is the whole of the tooltip's condition and the game files state none
 			// of it.
 			trigger.ExtraCondition = func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
 				return character.CurrentHealthPercent() < 0.2
@@ -225,7 +223,7 @@ var tierOneSlots = []proto.ItemSlot{
 	proto.ItemSlot_ItemSlotFeet,
 }
 
-// Every aura the Tier 1 rows state has a row in the parse table, so each bonus is its row parsed.
+// Every aura the Tier 1 spells state has a row in the parse table, so each bonus is its spell parsed.
 func parsedSetBonus(row *spelldata.Spell) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		spelldata.ParseEffects(agent.GetCharacter(), setBonusAura, row)
@@ -266,7 +264,7 @@ var ItemSetBattleplateOfGlory = core.NewItemSet(core.ItemSet{
 	Slots: tierOneSlots,
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: parsedSetBonus(battleplateGloryDefense),
-		// TODO: the sim does not cast Intervene, so the cooldown the row takes off it reaches no spell.
+		// TODO: the sim does not cast Intervene, so the cooldown the spell takes off it reaches no spell.
 		3: parsedSetBonus(battleplateGloryIntervene),
 		4: parsedSetBonus(battleplateGloryExpertise),
 		5: parsedSetBonus(battleplateGloryShieldWallCD),

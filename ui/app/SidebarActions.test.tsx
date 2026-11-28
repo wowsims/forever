@@ -42,8 +42,8 @@ describe('SidebarActions', () => {
 		});
 	});
 
-	// The whole point of the context: a spec rendering its own button through `render` cannot opt out
-	// of the unlaunched-sim gate by forgetting to thread the flag.
+	// A spec rendering its own button through `render` cannot opt out of the unlaunched-sim gate by
+	// forgetting to thread the flag.
 	it('disables a custom entry that uses the shared button, not just declarative entries', () => {
 		const registry = new SidebarRegistry();
 		registry.add({ id: 'dps-action', label: 'Simulate', onClick: () => {} });

@@ -7,7 +7,7 @@ the ladder: `spellData.Bloodthirst.Contains(spell)`.
 **A hand-built `core.SpellConfig` carries no class flags unless it sets them.** `spelldata.SpellConfig`
 fills `ClassFlags` from the row, but a config written out by hand needs `ClassFlags: rank.ClassFlags`.
 Without them every modifier, trigger and charge the game files state by class flags skips the spell, and
-nothing reports it: Revelation's paladin buff 1323419 gave Holy Light no crit and was never spent.
+nothing reports it: Revelation's paladin buff 1323419 gave Holy Light no crit and was never used.
 
 **The data contains ranks the game never grants.** Fireball 38692 and Frostbolt 38697 are rank 14
 entries at level 70 whose `SkillLineAbility` rows and spell attributes are byte-for-byte
@@ -26,7 +26,7 @@ is the opposite case: it stays hand-read, because its 30 is a percentage and the
 Divine Precision state their hit on class flags, so a plain `ParseStatic` raises the hit of their
 spells and leaves the character sheet's school hit rows where they were. Pass
 `spelldata.ShowAsSchoolHit` with the schools the tooltip names. Writing the hit into
-`PseudoStats.SchoolBonusHitChance` instead drops the row's spell list, and Divine Precision would
+`PseudoStats.SchoolBonusHitChance` instead drops the talent's spell list, and Divine Precision would
 lose Holy Strike's melee roll. See [Talents and auras](talents-and-auras.md).
 
 **A rank can carry nothing in a role.** Lay on Hands rank 1 restores no mana, while ranks 2-4 do, so
@@ -62,8 +62,8 @@ whose `EffectBasePointsF` is fractional (about one in 55) keeps its fraction und
 either way, and `Min`/`Max` stay whole. Reading `BaseValue()` and doing the arithmetic in float64
 gives a different answer on those rows.
 
-**A talent's curve can disagree with its own row.** A `Talent` rank takes its base points from the
-curve, and on some talents the curve states a positive number where the row and the tooltip state a
+**A talent's curve can disagree with its own spell.** A `Talent` rank takes its base points from the
+curve, and on some talents the curve states a positive number where the spell and the tooltip state a
 reduction. The ladder keeps the curve's sign, which is what applies in game, as [The store](store.md)
 describes; compare `Highest()` against `MustFind(id)` to find such a talent.
 
@@ -82,12 +82,12 @@ that drops or renumbers an id stops the sim with the id in the message. It also 
 never touch that spell.
 
 **`SPCoef` of exactly 1 is the column's filler.** 2,113 of the store's 9,651 effects carry it, among
-them weapon-damage effects, speed auras and shapeshifts. No physical-school row in the game files states
+them weapon-damage effects, speed auras and shapeshifts. No physical-school spell in the game files states
 a fractional coefficient at all. Read the tooltip before you believe a coefficient of 1 on a spell-school
-row. On a physical row the column does mean something: core scales the caster's flat physical damage
+effect. On a physical effect the column does mean something: core scales the caster's flat physical damage
 bonus by it, never spell power, per hit or per tick. In game Revenge's and Hamstring's school damage
 state 1 and take the bonus, and Thunder Clap's and Victory Rush's state 0 and Rend's ticks 0 and do
-not (EV-0045). `SpellConfig` hands a physical row's school damage coefficient to core
+not (EV-0045). `SpellConfig` hands a physical spell's school damage coefficient to core
 (`SpellFlagPhysicalSchoolDamage`), and `DotConfig` a tick's. A weapon strike takes the bonus whole,
 whatever the column says.
 
@@ -96,6 +96,6 @@ condition is met", and the tooltip says whether the column means a chance or tha
 `ProcChanceSource`, baked in at generation, holds the answer, and `spelldata.ProcTrigger` reads it
 instead of the column.
 
-**A proc row with no stated rate panics when the trigger is built.** `ProcChancePPM` with no override
+**A proc spell with no stated rate panics when the trigger is built.** `ProcChancePPM` with no override
 behind it means the game files state nothing anywhere, so `spelldata.ProcTrigger` demands a `PPM()` and
 does not build a listener that fires on every hit.

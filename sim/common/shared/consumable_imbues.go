@@ -16,15 +16,10 @@ type SchoolPiercing struct {
 	Amount float64
 }
 
-// A temporary enchant consumable, applied to each hand core put its enchant on, in the main set or
-// the item swap set. Its stats, speed percents and flat weapon damage are core's, on the item
-// carrying the enchant. Each combat spell is cast off the hits of the weapons carrying the enchant at
-// the chance its row states. The equip spells named are the enchant's that grant no stat of the
-// enchant's own, such as Consecrated Sharpening Stone's 28893: their auras are parsed onto an aura
-// per hand, since each weapon carries its own copy of the equip aura, and an aura bound to a matching
-// weapon reaches that hand's attacks alone. An equip spell that procs, such as Scroll of Imbue
-// Manablade's 1308913, is a listener built from its row instead. The piercing is a stat slot of the
-// enchant that has no place in the stat array, held by the same per-hand aura.
+// A temporary enchant consumable. Its stats, speed percents and flat weapon damage are core's, on the
+// item carrying the enchant. The equip spells named are the enchant's that grant no stat of the
+// enchant's own: their auras are parsed onto an aura per hand, since each weapon carries its own copy
+// of the equip aura. The piercing is a stat slot of the enchant that has no place in the stat array.
 func NewSpellDataTemporaryEnchant(itemID int32, piercing SchoolPiercing, equipSpellIDs ...int32) {
 	core.NewSpellDataConsumableEffect(itemID, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -125,10 +120,9 @@ func TemporaryEnchantEquipSpellProcs(row *spelldata.Spell) bool {
 	return row.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL) != spelldata.NilEffect
 }
 
-// An equip spell that procs, built from its row: the hits it hears, its chance and its internal
-// cooldown, listening while a weapon carrying the enchant is equipped. A listener on the wearer's own
-// hits hears the hands carrying the enchant alone; one on the hits the wearer takes hears every one
-// of them.
+// An equip spell that procs, built from the game files, listening while a weapon carrying the enchant is
+// equipped. A listener on the wearer's own hits hears the hands carrying the enchant alone; one on
+// the hits the wearer takes hears every one of them.
 func registerTemporaryEnchantProc(character *core.Character, consumable core.Consumable, row *spelldata.Spell, slots []proto.ItemSlot) {
 	actionID := core.ActionID{ItemID: consumable.Id}
 	handler := FiredSpellHandler(character, actionID, row)

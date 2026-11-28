@@ -75,9 +75,8 @@ func stoneCrit(t *testing.T) float64 {
 	return crit
 }
 
-// Elemental Sharpening Stone 18262's 22755 states A_MOD_WEAPON_CRIT_PERCENT on the melee weapon
-// subclasses its mask names, and each weapon carries its own copy: the crit reaches the attacks made
-// with the hand the stone is on, and no other attack.
+// Each weapon carries its own copy of Elemental Sharpening Stone 18262's 22755, and its crit reaches the
+// attacks made with the hand the stone is on, and no other attack.
 func TestElementalSharpeningStoneCritReachesItsOwnHand(t *testing.T) {
 	_, bare := stonedWarrior(t, &proto.ConsumesSpec{}, nil)
 	crit := stoneCrit(t)
@@ -106,8 +105,7 @@ func TestElementalSharpeningStoneCritReachesItsOwnHand(t *testing.T) {
 	}
 }
 
-// The stone's crit on the main hand shows on the character sheet as a consumable: the consumes
-// column gains it over the buffs column, and the gear column is a bare warrior's.
+// The stone's crit on the main hand shows on the character sheet as a consumable.
 func TestElementalSharpeningStoneCritShowsAsAConsumableOnTheSheet(t *testing.T) {
 	sheet := func(consumes *proto.ConsumesSpec) *proto.PlayerStats {
 		request := &proto.ComputeStatsRequest{Raid: stonedRaid(consumes, nil), Encounter: stonedEncounter}
@@ -191,8 +189,7 @@ func TestElementalSharpeningStoneOnTheSwapWeaponTurnsOnWhenSwappedIn(t *testing.
 
 // Scroll of Imbue Baleflame 277487 puts enchant 8706 on a staff, which states the fire spell
 // penetration stat 119, and Scroll of Imbue Balefrost 277496 puts 8714 on it, which states the frost
-// one, 121. Each pierces its own school's resistance and neither adds SpellPiercing, which would
-// reach every school.
+// one, 121. Neither adds SpellPiercing, which would reach every school.
 func TestBaleImbuesPierceOneSchool(t *testing.T) {
 	const staff = 1613
 	pierces := func(amount float64, want bool) bool {
@@ -223,9 +220,8 @@ func TestBaleImbuesPierceOneSchool(t *testing.T) {
 	}
 }
 
-// Scroll of Imbue Spark 277489 takes a one-hand sword and Scroll of Imbue Manablade 277498 a dagger.
-// Spark's listener, which moves a spell category's cooldown, registers on any wearer; Manablade's,
-// which restores mana, only on a wearer with a mana bar, which a warrior lacks.
+// Scroll of Imbue Spark 277489's listener registers on any wearer; Scroll of Imbue Manablade 277498's
+// only on a wearer with a mana bar, which a warrior lacks.
 func TestProcImbuesRegisterTheirListeners(t *testing.T) {
 	for _, c := range []struct {
 		imbue, weapon int32

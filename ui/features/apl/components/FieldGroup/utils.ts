@@ -8,10 +8,9 @@ const INLINE_KINDS: ReadonlySet<AplFieldSpec['kind']> = new Set(['boolean', 'num
 /**
  * The binding one field of a kind's impl message gets.
  *
- * `getValue` writes: an unset field is filled in with the spec's default before it is read back,
- * which is what makes a freshly-picked kind show its sub-pickers at all. It is a mutation on a read
- * path and it stays one, because the whole tree is built on reading the live proto rather than a
- * copy of it — the same reason the notification is a single `touchRotation` from `setValue`.
+ * `getValue` fills an unset field with the spec's default before reading it back. That is a mutation
+ * on a read path and it stays one, because the whole tree is built on reading the live proto rather
+ * than a copy of it.
  */
 export const fieldInputConfig = (
 	spec: AplFieldSpec,

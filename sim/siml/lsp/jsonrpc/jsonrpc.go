@@ -1,5 +1,5 @@
 // Package jsonrpc is JSON-RPC 2.0 over a stream, framed as the language server protocol frames it: a Content-Length
-// header, a blank line and the body. The SIML language server and the spell data server both speak it.
+// header, a blank line and the body.
 package jsonrpc
 
 import (

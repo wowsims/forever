@@ -19,9 +19,8 @@ var (
 	windfuryTotemStrike  = core.ActionID{SpellID: spelldata.MustFind(10610).ID}
 )
 
-// Windfury Weapon hits are main-hand abilities: Flametongue Totem, which hears auto attacks
-// alone, procs once for each swing that lands and never off a Windfury hit, and the Windfury hits
-// roll the special attack table and never glance.
+// Windfury Weapon hits are main-hand abilities: Flametongue Totem never procs off a Windfury hit,
+// and the Windfury hits never glance.
 func TestWindfuryWeaponStrikesNeverProcFlametongueTotemOrGlance(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	result := core.RunRaidSim(&proto.RaidSimRequest{
@@ -77,9 +76,7 @@ func TestWindfuryWeaponStrikesNeverProcFlametongueTotemOrGlance(t *testing.T) {
 	}
 }
 
-// A main-hand swing spends a Flurry charge whatever its outcome, and so does a Windfury Weapon
-// hit; a Windfury Totem hit and a Stormstrike spend none. A Windfury Weapon hit in the instant a
-// swing's crit gained Flurry spends one, and none in the instant a Windfury Weapon hit's crit did.
+// A main-hand swing uses a Flurry charge whatever its outcome, and so does a Windfury Weapon hit.
 func TestFlurrySpendsOnSwingsAndWindfuryStrikes(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	player.TalentsString = enhancementTalents
@@ -105,7 +102,7 @@ func TestFlurrySpendsOnSwingsAndWindfuryStrikes(t *testing.T) {
 		trigger.OnSpellHitDealt(trigger, sim, spell, &core.SpellResult{Target: target, Outcome: outcome, Damage: 100})
 	}
 
-	// Each case starts a second after the last, past the cooldown between charges spent, and hits a
+	// Each case starts a second after the last, past the cooldown between charges used, and hits a
 	// moment after the full charges are set.
 	expect := func(name string, spell *core.Spell, outcome core.HitOutcome, spends bool) {
 		t.Helper()

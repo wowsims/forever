@@ -63,8 +63,7 @@ export const MultiIconPicker = ({
 				testId: testId ?? 'multi-icon-picker-root',
 				// The trigger is a bare anchor carrying a background image, so it announces nothing without this. Base UI
 				// points the popup's `aria-labelledby` at the trigger, and accessible-name resolution does not chase a
-				// second `aria-labelledby` hop through that id, so this literal string is what names the popup,
-				// independently of the trigger's own `aria-labelledby` below.
+				// second `aria-labelledby` hop through that id, so this literal string is what names the popup.
 				'aria-label': label ?? tooltip,
 				...(label ? { ref: controlRef, 'aria-labelledby': labelId } : {}),
 				...tooltipAnchorProps(tooltip ? tooltipId : undefined, tooltip),

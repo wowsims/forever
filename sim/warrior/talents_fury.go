@@ -46,8 +46,7 @@ func (warrior *Warrior) registerBoomingVoice() {
 		return
 	}
 
-	// The shout radius has no sim kind, so only the rage cost of the shouts and Piercing Howl comes off
-	// the row.
+	// The shout radius has no sim kind, so only the rage cost comes off the spell.
 	spelldata.ParseStatic(&warrior.Character, spellData.BoomingVoice.Rank(warrior.Talents.BoomingVoice))
 }
 
@@ -68,16 +67,11 @@ func (warrior *Warrior) registerUnbridledWrath() {
 	}
 
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: unbridledWrathRank.ID})
-	// In game this rage makes 5 threat a rage that neither Defensive Stance nor Defiance scales (EV-0174).
+	// Threat per rage in EV-0174.
 	// TODO: Ingame test needed -- Battle and Berserker Stance, and whether a threat buff scales it.
 	rageMetrics.UnscaledThreat = true
 
-	// The rate is the effect ladder the tooltip's $m1 names: 12/24/36/48/60 by rank, where the proc
-	// chance column reads 100. Landed white swings roll it, Windfury Totem hits among them as a
-	// main-hand swing (EV-0136), and so do Heroic Strike and each target a Cleave hits (EV-0148,
-	// EV-0138). The row's mask also hears melee abilities, but no other ability rolls it; Shield
-	// Slam, Revenge, Thunder Clap, Retaliation, Victory Rush, Shield Bash and Whirlwind are measured
-	// (EV-0148, EV-0138).
+	// Hits that roll in EV-0136, EV-0138, EV-0148.
 	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.UnbridledWrath.Rank(warrior.Talents.UnbridledWrath),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -95,8 +89,6 @@ func (warrior *Warrior) registerFuriousPrecision() {
 		return
 	}
 
-	// The row requires a one-handed weapon in the off hand, so its hit is a mod on the attacks the
-	// off-hand weapon makes.
 	spelldata.ParseStatic(&warrior.Character, spellData.FuriousPrecision.Rank(warrior.Talents.FuriousPrecision))
 }
 
@@ -130,10 +122,8 @@ func (warrior *Warrior) registerEnrage() {
 
 	warrior.EnrageAura = warrior.GetOrRegisterAura(spelldata.AuraConfig(enrageBuff))
 
-	// 12880 states the bucket and the duration, and the sim's only Enrage buff row states a flat
-	// 10; the percentage per rank is the talent's own ladder, which is what 12317's tooltip reads
-	// as $m1%. So the value is the talent's and only the bucket - the physical school's damage
-	// dealt multiplier, not a per-spell mod - comes off the buff row.
+	// The sim's only Enrage buff spell states a flat 10; the percentage per rank is the talent's own
+	// ladder, which is what 12317's tooltip reads as $m1%.
 	warrior.EnrageAura.AttachMultiplicativePseudoStatBuff(
 		&warrior.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical],
 		spellData.Enrage.MultiplierAt(warrior.Talents.Enrage),
@@ -141,11 +131,9 @@ func (warrior *Warrior) registerEnrage() {
 
 	warrior.EnrageAura.NewExclusiveEffect("Enrage", true, core.ExclusiveEffect{Priority: spellData.Enrage.ValueAt(warrior.Talents.Enrage)})
 
-	// The rate is the shape where the tooltip carries $h%: a real 30% roll on damage taken, which
-	// is the proc chance column. A landed spell hit of any school but physical rolls 25% instead,
-	// though the game files state 30% for it too (EV-0050). A swing rolls the row's rate whatever
-	// its school. Chance(1) leaves core no roll of its own, so the one draw is made here. Only a hit
-	// that deals damage rolls it: misses, dodges, parries, full blocks and ticks never proc it (EV-0123).
+	// Proc chance measurement in EV-0050. The game files state 30% for a spell hit of any
+	// school but physical as well. A swing rolls the spell's rate whatever its school. Chance(1) leaves
+	// core no roll of its own, so the one draw is made here. Damaging hits in EV-0123.
 	row := spellData.Enrage.Rank(warrior.Talents.Enrage)
 	trigger := spelldata.ProcTrigger(&warrior.Character, row,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -171,25 +159,11 @@ func (warrior *Warrior) registerFlurry() {
 		return
 	}
 
-	// 12966 supplies the duration and the three charges. The haste is the talent's 10% per point,
-	// which 12319 reads as "Increases your melee attack speed by $m1% for your next $12966n swings";
-	// the buff row's flat 30% does not apply.
+	// The haste is the talent's 10% per point; the buff's flat 30% does not apply.
 	flurryAura := warrior.RegisterAura(spelldata.AuraConfig(flurryBuff)).
 		AttachMultiplyMeleeSpeed(spellData.Flurry.MultiplierAt(warrior.Talents.Flurry))
 
-	// The proc shape with no roll: 12319 states its rate as "always" and the crit is the
-	// condition, which this handler reads off the result because the same listener hears every
-	// melee result. Every white swing, an extra attack's among them, uses a charge whatever its
-	// outcome (EV-0140). A Windfury Totem hit uses none and its crit starts Flurry, and a Heroic
-	// Strike or Cleave uses one charge per cast whatever its outcome, however many targets a Cleave
-	// hits (EV-0138). The row's mask reaches ranged and spell hits too; the tooltip says a melee
-	// critical strike, so the mask stays the caller's.
-	//
-	// Whirlwind's off-hand strike starts Flurry on a crit like any melee hit and uses no charge
-	// whether it lands, is dodged or is parried (EV-0054).
-	//
-	// A Heroic Strike or Cleave that crits spends its charge before the crit sets the charges again,
-	// so it ends with all of them, as the crit branch leaves it (EV-0138).
+	// Charge use in EV-0054, EV-0138, EV-0140.
 	firstHit, resetFirstHit := core.OncePerCast()
 	warrior.RegisterResetEffect(func(_ *core.Simulation) {
 		resetFirstHit()
@@ -239,7 +213,7 @@ func (warrior *Warrior) registerGoreDrinker() {
 	charges := int32(spellData.GoreDrinker.EffectAt(1).ValueAt(warrior.Talents.GoreDrinker))
 	healthFraction := spellData.GoreDrinker.EffectAt(2).FractionAt(warrior.Talents.GoreDrinker)
 
-	// The heal row states no amount: the buff's trigger carries it as a value, which is the talent's
+	// The heal spell states no amount: the buff's trigger carries it as a value, which is the talent's
 	// share of maximum health.
 	healConfig := spelldata.SpellConfig(&warrior.Unit, goreDrinkerHeal, spelldata.Proc())
 	healConfig.ProcMask = core.ProcMaskSpellHealing
@@ -254,11 +228,10 @@ func (warrior *Warrior) registerGoreDrinker() {
 	buffConfig.MaxStacks = charges
 	warrior.GoreDrinkerAura = warrior.RegisterAura(buffConfig)
 
-	// Every landed strike of Whirlwind and Cleave spends a charge and heals once, each hand and each
-	// target alike, until the charges run out (EV-0054). So the buff builds its own spender:
-	// spelldata.AttachChargeSpender spends one charge a cast.
+	// Charge use in EV-0054. spelldata.AttachChargeSpender
+	// uses one charge a cast, so the buff builds its own spender.
 	//
-	// TODO: Ingame test needed: a melee hit that deals no damage spends no charge.
+	// TODO: Ingame test needed: a melee hit that deals no damage uses no charge.
 	consume := spelldata.ProcTrigger(&warrior.Character, goreDrinkerBuff,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			// The hits of one spell batch each queue a handler, which can outnumber the charges left.
@@ -272,8 +245,7 @@ func (warrior *Warrior) registerGoreDrinker() {
 	consume.Outcome = core.OutcomeLanded
 	warrior.GoreDrinkerAura.AttachProcTrigger(consume)
 
-	// The talent's effects name no spells, so the abilities are the tooltip's: Berserker Rage,
-	// Bloodrage, Death Wish and Reckless Swings when cast, Bloodthirst when it lands, and Enrage from
+	// The talent's effects name no spells, so the abilities are the tooltip's, and Enrage starts it from
 	// its own trigger.
 	warrior.MakeProcTriggerAura(core.ProcTrigger{
 		Name:     "Gore Drinker - Trigger",
@@ -362,9 +334,8 @@ func (warrior *Warrior) registerBloodCraze() {
 
 	bloodCraze := warrior.RegisterSpell(config)
 
-	// 16487 decodes to hits taken, and its crit hint covers only half of the tooltip's condition - a
-	// crit taken or a hit over a share of maximum health - so the trigger takes the landed outcome
-	// and the condition by hand.
+	// 16487's crit hint covers only half of the tooltip's condition, so the trigger takes the landed
+	// outcome and the condition by hand.
 	taken := spelldata.ProcTrigger(&warrior.Character, spellData.BloodCraze.Rank(warrior.Talents.BloodCraze),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			bloodCraze.SelfHot().Apply(sim)
@@ -387,14 +358,12 @@ func (warrior *Warrior) registerRecklessSwings() {
 
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: recklessSwingsEnergize.ID})
 	rage := recklessSwingsEnergize.EnergizeEffect().Tenths()
-	// The row's cost is a share of base health, which applyCost leaves to the caller, as on Bloodrage.
+	// The spell's cost is a share of base health, which applyCost leaves to the caller, as on Bloodrage.
 	healthCost := warrior.BaseHealth() * float64(recklessSwingsRank.Power(dbcenums.POWER_HEALTH).CostPct) / 100
 
 	aura := warrior.RegisterAura(spelldata.AuraConfig(recklessSwingsRank))
 
-	// Each melee swing spends a charge for its rage, Windfury Totem hits among them (EV-0136).
-	// The row also hears melee abilities, but of those only Heroic Strike and Cleave spend one, once
-	// per cast however many targets a Cleave hits; Whirlwind and Bloodthirst spend none (EV-0138).
+	// Charge use in EV-0136, EV-0138.
 	firstAbilityHit, resetFirstAbilityHit := core.OncePerCast()
 	aura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
 		resetFirstAbilityHit()
@@ -435,7 +404,7 @@ func (warrior *Warrior) registerImprovedWhirlwind() {
 		return
 	}
 
-	// The cooldown comes off the row; the damage to the closest enemy is the dummy whirlwind.go reads.
+	// The cooldown comes off the spell; the damage to the closest enemy is the dummy whirlwind.go reads.
 	spelldata.ParseStatic(&warrior.Character, spellData.ImprovedWhirlwind.Rank(warrior.Talents.ImprovedWhirlwind))
 }
 
@@ -449,7 +418,7 @@ func (warrior *Warrior) registerDeathWish() {
 	deathWishAura := warrior.RegisterAura(spelldata.AuraConfig(deathWishRank))
 	spelldata.ParseEffects(&warrior.Character, deathWishAura, deathWishRank)
 
-	// Grants immunity to Fear effects, which the row states as A_MECHANIC_IMMUNITY and the parse
+	// Grants immunity to Fear effects, which the spell states as A_MECHANIC_IMMUNITY and the parse
 	// skips.
 	deathWishAura.AttachFearImmunity()
 

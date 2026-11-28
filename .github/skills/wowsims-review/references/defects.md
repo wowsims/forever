@@ -1,7 +1,7 @@
 # Defects a spell review looks for
 
 Each section is one defect class from `SKILL.md`, the cases reviews of class ports found, and the fix that
-reads the row. The cases name the row and the numbers, so each one can be checked again with
+reads the row. The cases name the spell and the numbers, so each one can be checked again with
 `go run ./tools/spelldata <id>`.
 
 ## A number the row states, typed by hand
@@ -39,10 +39,10 @@ reads the row. The cases name the row and the numbers, so each one can be checke
 
 - **`Highest()` is the ladder's last entry, not its top rank.** `spellData.MutilateTriggered` lists
   399960 ... 1310706 in id order, and 1310706 is Rank 1 with 23 damage where the rank-4 hands carry 67. Each
-  hand's row is the cast row's own trigger: `mutilateCastRank.EffectN(2).Trigger()` (main hand, 1241586) and
+  hand's spell is the cast spell's own trigger: `mutilateCastRank.EffectN(2).Trigger()` (main hand, 1241586) and
   `EffectN(3).Trigger()` (off hand, 1241590).
 - **Hack and Slash:** the proc chance is effect 3, not effect 1 (the Dagger and Fist crit), and the ICD is
-  the row's 200 ms, not 500: `EffectAt(3).FractionAt(rank)` and `Rank(rank).ICD()`. The two effects share a
+  the spell's 200 ms, not 500: `EffectAt(3).FractionAt(rank)` and `Rank(rank).ICD()`. The two effects share a
   1..5 ladder, so nothing moved; the code still named the wrong one.
 - **Furor 17056:** the tooltip prices the energy with `$m2`, effect 2; the code read effect 1, the rage
   chance, whose curve happens to match.
@@ -67,12 +67,12 @@ reads the row. The cases name the row and the numbers, so each one can be checke
 - **`CallbackOnCastComplete` has no result** (`aura_helpers.go`), so `Outcome: OutcomeLanded` on such a
   trigger is never consulted.
 
-## What a cast spends, and when
+## What a cast uses, and when
 
-- **Ferocious Bite** spent all its extra energy when it missed or was dodged or parried. In game a failed
-  Bite keeps its extra energy and its combo points, so both are spent inside `result.Landed()`, and gets 80%
-  of its base cost back, as its row's Discount Power On Miss states (EV-0031). The runtime regressions check that a dodged 5-point Bite keeps its 5 points and its extra
-  energy and gets the row's refund, and that a landed one spends both.
+- **Ferocious Bite** used all its extra energy when it missed or was dodged or parried. In game a failed
+  Bite keeps its extra energy and its combo points, so both are used inside `result.Landed()`, and gets 80%
+  of its base cost back, as its Discount Power On Miss states (EV-0031). The runtime regressions check that a dodged 5-point Bite keeps its 5 points and its extra
+  energy and gets the spell's refund, and that a landed one uses both.
 - **Cutthroat 462707** carries one charge, and nothing consumed it, so one proc allowed every Ambush the
   energy paid for in its 10 s.
 
@@ -81,7 +81,7 @@ reads the row. The cases name the row and the numbers, so each one can be checke
 - **A flat weapon bonus is added before the weapon percent.** Ravage 9867 states +98 and 350%, and its
   tooltip reads "350% damage plus 343", which is 98 x 3.5. Shred, Ravage and Claw added the flat bonus
   after the multiplier and lost 44, 245 and 11.5 per hit.
-- **Lacerate** ticked for the row's 15 at every stack count. Its direct hit counts the stacks after the new
+- **Lacerate** ticked for the spell's 15 at every stack count. Its direct hit counts the stacks after the new
   application, though the tooltip says "per existing application": in game the first Lacerate hits, and hits grow
   1:2:3:4:5 with the stacks (EV-0040).
 - **Rupture 11275:** effect 1's `PointsPerResource` 4.73 was dropped, so a 5-point Rupture ticked for 35
@@ -103,7 +103,7 @@ reads the row. The cases name the row and the numbers, so each one can be checke
 - **Stealth's form was set and never cleared,** so the stance requirement on Ambush and Garrote was always
   met or never. Tie `ShapeshiftForm` to the aura's gain and expiry.
 - **Faerie Fire 9907:** an `ExtraCastCondition` refused a recast while the druid's own debuff was up, which
-  the row does not forbid, so the rotation could never refresh it early.
+  the game files do not forbid, so the rotation could never refresh it early.
 - **Cutthroat 462707 is `A_MOD_IGNORE_SHAPESHIFT` on Ambush,** which the parse does not carry: the aura sets
   `Ambush.CastRequirement.CasterForm` on gain and clears it on expiry, rather than a stealth check in
   `ExtraCastCondition`.
@@ -111,7 +111,7 @@ reads the row. The cases name the row and the numbers, so each one can be checke
 ## Hooks
 
 - **Maul in Cat Form:** the cat spec registered Maul but never set `ReplaceMHSwing`, so a queued Maul never
-  swung, spent no rage, and its queue aura then refused every later queue.
+  swung, used no rage, and its queue aura then refused every later queue.
 - **`BreakStealth` missing** from Hemorrhage, Slice and Dice and Venom, unlike every other attack, so a cast
   out of Vanish left the rogue with no auto attacks.
 - **Prowl broken twice on leaving Cat Form:** `forms.go` and `prowl.go` both hooked the form's expiry. The
@@ -142,20 +142,20 @@ by side:
 git diff origin/master...HEAD -U0 -- sim/ tools/database/overrides/gear_proc_rates.go ':!*_auto_gen.go' | grep -E '^\+\+\+|^[-+].*(core\.New(Item|Enchant)Effect|core\.NewItemSet|NewSpellData[A-Za-z]*Proc|Rate:|ProcChance|DPM =|PPM\(|sim\.Proc\(|InArea)|^[-+]\s+ID:'
 ```
 
-- **A hand-written proc that rolls something its rows do not state, with no row in the table**, shows the rows'
-  number on the gear tab, which the sim does not roll. Read each changed trigger for a factor on `ProcChance`, a
-  procs per minute literal, a `NewTargetScaledChanceManager`, `NewAttackerSwingPPMManager` or
+- **A hand-written proc that rolls something the game files do not state, with no row in the table**, shows the
+  game files' number on the gear tab, which the sim does not roll. Read each changed trigger for a factor on
+  `ProcChance`, a procs per minute literal, a `NewTargetScaledChanceManager`, `NewAttackerSwingPPMManager` or
   `NewLegacyPPMManagerWithCastTimeSpells`, an `InArea` check or a `sim.Proc` that drops some procs. Ironfoe, Argent
   Defender, Highborne Research Tablet and Bolt's Charged Eyeball are the rows' cases. A row also guards gear whose
   override is not yet measured, so a later `Source` change in `spell_overrides.go` alone does not show the wrong
   number.
-- **A stale row** hides or misstates a rate: its gear's code now rolls what its rows state, or something other than
-  its `Reason` says. Read the code each row names against its `Reason` whenever the diff touches either.
+- **A stale row** hides or misstates a rate: its gear's code now rolls what the game files state, or something other
+  than its `Reason` says. Read the code each row names against its `Reason` whenever the diff touches either.
 
 ## Silent no-ops and orphans
 
 - **Enrage 5229** lost its armor penalty ("reduces base armor by 27% in Bear Form and 16% in Dire Bear
-  Form"), and **Frenzied Regeneration 22842** registered an aura that spends no rage and heals nothing, both
+  Form"), and **Frenzied Regeneration 22842** registered an aura that uses no rage and heals nothing, both
   with no `// TODO:`.
 - **Soul Harvesting and Fel Concentration** had their stubs deleted, so points in them did nothing and the
   markers were gone.
@@ -172,6 +172,6 @@ git diff origin/master...HEAD -U0 -- sim/ tools/database/overrides/gear_proc_rat
 
 ## Proc triggers
 
-The `wowsims-procs` `## Traps` cover the two that silence a row-built trigger: a trigger named after its row
+The `wowsims-procs` `## Traps` cover the two that silence a row-built trigger: a trigger named after its spell
 collides with an `AuraConfig` buff of the same label, and a periodic row decodes to `ProcMaskSpellDamage`,
 which a bleed tick does not carry.

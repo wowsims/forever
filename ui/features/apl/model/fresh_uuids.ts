@@ -2,8 +2,7 @@ import { randomUUID } from '@sim/utils/misc';
 
 /**
  * Gives every value inside `message` a new uuid and returns it. A copy made with `clone` keeps its
- * original's uuids, and a uuid is a value's identity: its validations, its tree item and the group
- * of the operand list it owns are all keyed on it.
+ * original's uuids, and a uuid is a value's identity.
  */
 export const freshUuids = <T>(message: T): T => {
 	const visit = (node: unknown) => {

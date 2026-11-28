@@ -9,8 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// Forever's game files ship no ShieldBlockRegular, so the table is Classic Era's (1.15.9.70576), kept by
-// hand: every shield's tooltip block in game reads its quality and item level there (EV-0227).
+// Forever's game files ship no ShieldBlockRegular, so the table is Classic Era's (EV-0227), kept by hand.
 //
 //go:embed GameTables/ShieldBlockRegular.txt
 var shieldBlockFile string

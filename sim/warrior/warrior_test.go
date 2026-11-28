@@ -156,8 +156,7 @@ const (
 	battleShoutBookRank    = 25289
 )
 
-// The warrior's own shout with three pieces of Battlegear of Wrath on, through
-// the class option: it raises what either rank bids for its category by the 30
+// Three pieces of Battlegear of Wrath, through the class option, raise either rank's bid by the 30
 // spell 23563 states.
 func TestWarriorShoutsForTheTierTwoBonus(t *testing.T) {
 	bidOf := func(hasT2 bool, label string) float64 {
@@ -273,11 +272,8 @@ func battleShoutSpell(t *testing.T, war *dps.DpsWarrior, spellID int32) *core.Sp
 	return spell
 }
 
-// How the warrior treats the Battle Shout category. The buff belongs to the
-// unit, so the raid's shout with the set and one from the warrior standing
-// next to this one fill the same category. Casting a weaker
-// shout the category would turn away wastes a global and rage, and so does
-// refreshing a copy with most of its three minutes left.
+// Casting a weaker shout the Battle Shout category would turn away wastes a global and rage, and so
+// does refreshing a copy with most of its three minutes left.
 func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 	warriorProto := func(name string, hasT2 bool) *proto.Player {
 		return &proto.Player{
@@ -338,9 +334,8 @@ func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 		}
 	})
 
-	// The copy holding the category is the warrior's own, shared with a raid
-	// member wearing the set, so it bids the set's 30 more than this warrior is
-	// worth. What decides the cast is how long it has left, not what it bids.
+	// The copy holding the category is the warrior's own, shared with a raid member wearing the set.
+	// What decides the cast is how long it has left, not what it bids.
 	for _, row := range []struct {
 		name      string
 		remaining time.Duration
@@ -378,8 +373,7 @@ func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 }
 
 // A warrior that never shouts shares the raid's copy of the rank the raid's state names, which keeps
-// the build phase the raid gave it so the character sheet shows it. The warrior registers the other
-// rank's copy itself, and that one stays off the sheet.
+// the build phase the raid gave it; the other rank's copy stays off the sheet.
 func TestRaidShoutKeepsItsBuildPhaseOnAWarriorThatNeverShouts(t *testing.T) {
 	const rank6, rank7 = "Battle Shout Rank 6 (External)", "Battle Shout Rank 7 (External)"
 	for _, row := range []struct {
@@ -428,9 +422,8 @@ func TestRaidShoutKeepsItsBuildPhaseOnAWarriorThatNeverShouts(t *testing.T) {
 	}
 }
 
-// Sunder Armor is one debuff on the target: with a warrior in the raid, the raid's Sunder is the
-// player's copy, which the warrior's cast stacks and the rotation reads by the spell's id, up to five,
-// and the armor counts once.
+// With a warrior in the raid, the raid's Sunder is the player's copy, which the warrior's cast stacks
+// up to five, and the armor counts once.
 func TestWarriorSunderStacksTheRaidsSunder(t *testing.T) {
 	player := &proto.Player{
 		Name:          "Sunder",
@@ -488,7 +481,7 @@ func TestWarriorSunderStacksTheRaidsSunder(t *testing.T) {
 	}
 }
 
-// A Retaliation counterattack is a main-hand special, so it spends no Flurry charge: a crit sets
+// A Retaliation counterattack is a main-hand special, so it uses no Flurry charge: a crit sets
 // the charges to three, and anything else leaves the two the buff holds.
 func TestRetaliationCounterattackSpendsNoFlurryCharge(t *testing.T) {
 	sim, warrior := orcWarriorSim(t, "p1_fury", furyTalents)
@@ -676,9 +669,8 @@ func TestWindfuryTotemsStrikeUsesNoFlurryCharge(t *testing.T) {
 
 const unbridledWrathEnergize = 12964 // The rage Unbridled Wrath's proc grants.
 
-// A Fury warrior with no gear and no rotation against the given number of targets, its auto attacks
-// stopped, so every Unbridled Wrath proc comes from the hits the test deals. The returned func counts
-// the procs so far.
+// A Fury warrior with its auto attacks stopped, so every Unbridled Wrath proc comes from the hits the
+// test deals.
 func unbridledWrathSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs) (*core.Simulation, *dps.DpsWarrior, func() int32) {
 	t.Helper()
 
@@ -881,7 +873,7 @@ func TestDeepWoundsTicksIgnoreTheWarriorsDamageBonuses(t *testing.T) {
 	}
 }
 
-// Death Wish takes the global cooldown its row states and does not hold the rotation beyond it, so
+// Death Wish takes the global cooldown its spell states and does not hold the rotation beyond it, so
 // an off-GCD ability can follow it at once.
 func TestDeathWishLeavesTheRotationFree(t *testing.T) {
 	sim, warrior := orcWarriorSim(t, "p1_fury", furyTalents)
@@ -943,8 +935,7 @@ func TestOverpowerAndRevengeWindowsOpenOnAvoidedMeleeHits(t *testing.T) {
 }
 
 // Furious Precision 3/3 gives the off-hand axe's attacks 10% hit and the main hand's none.
-// Cruelty 5/5 gives each axe 5% crit, and a two-handed axe also takes Weaponmaster's 5%, whose aura is
-// up.
+// Cruelty 5/5 gives each axe 5% crit, and a two-handed axe also takes Weaponmaster's 5%.
 func TestTalentsReachTheirWeapons(t *testing.T) {
 	for _, c := range []struct {
 		name     string
@@ -1013,8 +1004,7 @@ func TestShieldHitsProcWindfuryTotemButNotTheMainHandEnchant(t *testing.T) {
 				return windfury.SpellMetrics[target.UnitIndex].Casts
 			}
 
-			// Each cast's procs go off by the end of its spell batch, and the auto attacks stay stopped
-			// so that every proc comes from the casts.
+			// Each cast's procs go off by the end of its spell batch.
 			cast := func() {
 				spell.SkipCastAndApplyEffects(sim, target)
 				stepPastBatch(t, sim)
@@ -1058,9 +1048,8 @@ func TestShieldHitsProcWindfuryTotemButNotTheMainHandEnchant(t *testing.T) {
 	}
 }
 
-// Sweeping Strikes' copied hit 12723 states no DefenseType, so it rolls neither Nightblade's
-// chance-on-hit bolt nor the main-hand weapon's Crusader; the normalized hit 26654, a melee hit, rolls both.
-// The copied hit with melee DefenseType rolls them too.
+// Sweeping Strikes' copied hit 12723 rolls neither Nightblade's bolt nor Crusader and the normalized
+// hit 26654 rolls both; the copied hit with melee DefenseType rolls them too.
 func TestSweepingStrikesCopiedHitRollsNoWeaponProc(t *testing.T) {
 	sim, war, _ := swordSpecSim(t, 1, &proto.RaidBuffs{}, crusader)
 	target := war.CurrentTarget
@@ -1137,9 +1126,8 @@ func TestSweepingStrikesCopiedHitRollsNoWindfuryTotem(t *testing.T) {
 	}
 }
 
-// Sweeping Strikes' copied hit takes the attacker's damage bonuses again on top of the hit it copies, except one
-// that needs a weapon: between two targets with the same armor, a two-hander warrior whose only bonus is Two-Handed
-// Weapon Specialization deals a copy equal to its hit, and a 10% physical damage bonus raises the copy by 10% more.
+// Sweeping Strikes' copied hit equals the hit under Two-Handed Weapon Specialization alone, and a 10%
+// physical damage bonus raises the copy by 10% more.
 func TestSweepingStrikesCopiedHitTakesDamageBonusesAgain(t *testing.T) {
 	sim, war, _ := swordSpecSim(t, 2, &proto.RaidBuffs{}, 0)
 	// No Sword Specialization swing lands in the batch, so the copy measured is the Mortal Strike's.
@@ -1233,7 +1221,7 @@ func stepPastBatch(t *testing.T, sim *core.Simulation) {
 }
 
 // Victorious State hears the killing blow: a credited kill lets Victory Rush be cast, a death the
-// raid gets no kill for does not, and Victory Rush spends the buff.
+// raid gets no kill for does not, and Victory Rush uses the buff.
 func TestAKillingBlowEnablesVictoryRush(t *testing.T) {
 	sim, war, unit := newWindowSim(t)
 	target := sim.Encounter.AllTargets[0]
@@ -1347,12 +1335,11 @@ func TestExplosiveDropsTheCleavePressInsideTheQueueDelay(t *testing.T) {
 	}
 }
 
-// In Defensive Stance, the rage a block grants through Shield Specialization, the rage a dodge grants
-// through Master of Defense and Bloodrage's instant rage make ThreatPerRageGained threat per rage
-// without the warrior's threat multiplier, Bloodrage's rage over time makes it times the multiplier,
-// and rage gained before the pull makes none.
+// In Defensive Stance, the rage of Shield Specialization, Master of Defense and Bloodrage's instant
+// rage make ThreatPerRageGained threat per rage without the warrior's threat multiplier, Bloodrage's
+// rage over time makes it times the multiplier, and rage gained before the pull makes none.
 func TestRageThreatFollowsItsSource(t *testing.T) {
-	// No rotation: AddRage wakes the rotation, and the default one spends the rage at once.
+	// No rotation: AddRage wakes the rotation, and the default one uses the rage at once.
 	player := &proto.Player{
 		Name:          "Rage Threat",
 		Race:          proto.Race_RaceOrc,
@@ -1425,7 +1412,7 @@ func TestRageThreatFollowsItsSource(t *testing.T) {
 	}
 }
 
-// Reckless Swings and Bloodrage each cost their row's share of base health, booked under their own
+// Reckless Swings and Bloodrage each cost their share of base health, booked under their own
 // action and not as damage taken.
 func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
 	sim, war := orcWarriorSim(t, "p1_fury", recklessSwingsTalents)
@@ -1461,10 +1448,8 @@ func swordSpecSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs, mainHan
 	return swordSpecSimWith(t, targets, raidBuffs, mainHandEnchant, 1982, 0)
 }
 
-// An Arms warrior with the given main-hand item and off-hand item, 0 for the gear set's, against the
-// given number of targets, with its auto attacks stopped so every swing the test counts comes from
-// the hits it deals. The main hand carries the given enchant, 0 for none. The returned func counts
-// the Sword Specialization swings so far.
+// An Arms warrior with its auto attacks stopped, so every swing the test counts comes from the hits it
+// deals. An off-hand item of 0 keeps the gear set's.
 func swordSpecSimWith(t *testing.T, targets int, raidBuffs *proto.RaidBuffs, mainHandEnchant, mainHand, offHand int32) (*core.Simulation, *dps.DpsWarrior, func() int32) {
 	t.Helper()
 
@@ -1626,7 +1611,7 @@ func TestSwordSpecializationSwingIsLostWhenItsTargetDies(t *testing.T) {
 	}
 }
 
-// Victory Rush heals on its own row, and its heal makes ThreatPerHealingDone threat for each point of
+// Victory Rush heals on its own spell, and its heal makes ThreatPerHealingDone threat for each point of
 // health it restores, overheal left out, times the warrior's threat multiplier.
 func TestVictoryRushHealMakesThreat(t *testing.T) {
 	sim, war, target := shieldTestSim(t)
@@ -1671,7 +1656,7 @@ func TestVictoryRushHealMakesThreat(t *testing.T) {
 	}
 }
 
-// The block that spends Shield Block's last charge leaves the aura up to the end of its spell batch:
+// The block that uses Shield Block's last charge leaves the aura up to the end of its spell batch:
 // another attack in that batch meets the raised block chance, one in a later batch does not.
 func TestShieldBlockLastChargeCoversItsBatch(t *testing.T) {
 	const shieldBlockID = 2565
@@ -1745,9 +1730,8 @@ func TestShieldBlockLastChargeCoversItsBatch(t *testing.T) {
 	}
 }
 
-// Shield Slam adds twice the block value to its roll. Two sims on one seed roll the same damage, and
-// with the outcome forced to a plain hit the casts differ only by the block value they add, taken
-// through the same multipliers.
+// Shield Slam adds twice the block value to its roll. Two sims on one seed roll the same damage, so
+// the casts differ only by the block value they add.
 func TestShieldSlamAddsTwiceTheBlockValue(t *testing.T) {
 	slam := func(extraBlockValue float64) (*core.Simulation, *core.Unit, *core.Spell, float64) {
 		sim, war, target := shieldTestSim(t)
@@ -1777,8 +1761,8 @@ func TestShieldSlamAddsTwiceTheBlockValue(t *testing.T) {
 	}
 }
 
-// An Execute that misses, is dodged or is parried spends none of the rage above its cost and refunds
-// nothing; a landed one spends all of it. The casts skip the cost, so only the extra rage moves.
+// An Execute that misses, is dodged or is parried uses none of the rage above its cost and refunds
+// nothing; a landed one uses all of it. The casts skip the cost, so only the extra rage moves.
 func TestExecuteSpendsItsExtraRageOnlyWhenItLands(t *testing.T) {
 	const executeID = 20662 // The top rank.
 	for _, c := range []struct {
@@ -1859,7 +1843,7 @@ func TestExecuteCastAttackRollsWindfuryTotem(t *testing.T) {
 }
 
 // Sweeping Strikes gives a landed Whirlwind one strike for one charge, against two targets or more.
-// Thunder Clap spends no charge and brings no strike, and Whirlwind against a single target spends none.
+// Thunder Clap uses no charge and brings no strike, and Whirlwind against a single target uses none.
 func TestSweepingStrikesSpendsOneChargeAWhirlwindAndNoneAThunderClap(t *testing.T) {
 	const thunderClapID = 11581 // The top rank.
 	whirlwindID := core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)
@@ -1927,8 +1911,8 @@ func TestSweepingStrikesSpendsOneChargeAWhirlwindAndNoneAThunderClap(t *testing.
 	}
 }
 
-// Every landed strike of Whirlwind and Cleave, each hand and each target, spends a Gore Drinker
-// charge and heals once, until the charges run out.
+// Every landed strike of Whirlwind and Cleave uses a Gore Drinker charge and heals once, until the
+// charges run out.
 func TestGoreDrinkerSpendsOneChargePerLandedStrike(t *testing.T) {
 	const goreDrinkerHeal = 1323968
 	whirlwind := core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)
@@ -2031,10 +2015,8 @@ func versusCleaveSim(t *testing.T, mobTypes []proto.MobType, humanoidAttackPower
 }
 
 // Whirlwind, Thunder Clap and Cleave read attack power once, on their first target, and each target's
-// hit takes its own attack power against its mob type: a Beast beside a Humanoid takes none of the
-// Humanoid's, and a Humanoid beside the Beast the read was made on takes its own. With the same seed, the
-// Humanoid second takes the same damage after a Beast as after another Humanoid, which pins the damage
-// each point adds.
+// hit takes its own attack power against its mob type. With the same seed, a Humanoid second takes the
+// same damage after a Beast as after another Humanoid, which pins the damage each point adds.
 func TestCleavesTakeEachTargetsOwnVersusAttackPower(t *testing.T) {
 	humanoid, beast := proto.MobType_MobTypeHumanoid, proto.MobType_MobTypeBeast
 	for _, c := range []struct {

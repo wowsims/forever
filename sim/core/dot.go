@@ -78,11 +78,6 @@ type Dot struct {
 }
 
 // Takes a new snapshot of this Dot's effects.
-//
-// In most cases this will be called automatically, and should only be called
-// to force a new snapshot to be taken.
-//
-// doRollover will apply previously snapshotted crit/%dmg instead of recalculating.
 func (dot *Dot) TakeSnapshot(sim *Simulation) {
 	if dot.onSnapshot != nil {
 		dot.onSnapshot(sim, dot.Unit, dot)
@@ -149,9 +144,7 @@ func (spell *Spell) higherRankBlocksCast(target *Unit) bool {
 // Calculates the current tick period the dot would have based on the affects currently present
 func (dot *Dot) CalcTickPeriod() time.Duration {
 	if dot.affectedByCastSpeed {
-		// round the tickPeriod to the nearest full ms, same as ingame. This can best be seen ingame in how haste caps
-		// work. For example shadowflame should take 1009 haste rating with the 5%/3% haste buffs without rounding, but
-		// because of the rounding it already applies at 1007 haste rating.
+		// round the tickPeriod to the nearest full ms, same as ingame.
 		if dot.isChanneled {
 			return dot.Spell.Unit.ApplyCastSpeedForSpell(dot.BaseTickLength, dot.Spell).Round(time.Millisecond)
 		}
@@ -242,7 +235,6 @@ func (dot *Dot) AddTick() {
 }
 
 // Copy's the original DoT's period and duration to the current DoT.
-// This is only currently used for Mage's Impact DoT spreading and Enhancement's ImprovedLava Lash.
 func (dot *Dot) CopyDotAndApply(sim *Simulation, originaldot *Dot) {
 	if dot.isImmuneBleed() {
 		return
@@ -272,7 +264,7 @@ func (dot *Dot) CopyDotAndApply(sim *Simulation, originaldot *Dot) {
 	sim.AddPendingAction(dot.tickAction)
 }
 
-// This is the incredibly cursed way of extending DoT durations (for Moonfire / Sunfire / SWP (T15 2P) / VT (T15 2P))
+// This is the incredibly cursed way of extending DoT durations.
 // Don't use unless you know what you're doing
 // It extends the duration, immediately recalculates the next tick and then fits as many ticks into the rest of
 // the aura duration as it can. This will cause aura duration and dot ticks to desync ingame, so the aura will fall off
@@ -349,10 +341,7 @@ func (dot *Dot) periodicTick(sim *Simulation) {
 			if dot.Spell.Unit.Rotation.shouldInterruptChannel(sim) &&
 				// Skip interrupts that are purely SQW-triggered (GCD within queue window but not
 				// actually ready). Those are handled by the rotation action at actual GCD time.
-				// Only interrupt when GCD is ready OR the condition is unrelated to GCD queuing.
 				(dot.Spell.Unit.GCD.IsReady(sim) || dot.Spell.Unit.GCD.TimeToReady(sim) > MaxSpellQueueWindow) {
-				// Skip interrupts that are purely SQW-triggered (GCD within queue window but not
-				// actually ready). Those are handled by the rotation action at actual GCD time.
 				dot.stopTicking(sim)
 				dot.Deactivate(sim)
 				if dot.Spell.Unit.GCD.IsReady(sim) {
@@ -365,7 +354,7 @@ func (dot *Dot) periodicTick(sim *Simulation) {
 	}
 
 	// Dot might have been disabled in tick. For channeled spells, don't reschedule
-	// once all ticks are consumed — the aura may still be alive filling the GCD.
+	// once all ticks are consumed; the aura may still be alive filling the GCD.
 	if dot.IsActive() && (!dot.isChanneled || dot.remainingTicks > 0) {
 		dot.tickAction.NextActionAt = sim.CurrentTime + dot.tickPeriod
 		sim.AddPendingAction(dot.tickAction)

@@ -17,11 +17,9 @@ export interface BulkProgressStepsProps {
 
 const COLUMNS = ['encounter', 'settings', 'talents', 'rotation'] as const;
 
-// Every row and its status cell are there from the start, so the progress dialog keeps its height through the run. The
-// wrapper scrolls sideways when the cells cannot wrap to the dialog's width. Each row's own progress is a hairline laid
-// over its collapsed bottom border, half of which lies in the row, so it takes none of the cells' padding; a pending
-// row shows the empty track in place of the separator. A pending row fades its step cells only, so the track keeps its
-// colour, and fades them in when the row starts.
+// Every row and its status cell are there from the start, so the progress dialog keeps its height through the run. Each
+// row's own progress is a hairline laid over its collapsed bottom border, half of which lies in the row, so it takes none
+// of the cells' padding. A pending row fades its step cells only, so its progress track keeps its colour.
 export const BulkProgressSteps = ({ rows, running, progress }: BulkProgressStepsProps) => (
 	<div className="w-full overflow-clip text-left">
 		<Table dense flush size="sm" variant="rows" testId="bulk-progress-steps">

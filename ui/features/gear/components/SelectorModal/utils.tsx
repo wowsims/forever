@@ -36,8 +36,7 @@ interface TabSpec<T extends ItemListType> {
 	onRemove?: () => void;
 }
 
-// A tab with no rows is not built. The cast is necessary because every tab is uniform apart from
-// the type its rows carry.
+// The cast is necessary because every tab is uniform apart from the type its rows carry.
 const describe = <T extends ItemListType>(spec: TabSpec<T>): SelectorTab | null => (spec.itemData.length ? (spec as unknown as SelectorTab) : null);
 
 export const eligibilityFor = ({ player, slot }: Pick<SelectorTabsOptions, 'player' | 'slot'>): TabEligibility => ({

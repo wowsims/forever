@@ -1,15 +1,8 @@
 // What the item procs the sim registered before it read them off the rows resolve to. The table holds
-// fifteen of the sixteen registrations sim/common/forever/stat_bonus_procs_auto_gen.go carried at
-// 60266be6f7, transcribed by hand; Highborne Research Tablet has a hand-written item effect instead.
+// fifteen of the sixteen registrations sim/common/forever/stat_bonus_procs_auto_gen.go carried,
+// transcribed by hand.
 // Every field is what that generated call stated, except a rolled chance and the cooldown, which are
-// the trigger row's own. One of them states a mask that leaves out the heals
-// the game files' mask names, two register nothing, one required damage where a weapon proc needs
-// only a landed hit, and three required damage where their rows take any damage component; each says
-// so here.
-//
-// A pin rather than a comparison: the generated file carries spell ids now, so there are no literals
-// left to compare against, and what this guards is that resolving those ids still produces the
-// listener the sim used to fire.
+// the trigger row's own.
 
 package spelldata
 
@@ -19,7 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 )
 
-// One registration as the generated file stated it before the ids replaced it.
+// One registration as the generated file stated it.
 type liveProc struct {
 	itemID         int32
 	name           string
@@ -34,14 +27,14 @@ type liveProc struct {
 
 	requireDamageComponent bool
 
-	// The rate the registration fired at: chance where the row fires on its own condition, the row's
+	// The rate the registration fired at: chance where the spell fires on its own condition, its
 	// ProcChance column where it rolls that. A procs-per-minute rate is a manager and no roll, which
 	// is what ppm says.
 	chance      float64
 	rollsColumn bool
 	ppm         float64
 
-	// Set where the rows refuse the proc, which is why the item registers no effect any more.
+	// Set where the rows refuse the proc, which is why the item registers no effect.
 	unsupported string
 }
 
@@ -176,9 +169,8 @@ func TestTheItemProcsResolveAsTheyWereRegistered(t *testing.T) {
 			t.Errorf("%s (%d) ICD: %v, want the row's %v", live.name, live.itemID, trigger.ICD, row.ICD())
 		}
 
-		// A rate stated as procs per minute is a manager and no roll at all, so the manager is
-		// asserted: a chance left beside a manager would gate the rate and the manager would never be
-		// consulted.
+		// A rate stated as procs per minute is a manager and no roll at all: a chance left beside a
+		// manager would gate the rate and the manager would never be consulted.
 		if live.ppm > 0 && trigger.DPM == nil {
 			report("DPM", "no proc manager", live.ppm)
 		}
@@ -188,7 +180,7 @@ func TestTheItemProcsResolveAsTheyWereRegistered(t *testing.T) {
 // The rate option sim/common/shared gives the resolver, copied rather than called: shared imports
 // this package, so a test inside it cannot import shared back. A weapon's rate is its item effect's,
 // measured on the weapon carrying it, so the manager is the dynamic one and the item is named to it
-// - Annihilator is the only row here that has one.
+// (Annihilator, the only row here that has one).
 func procRateForTest(ppm float64) ProcOpt {
 	return func(character *core.Character, trigger *core.ProcTrigger) {
 		if ppm <= 0 {

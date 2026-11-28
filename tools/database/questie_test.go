@@ -330,7 +330,7 @@ func TestPruneQuestieSources(t *testing.T) {
 }
 
 // An item keeps what it has. An AtlasLoot drop keeps QuestieDB's drops out and not its vendors, and an item QuestieDB
-// has no row for stays as it was, so nothing makes a world drop of the absence of data.
+// has no row for stays as it was.
 func TestAppendQuestieSources(t *testing.T) {
 	atlasDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: 1, ZoneId: 2017, Difficulty: proto.DungeonDifficulty_DifficultyDungeon}}}
 	questieDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: 2, ZoneId: 28}}}
@@ -374,10 +374,8 @@ func TestAppendQuestieSources(t *testing.T) {
 	}
 }
 
-// Item 1 is the Sunken Temple case: a warrior quest's bind-on-pickup reward. Item 2 comes from a warrior and a paladin
-// quest, item 3 also from a craft, item 4 also from a quest any class may take, item 5 binds on equip, item 6 keeps the
-// game files' list, item 7 names a quest QuestieDB has no row for, item 8 has no source, and item 9's two quests
-// together allow every class.
+// Item 1 is the Sunken Temple case: a warrior quest's bind-on-pickup reward. Item 4 also comes from a
+// quest any class may take, and item 9's two quests together allow every class.
 func TestApplyQuestClasses(t *testing.T) {
 	quest := func(id int32) *proto.UIItemSource {
 		return &proto.UIItemSource{Source: &proto.UIItemSource_Quest{Quest: &proto.QuestSource{Id: id}}}
@@ -516,7 +514,7 @@ func TestCommittedQuestSourcesCarryTheirZone(t *testing.T) {
 }
 
 // A drop in a dungeon or raid zone carries its difficulty, an NPC's drop its NPC's zone, and the drops of one zone
-// share a difficulty. The instance zones come from tools/database/wowsims.db, so that part skips without it.
+// share a difficulty.
 func TestCommittedDropsCarryTheirZoneDifficulty(t *testing.T) {
 	db := ReadDatabaseFromJson(tools.ReadFile("../../assets/database/db.json"))
 	leftovers := ReadDatabaseFromJson(tools.ReadFile("../../assets/database/leftover_db.json"))

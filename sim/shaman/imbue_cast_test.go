@@ -35,8 +35,8 @@ func windfuryShaman(rotation *proto.APLRotation) *proto.Player {
 	}
 }
 
-// Casting an imbue replaces the one the options put on the main hand, with the cast's own aura,
-// mana and GCD, and the next iteration starts from the options again.
+// Casting an imbue replaces the one the options put on the main hand, and the next iteration
+// starts from the options again.
 func TestImbueCastReplacesTheMainHandImbue(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	sim := core.NewSim(&proto.RaidSimRequest{
@@ -84,8 +84,7 @@ func TestImbueCastReplacesTheMainHandImbue(t *testing.T) {
 	}
 }
 
-// A rotation that casts Rockbiter Weapon while its aura is down casts it once each iteration: the
-// aura is the cast's buff, so the rotation sees the imbue it put on the main hand.
+// A rotation that casts Rockbiter Weapon while its aura is down casts it once each iteration.
 func TestRotationCastsAnImbueOnce(t *testing.T) {
 	rockbiter := spelldata.MustFind(16316).ID
 	rockbiterID := &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: rockbiter}}

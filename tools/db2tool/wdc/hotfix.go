@@ -39,9 +39,8 @@ type HotfixEntry struct {
 }
 
 // hotfixIdentity is the identity Combine dedups on: the 5-tuple plus the
-// record's data bytes, so records that differ only in data are both kept —
-// full-record identity, not the 5-tuple alone. RegionID/UniqueID never
-// participate.
+// record's data bytes, so records that differ only in data are both kept.
+// RegionID/UniqueID never participate.
 type hotfixIdentity struct {
 	pushID    int32
 	tableHash uint32
@@ -70,9 +69,8 @@ type HotfixReader struct {
 	records []HotfixEntry
 }
 
-// ReadHotfixFile parses one DBCache-format file. Only XFTH version 9 (the
-// current live-client format) is supported; older versions (v1–v8, written
-// only by long-obsolete clients) fail loud.
+// ReadHotfixFile parses one DBCache-format file. Only XFTH version 9 is
+// supported; older versions fail loud.
 func ReadHotfixFile(path string) (*HotfixReader, error) {
 	buf, err := os.ReadFile(path)
 	if err != nil {
@@ -217,10 +215,8 @@ func CombineHotfixFiles(files []string) (map[uint32]*HotfixReader, error) {
 // order.
 //
 // Both roots are resolved through any symlinks before the walk. WalkDir never
-// follows symlinks, and that includes a root that is itself one: it stats the
-// root, sees a link rather than a directory, and stops without descending. An
-// install reached through a linked path (a wine prefix exposed at the
-// checked-in BaseDir, say) would otherwise scan clean and silently run
+// follows symlinks, and that includes a root that is itself one. An install
+// reached through a linked path would otherwise scan clean and silently run
 // hotfix-free.
 func LoadHotfixCaches(cachesDir, baseDir string) (map[uint32]*HotfixReader, error) {
 	var files []string
@@ -266,7 +262,7 @@ func LoadHotfixCaches(cachesDir, baseDir string) (map[uint32]*HotfixReader, erro
 
 // SStrHash is the Blizzard SStrHash variant DBCache table hashes use.
 // Callers hash the UPPERCASED table name; the result equals the table's WDC5
-// header TableHash (which ApplyHotfixes actually keys on).
+// header TableHash.
 func SStrHash(s string) uint32 {
 	sHashtable := [16]uint32{
 		0x486E26EE, 0xDCAA16B3, 0xE1918EEF, 0x202DAFDB,

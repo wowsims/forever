@@ -8,7 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The rows ItemSetSpell names for each set's thresholds, and the buffs and debuffs those rows grant.
+// The spells ItemSetSpell names for each set's thresholds, and the buffs and debuffs those spells grant.
 // None of them is a mage class spell, so the generated table carries no reference to them.
 var (
 	frostfireEvocation     = spelldata.MustFind(28763) // 2pc: Evocation cooldown 60 s shorter
@@ -31,10 +31,9 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 		6: func(agent core.Agent, setBonusAura *core.Aura) {
 			character := agent.GetCharacter()
 
-			// A_MOD_DAMAGE_TAKEN rather than a from-caster aura: every caster's spells take it. "Up to
-			// $s1" is spell damage against the target, which each spell takes at its own coefficient,
-			// as Judgement of the Crusader does, so it is not parsed into the flat damage taken.
-			// The row's one charge is spent by the next spell that hits the target.
+			// A_MOD_DAMAGE_TAKEN: every caster's spells take it. "Up to $s1" is spell damage against the
+			// target, which each spell takes at its own coefficient, so it is not parsed into the flat
+			// damage taken. The spell's one charge is used by the next spell that hits the target.
 			taken := frostfireVulnDebuff.EffectN(1)
 			var takenSchools []stats.SchoolIndex
 			for school := core.SpellSchoolHoly; school <= core.SpellSchoolArcane; school <<= 1 {
@@ -64,9 +63,8 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 				return aura.AttachProcTrigger(consume)
 			})
 
-			// The rate is the proc chance column. PROC_FLAG_DEAL_HARMFUL_SPELL decodes to the cast,
-			// which names no target; the debuff goes on the one a damage spell landed on, the
-			// tooltip's "your damage spells".
+			// PROC_FLAG_DEAL_HARMFUL_SPELL decodes to the cast, which names no target; the debuff goes
+			// on the one a damage spell landed on, the tooltip's "your damage spells".
 			trigger := spelldata.ProcTrigger(character, frostfireVulnerability,
 				func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 					debuffs.Get(result.Target).Activate(sim)
@@ -105,7 +103,7 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 				}
 			})
 
-			// The row spends its one charge on the cast, but the sim reckons threat when a hit
+			// The spell uses its one charge on the cast, but the sim reckons threat when a hit
 			// deals, which a spell in flight does after its cast completes: the buff goes on the
 			// next damage spell's hit.
 			consume := spelldata.ProcTrigger(character, frostfireNotThereBuff,
@@ -120,9 +118,9 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 			consume.TriggerImmediately = true
 			buff.AttachProcTrigger(consume)
 
-			// The rate is the proc chance column. The proc effect's class flags name another
-			// class's family, which the resolver drops. It listens to landed damage spells for the
-			// consume's reason, so the hit that procs it keeps its threat and the next one loses it.
+			// The proc effect's class flags name another class's family, which the resolver drops.
+			// It listens to landed damage spells for the consume's reason, so the hit that procs it
+			// keeps its threat and the next one loses it.
 			trigger := spelldata.ProcTrigger(character, frostfireNotThere,
 				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 					buff.Activate(sim)
@@ -148,7 +146,7 @@ var (
 // Tier 1
 //
 // The ItemSet row lists six pieces, but the game files ship only the shoulders, hands, legs and feet, so the
-// 5-piece bonus cannot be worn yet and no test wears it.
+// 5-piece bonus cannot be worn yet.
 var ItemSetManaflareRegalia = core.NewItemSet(core.ItemSet{
 	ID:   2098,
 	Name: "Manaflare Regalia",
@@ -166,8 +164,7 @@ var ItemSetManaflareRegalia = core.NewItemSet(core.ItemSet{
 		// critical strike chance while your Combustion spell is active, and has a 10% increased chance to trigger
 		// Fingers of Frost."
 		//
-		// Three dummies the talents read while this aura is up: effect 1 in registerMissileBarrage, effect 2 in
-		// registerCombustionSpell, effect 3 in registerFingersOfFrost. Each chance adds its points to the talent's.
+		// Three dummies the talents read while this aura is up. Each chance adds its points to the talent's.
 		// TODO: Ingame test needed -- whether the 10% adds percentage points to each proc chance or scales it.
 		5: func(agent core.Agent, setBonusAura *core.Aura) {
 			agent.(MageAgent).GetMage().manaflareAura = setBonusAura
@@ -212,7 +209,7 @@ var ItemSetEnigmaVestments = core.NewItemSet(core.ItemSet{
 			answer := mage.RegisterAura(spelldata.AuraConfig(enigmaAnswer))
 			spelldata.ParseEffects(&mage.Character, answer, enigmaAnswer)
 
-			// The row fires on every harmful spell, which decodes to the cast; its tooltip names
+			// The spell fires on every harmful spell, which decodes to the cast; its tooltip names
 			// a resisted spell, an outcome the mask has no bit for and one only the hit knows. A
 			// resisted spell deals nothing, so the listener does not ask for damage.
 			trigger := spelldata.ProcTrigger(&mage.Character, enigmaResistProc,
@@ -275,7 +272,7 @@ var ItemSetNetherwindRegalia = core.NewItemSet(core.ItemSet{
 		8: func(agent core.Agent, setBonusAura *core.Aura) {
 			mage := agent.(MageAgent).GetMage()
 
-			// The spells the buff makes instant, which are also the ones whose cast spends it.
+			// The spells the buff makes instant, which are also the ones whose cast uses it.
 			instant := netherwindFocusBuff.EffectN(1).ClassFlags
 
 			buff := mage.RegisterAura(spelldata.AuraConfig(netherwindFocusBuff))
@@ -293,7 +290,7 @@ var ItemSetNetherwindRegalia = core.NewItemSet(core.ItemSet{
 
 			// The rate is effect 1's chance. The proc effect states no class flags, so the three
 			// spells the tooltip names are matched by rank.
-			// TODO: the row states a 10 s cooldown beside no proc cooldown; whether it gates the
+			// TODO: the game files state a 10 s cooldown beside no proc cooldown; whether it gates the
 			// proc waits on a log.
 			trigger := spelldata.ProcTrigger(&mage.Character, netherwindFocusProc,
 				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {

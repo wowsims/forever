@@ -19,7 +19,7 @@ const line = (extra: Record<string, unknown>) => ({ ...base, raw: '[1.00] raw', 
 const text = (log: CombatLog) => render(<LogLine log={log} />).container.textContent;
 
 // Each line is a locale string with its action link spliced in as an element, which only exists once
-// the string resolves; the test setup loads no locale, so this suite loads the English one.
+// the string resolves; the test setup loads no locale.
 beforeAll(() => {
 	i18n.addResourceBundle('en', 'translation', english, true, true);
 });
@@ -35,8 +35,7 @@ describe('LogLine', () => {
 		);
 	});
 
-	// The raw values already moved the right way, so a spend flips the difference back to positive:
-	// the line reads "Spent 30.0 Rage", not "Spent -30.0 Rage".
+	// The raw values already moved the right way, so a resource use flips the difference back to positive.
 	it('signs a resource line by whether it was spent, and names health losses differently', () => {
 		const resource = { kind: 'resource', resourceType: ResourceType.ResourceTypeRage, valueBefore: 100, valueAfter: 70, total: 100 };
 		expect(text(line({ ...resource, isSpend: true }))).toContain('Spent');
@@ -63,8 +62,7 @@ describe('LogLine', () => {
 		expect(auraLink(line({ kind: 'major-cooldown' }))).toBe('false');
 	});
 
-	// The bracket in the raw text is dropped because EntityLabel renders a styled replacement; the
-	// second space is the parser's own, kept so the line still matches the plain-text export.
+	// The second space is the parser's own, kept so the line still matches the plain-text export.
 	it('drops the entity bracket the parser left in the raw line, because the label replaces it', () => {
 		expect(text(line({ kind: 'plain', raw: '[1.00] [Warrior 1] said something' }))).toBe('[Warrior 1]  said something');
 	});

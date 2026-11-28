@@ -1,5 +1,4 @@
-// The version request sent at module load, and what an import changes: the class is required, and
-// anything missing from the pasted text stays as it was.
+// What an import changes: the class is required, and anything missing from the pasted text stays as it was.
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Profession, Race } from '@generated/proto/common';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';

@@ -24,7 +24,7 @@ func (hunter *Hunter) registerAspects() {
 	hunter.registerDeadlyAspects(hawkAuras)
 }
 
-// One aspect at a time: a permanent self-buff the row's effects parse onto, and the spell that swaps
+// One aspect at a time: a permanent self-buff the spell's effects parse onto, and the spell that swaps
 // to it.
 func (hunter *Hunter) registerAspect(row *spelldata.Spell) *core.Aura {
 	aura := hunter.RegisterAura(spelldata.AuraConfig(row, spelldata.Label(row.RankedName())))
@@ -45,8 +45,7 @@ func (hunter *Hunter) registerAspect(row *spelldata.Spell) *core.Aura {
 }
 
 // The parse has no row for movement speed, so effect 1 is set by hand, with Pathfinding's
-// SPELLMOD_EFFECT1 added to it. Effect 2 dazes the hunter when struck: a slow of its own, which
-// MultiplyMovementSpeed stacks on the aspect's speed.
+// SPELLMOD_EFFECT1 added to it. Effect 2 dazes the hunter when struck: a slow of its own.
 func (hunter *Hunter) registerAspectOfTheCheetah() {
 	speed := aspectOfTheCheetahRank.EffectN(1).Percent() + spellData.Pathfinding.EffectAt(1).FractionAt(hunter.Talents.Pathfinding)
 	aura := hunter.registerAspect(aspectOfTheCheetahRank)
@@ -70,10 +69,10 @@ func (hunter *Hunter) registerAspectOfTheCheetah() {
 	aura.AttachProcTrigger(daze)
 }
 
-// Deadly Aspects is the chance the aspects' own procs fire with: the Hawk and Beast rows state the
-// trigger and no rate, and the talent adds SPELLMOD_CHANCE_OF_SUCCESS to each - 2% a rank - which
-// the parse has no row for. The tooltip names Auto Shot and melee auto attacks where the rows hear
-// every ranged and melee hit, so each mask is narrowed to the white hits by hand.
+// The chance the aspects' own procs fire with: the Hawk and Beast spells state the trigger and no rate,
+// and the talent adds SPELLMOD_CHANCE_OF_SUCCESS to each, which the parse has no row for. The tooltip
+// names Auto Shot and melee auto attacks where the spells hear every ranged and melee hit, so each mask
+// is narrowed to the white hits by hand.
 func (hunter *Hunter) registerDeadlyAspects(hawkAuras []*core.Aura) {
 	rank := hunter.Talents.DeadlyAspects
 	if rank == 0 {
@@ -108,7 +107,7 @@ func (hunter *Hunter) registerDeadlyAspects(hawkAuras []*core.Aura) {
 		},
 		spelldata.Chance(spellData.DeadlyAspects.EffectAt(2).FractionAt(rank)))
 	beast.Name = "Deadly Aspects - Quick Strikes"
-	// A Windfury Totem hit rolls it as a swing does, through the row's melee swing bit (EV-0136).
+	// Totem hit rolls in EV-0136.
 	beast.ProcMask = core.ProcMaskMeleeWhiteHit
 	hunter.AspectOfTheBeastAura.AttachProcTrigger(beast)
 }

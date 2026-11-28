@@ -78,8 +78,7 @@ func runRegenBoosts(boosts []testRegenBoost, casting bool, fieldsFirst bool) (ow
 }
 
 // What each boost adds goes to its own metrics and the regen row keeps the unit's own regen, whichever
-// order the boost's fields and its listing take. Two boosts up at once each take what their own factors
-// add on top of the boosts gained before them, and one that changes nothing takes nothing.
+// order the boost's fields and its listing take.
 func TestManaRegenBoostsTakeWhatTheyAdd(t *testing.T) {
 	for _, c := range []struct {
 		name    string

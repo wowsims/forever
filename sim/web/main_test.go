@@ -61,9 +61,8 @@ func init() {
 	time.Sleep(time.Second) // hack so we have time for server to startup. Probably could repeatedly curl the endpoint until it responds.
 }
 
-// TestIndividualSim is just a smoke test to make sure the http server works as expected.
-//
-//	Don't modify this test unless the proto defintions change and this no longer compiles.
+// A smoke test that the http server works as expected. Don't modify this test unless the proto
+// definitions change and this no longer compiles.
 func TestIndividualSim(t *testing.T) {
 	req := &proto.RaidSimRequest{
 		Raid: core.SinglePlayerRaidProto(

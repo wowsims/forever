@@ -44,8 +44,7 @@ func countSameWeaponBothHands(combos [][2]*bulkSimCandidateOption, id int32) int
 }
 
 // Two copies of the same 1H weapon (one equipped, one user-added) must allow wielding it in
-// both hands; a single copy must not. This pins the dual-wield stacking behaviour so the
-// candidate-option dedup cannot silently collapse it.
+// both hands; a single copy must not.
 func TestGetAllWeaponCombosSameWeaponBothHandsNeedsTwoCopies(t *testing.T) {
 	testCases := []struct {
 		name       string
@@ -441,8 +440,7 @@ func shapeOf(combo [2]*bulkSimCandidateOption) string {
 	return fmt.Sprintf("MH=%s OH=%s", handTypeShape(combo[0]), handTypeShape(combo[1]))
 }
 
-// Any pairing WoW itself would reject: a 2H in either hand alongside another weapon, an
-// off-hand-only item in the mainhand, or a mainhand-only item in the offhand.
+// Any pairing WoW itself would reject.
 func isIllegalCombo(combo [2]*bulkSimCandidateOption) bool {
 	mh, oh := combo[0], combo[1]
 	if mh != nil && oh != nil {
@@ -461,10 +459,9 @@ func isIllegalCombo(combo [2]*bulkSimCandidateOption) bool {
 
 // Per-spec paired-slot (ring / trinket / both hands) matrix.
 
-// Covers the paired bulk slots (ring, trinket, both hands) for every spec: which same-slot
-// pairings the candidate generator offers when the batch holds two copies of one item, two items
-// sharing a limit category, unique items, and plain distinct items. Run with -v to print the
-// table.
+// Covers the paired bulk slots for every spec: which same-slot pairings the candidate generator
+// offers when the batch holds two copies of one item, two items sharing a limit category, unique
+// items, and plain distinct items. Run with -v to print the table.
 
 const (
 	pairRingPlainID   int32 = 992001

@@ -141,8 +141,7 @@ describe('Tree', () => {
 		expect(root.getAttribute('data-layout')).toBe('inline');
 	});
 
-	// The index comes from DOM order, so wrappers, fragments and a wrapper that reorders or drops
-	// its rows on a store notification all give the right index.
+	// The index comes from DOM order.
 	it('indexes items rendered through wrappers', () => {
 		const order = createOrder(['c', 'd', 'e']);
 		render(

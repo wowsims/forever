@@ -10,9 +10,7 @@ import (
 	googleProto "google.golang.org/protobuf/proto"
 )
 
-// Rows as the game files hold them: Dalaran's map sits on Eastern Kingdoms (0), Shaper's Terrace on Kalimdor (1), the
-// Scarlet Enclave and Karazhan Crypts are Season of Discovery maps with no Forever dungeon difficulty, Molten Core is
-// a raid, and Blackwing Lair a raid given that difficulty here.
+// Rows as the game files hold them, and Blackwing Lair a raid given the Forever dungeon difficulty here.
 func testNpcPlacement() *NpcPlacement {
 	return newNpcPlacement(
 		[]instanceMapRow{
@@ -199,7 +197,7 @@ func TestParseQuestieDataKeepsAZoneWhoseNpcsMoveApart(t *testing.T) {
 }
 
 // Placing the committed NPCs again moves none of them. The zone stand-in needs QuestieDB's other NPCs, so this cannot
-// see it; TestParseQuestieDataMovesAZoneWithItsPlacedNpcs covers it. Skips without tools/database/wowsims.db.
+// see it; TestParseQuestieDataMovesAZoneWithItsPlacedNpcs covers it.
 func TestCommittedQuestieNpcsKeepTheirPlacement(t *testing.T) {
 	DatabasePath = "wowsims.db"
 	if _, err := os.Stat(DatabasePath); err != nil {

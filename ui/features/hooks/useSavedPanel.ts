@@ -16,8 +16,7 @@ export interface SavedPanelOptions<T> {
 	current: T | null;
 	serialize: (data: T) => string;
 	load: (entry: SavedDataPanelEntry<T>, host: IndividualSimHost<any>) => void;
-	// The spec's presets for this slot, built once the sim is ready and again only when the host or
-	// the spec's presets change. A module-level function, so its identity is stable.
+	// The spec's presets for this slot. A module-level function, so its identity is stable.
 	presets?: (specPresets: SpecPresets, host: IndividualSimHost<any>) => Array<SavedDataPanelEntry<T>>;
 }
 

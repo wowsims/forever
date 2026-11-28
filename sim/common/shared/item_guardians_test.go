@@ -13,8 +13,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Barov Peasant Caller's 18307 summons servants 11637. The tests pin it at three servants 11637 for 20 s, so a game
-// build that changes the row leaves them as they are.
+// Barov Peasant Caller's 18307 summons servants 11637. The tests pin the spell, so a game build that changes
+// it leaves them as they are.
 const (
 	servantSummon   int32 = 18307
 	servantCreature int32 = 11637
@@ -27,8 +27,7 @@ var servant = GuardianCreature{
 	Swing:  GuardianSwing{Share: 0.5, Speed: 2.0, Variance: 0.1},
 }
 
-// A caster wearing a test trinket whose use is the pinned servant summon, on a 5 min cooldown, registered through
-// NewGuardianOnUse with the given creatures.
+// A caster wearing a test trinket whose use is the pinned servant summon.
 func newServantSim(t *testing.T, itemID int32, creatures map[int32]GuardianCreature) (*core.Simulation, *testCaster) {
 	t.Helper()
 	editRow(t, servantSummon, func(row *spelldata.Spell) {

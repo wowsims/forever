@@ -37,13 +37,12 @@ func (druid *Druid) registerBalanceTalents() {
 	// Moonkin Form implemented in forms.go
 }
 
-// The cast time of Wrath and Starfire, whose class flags the cast time row names, and Wrath's mana cost.
+// The cast time of Wrath and Starfire, whose class flags the cast time effect names, and Wrath's mana cost.
 func (druid *Druid) applyStarlightWrath() {
 	druid.parseTalent(druid.Talents.StarlightWrath, spellData.StarlightWrath)
 }
 
-// Periodic damage and healing on the spells its class flags name: Moonfire, Insect Swarm, Rip, Rake,
-// Lacerate, Pounce Bleed, Entangling Roots, Rejuvenation, Regrowth and Wild Growth, and Swiftmend's heal.
+// Periodic damage and healing on the spells its class flags name, and Swiftmend's heal.
 func (druid *Druid) applyGenesis() {
 	druid.parseTalent(druid.Talents.Genesis, spellData.Genesis)
 }
@@ -94,8 +93,8 @@ func (druid *Druid) applyVengeance() {
 	druid.parseTalent(druid.Talents.Vengeance, spellData.Vengeance)
 }
 
-// Starfire's chance to stun its target. Both effects, a dummy and the stun's proc, are reported as
-// skipped: a stun does nothing to the targets the sim fights.
+// Starfire's chance to stun its target. Both effects are reported as skipped: a stun does nothing to
+// the targets the sim fights.
 func (druid *Druid) applyImprovedStarfire() {
 	druid.parseTalent(druid.Talents.ImprovedStarfire, spellData.ImprovedStarfire)
 }
@@ -107,7 +106,7 @@ func (druid *Druid) applyOvergrowth() {
 var naturesGraceBuff = spellData.NaturesGraceTriggered.Highest()
 
 // A non-periodic spell crit grants cast speed and a shorter global cooldown for 3 seconds. Nothing
-// spends the buff, and a global cooldown under it takes both the cast speed and the 10% cut (1.227 s).
+// uses the buff, and a global cooldown under it takes both the cast speed and the 10% cut (1.227 s).
 func (druid *Druid) applyNaturesGrace() {
 	if !druid.Talents.NaturesGrace {
 		return
@@ -122,9 +121,8 @@ func (druid *Druid) applyNaturesGrace() {
 		})
 	// The tooltip's "cast" hint decodes to a cast trigger, but it asks for a crit, which is known
 	// only once the hit resolves. The direct hit and heal callbacks leave the periodic ones out. The
-	// buff comes a spell batch after the crit, so a cast that starts as the crit lands, such as the
-	// one queued behind a Starfire, is not hasted. A Hurricane tick is its own direct hit here, and its
-	// crits grant nothing.
+	// buff comes a spell batch after the crit, so a cast that starts as the crit lands is not hasted. A
+	// Hurricane tick is its own direct hit here, and its crits grant nothing.
 	trigger.Name = "Nature's Grace - Trigger"
 	trigger.Callback = core.CallbackOnSpellHitDealt | core.CallbackOnHealDealt
 	trigger.Outcome = core.OutcomeCrit
@@ -139,9 +137,8 @@ var eclipseBuff = spellData.EclipseTriggered.Highest()
 
 // "Increases the critical strike chance of your Wrath spell by $s5%, and your Wrath spell reduces the
 // cast time of your next $s3 Starfire spells by ${$m2/-1000}.2 sec. Stores up to $408255u charges."
-// The parse attaches the Wrath crit (effect 5). The charges each Wrath grants (effect 3) and the cast
-// time taken off each Starfire (effect 2) are dummies read by hand, and the buff row supplies the
-// duration and the charge cap.
+// The charges each Wrath grants (effect 3) and the cast time taken off each Starfire (effect 2) are
+// dummies read by hand.
 func (druid *Druid) applyEclipse() {
 	if druid.Talents.Eclipse == 0 {
 		return
@@ -157,7 +154,7 @@ func (druid *Druid) applyEclipse() {
 		Kind:       core.SpellMod_CastTime_Flat,
 		TimeValue:  rank.EffectN(2).TimeValue(),
 	})
-	// Every Starfire cast spends a charge, a missed one included.
+	// Every Starfire cast uses a charge, a missed one included.
 	aura.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
 		if spellData.Starfire.Contains(spell) {
 			aura.RemoveStack(sim)
@@ -165,7 +162,7 @@ func (druid *Druid) applyEclipse() {
 	}
 
 	// Each Wrath whose hit roll lands grants the charges with its cast result, at its cast, so a
-	// Starfire queued behind it takes one. A miss grants none.
+	// Starfire queued behind it takes one.
 	trigger := spelldata.ProcTrigger(&druid.Character, rank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			aura.Activate(sim)

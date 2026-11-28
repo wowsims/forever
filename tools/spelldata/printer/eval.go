@@ -166,8 +166,8 @@ func parseChain(text string) (*chain, error) {
 }
 
 // The chain an expression states, with offset turning a node's position into the caller's offsets.
-// Anything that is not a name followed by selectors, calls and constant indexes - an operator, a
-// conversion - is refused whole, and so is an argument that is neither a constant nor a chain.
+// Anything that is not a name followed by selectors, calls and constant indexes (an operator, a
+// conversion) is refused whole, and so is an argument that is neither a constant nor a chain.
 func walkChain(node ast.Expr, offset func(token.Pos) int) (*chain, error) {
 	switch n := node.(type) {
 	case *ast.Ident:
@@ -603,10 +603,9 @@ func rankArgument(recv reflect.Value, seg segment, virtual *virtualRank) (int32,
 		return 0, false
 	}
 
-	// A virtual-rank hover already has the rank selected by the
-	// Set Rank / Change Rank markdown control. The argument to
-	// Rank(...) or an *At accessor may therefore be the callback's
-	// rank parameter rather than a constant.
+	// A virtual-rank hover already has the rank selected. The argument to
+	// Rank(...) or an *At accessor may therefore be the callback's rank
+	// parameter rather than a constant.
 	if virtual != nil && seg.args[0].parameter != "" {
 		return virtual.rank, virtual.rank > 0
 	}
@@ -793,8 +792,8 @@ func effectPosition(s *spelldata.Spell, e *spelldata.Effect) int {
 }
 
 // Every Effect accessor that reads something off this effect, with what it answers there: the
-// zero-argument ones and the ones that take a caster level. One that answers nothing - a zero amount,
-// no period - is left out, so the list is the readings this effect actually states.
+// zero-argument ones and the ones that take a caster level. One that answers nothing (a zero amount,
+// no period) is left out, so the list is the readings this effect actually states.
 func effectAccessors(e *spelldata.Effect) []string {
 	v := reflect.ValueOf(e)
 

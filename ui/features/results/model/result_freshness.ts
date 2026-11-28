@@ -6,17 +6,15 @@ import { shallowArrayEquals } from '@sim/state/subscriptions';
 
 export type ResultFreshness = 'fresh' | 'stale' | null;
 
-// Player fields that never change a sim result: the name is a label, the EP fields feed stat
-// weights, and `currentStats` is computed from the other fields and lands after a compute-stats
-// round trip, so counting it would turn a result stale after the fact.
+// Player fields that never change a sim result. `currentStats` is computed from the other fields and
+// lands after a compute-stats round trip, so counting it would turn a result stale after the fact.
 const NON_INPUT_FIELDS: ReadonlyArray<PlayerField> = ['name', 'epWeights', 'epRatios', 'epRefStat', 'currentStats'];
 const PLAYER_INPUT_FIELDS = PLAYER_FIELDS.filter(field => !NON_INPUT_FIELDS.includes(field) && field !== 'gear');
 
 // What an individual sim request is built from. The encounter and raid slices are replace-on-write,
-// so their references stand in for their contents. Gear compares by content, with the key the batch
-// sim identifies gear sets by, so a swap that is undone reads fresh again; the other player fields
-// compare by version counter. The sim slice reaches the request only as the iteration count and the
-// seed, which change the precision and the sample, not the answer.
+// so their references stand in for their contents. Gear compares by content, so a swap that is undone
+// reads fresh again; the other player fields compare by version counter. The sim slice reaches the request only as
+// the iteration count and the seed, which change the precision and the sample, not the answer.
 export function resultInputsKey(s: SimState): Array<unknown> {
 	const key: Array<unknown> = [s.encounter, s.raid];
 	for (const [storeKey, player] of Object.entries(s.players)) {
@@ -45,8 +43,7 @@ export class ResultFreshnessTracker {
 		);
 	}
 
-	// The current result came from the latest individual run, so it is judged against that run's
-	// start. A result set with no run behind it is judged against the inputs as they are.
+	// The current result came from the latest individual run, so it is judged against that run's start.
 	resultLanded() {
 		this.resultInputs = resultInputsKey(this.runStart ?? this.store.getState());
 		this.resultChanged.emit();

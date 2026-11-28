@@ -13,8 +13,7 @@ import (
 )
 
 // The tallstrider's Dust Cloud bids in the slot the raid's Dust Cloud, Faerie Fire and Curse of
-// Recklessness share: it lands beside Expose Armor and both apply, and beside the raid's own Dust
-// Cloud it lands too, with the target still losing one -505.
+// Recklessness share.
 func TestPetDustCloudSharesTheRaidsDustCloudSlot(t *testing.T) {
 	for _, c := range []struct {
 		name    string
@@ -58,8 +57,7 @@ func TestPetDustCloudSharesTheRaidsDustCloudSlot(t *testing.T) {
 	}
 }
 
-// The carrion bird's Demoralizing Screech bids in the slot the raid's Demoralizing Shout holds: both
-// are on the target and it loses one -205, and with the shout off the screech's -205 applies.
+// The carrion bird's Demoralizing Screech bids in the slot the raid's Demoralizing Shout holds.
 func TestPetDemoralizingScreechSharesTheRaidsDemoralizingSlot(t *testing.T) {
 	sim, pet, target := newPetSim(proto.HunterOptions_CarrionBird, &proto.Debuffs{DemoralizingShout: true})
 
@@ -123,8 +121,7 @@ func newPetSimWearing(talents string, petType proto.HunterOptions_PetType, debuf
 	return sim, sim.Raid.Parties[0].Players[0].(*Hunter).Pet, sim.Encounter.AllTargetUnits[0]
 }
 
-// The generated family table and the options enum name the same families: a family the game files
-// add needs its enum value, and an enum value the game files no longer describe has to go.
+// The generated family table and the options enum name the same families.
 func TestPetFamiliesMatchTheOptions(t *testing.T) {
 	for name := range petFamilies {
 		if _, ok := proto.HunterOptions_PetType_value[name]; !ok {
@@ -189,7 +186,7 @@ func TestQuiversMatchTheOptions(t *testing.T) {
 }
 
 // With a pet out, Lone Wolf divides the pet's damage by 1.2 and gives the hunter nothing; without
-// one, the hunter has the row's 20%.
+// one, the hunter has the talent's 20%.
 func TestLoneWolfCutsThePetsDamage(t *testing.T) {
 	withoutLoneWolf := strings.Replace(DefaultMMTalents, "25115", "25015", 1)
 	sim, pet, _ := newPetSimWithTalents(withoutLoneWolf, proto.HunterOptions_Cat, nil)
@@ -220,7 +217,7 @@ func TestLoneWolfCutsThePetsDamage(t *testing.T) {
 }
 
 // Trappings of the Unseen Path's 3-piece bonus raises the pet's damage done by its aura 29233's
-// percentage while the pet is out: a dismissed pet loses it and has it again when it returns.
+// percentage while the pet is out.
 func TestTrappingsOfTheUnseenPathRaiseThePetsDamage(t *testing.T) {
 	want := 1 + spelldata.MustFind(29233).EffectN(1).Percent()
 	if want <= 1 {

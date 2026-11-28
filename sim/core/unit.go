@@ -37,7 +37,7 @@ type DynamicHealingTakenModifier func(sim *Simulation, spell *Spell, result *Spe
 type GetSpellDamageValue func(spell *Spell, target *Unit) float64
 type GetAttackPowerValue func(spell *Spell, target *Unit) float64
 
-// Unit is an abstraction of a Character/Boss/Pet/etc, containing functionality
+// An abstraction of a Character/Boss/Pet/etc, containing functionality
 // shared by all of them.
 type Unit struct {
 	Type UnitType
@@ -65,7 +65,6 @@ type Unit struct {
 	CreatureFamily proto.CreatureFamily
 
 	// Amount of time it takes for the human agent to react to in-game events.
-	// Used by certain APL values and actions.
 	ReactionTime    time.Duration
 	reactionTimeMax time.Duration // Above the reaction the settings give, ReactionTime is drawn evenly between the two.
 	reactionTimeMin time.Duration // The reaction the settings give.
@@ -74,8 +73,7 @@ type Unit struct {
 	// Amount of time following a post-GCD channel tick, to when the next action can be performed.
 	ChannelClipDelay time.Duration
 
-	// How far this unit is from its target(s). Measured in yards, this is used
-	// for calculating spell travel time for certain spells.
+	// How far this unit is from its target(s). Measured in yards.
 	StartDistanceFromTarget float64
 	DistanceFromTarget      float64
 	Moving                  bool
@@ -165,7 +163,7 @@ type Unit struct {
 	DynamicCastSpeedPets   []*Pet
 	RegenInheritancePets   []*Pet
 
-	// AutoAttacks is the manager for auto attack swings.
+	// The manager for auto attack swings.
 	// Must be enabled to use, with "EnableAutoAttacks()".
 	AutoAttacks AutoAttacks
 	Wand        *Wand // Set by EnableWand for a unit that can shoot a wand.
@@ -345,8 +343,7 @@ func (unit *Unit) AddDynamicHealingTakenModifier(dhtm DynamicHealingTakenModifie
 	unit.DynamicHealingTakenModifiers = append(unit.DynamicHealingTakenModifiers, dhtm)
 }
 
-// AddReducedCritTakenPercent adds to the base crit reduction and recalculates the total.
-// Use this for dynamic changes during simulation (e.g., auras).
+// Adds to the base crit reduction and recalculates the total.
 func (unit *Unit) AddReducedCritTakenPercent(amount float64) {
 	unit.PseudoStats.BaseReducedCritTakenPercent += amount
 	unit.updateReducedCritTakenPercent()
@@ -409,9 +406,7 @@ func (unit *Unit) addStatsDynamic(sim *Simulation, bonus *stats.Stats) {
 
 	if !unit.Env.MeasuringStats || unit.Env.State == Finalized {
 		// Recompute the full total rather than applying dependencies to the
-		// delta: floored stats are only path-independent as floor(newTotal) -
-		// floor(oldTotal), while flooring per-delta would drift on every
-		// aura gain/expire cycle.
+		// delta: flooring per-delta would drift on every aura gain/expire cycle.
 		old := &unit.stats
 		*bonus = unit.statsWithoutDeps
 		unit.StatDependencyManager.ApplyStatDependenciesInPlace(bonus)
@@ -627,10 +622,7 @@ func (unit *Unit) Armor() float64 {
 	return unit.PseudoStats.ArmorMultiplier * unit.stats[stats.Armor]
 }
 
-// A block takes off a whole number: in game every partial block takes exactly the sheet's block value,
-// floor(shield + max(0, Strength x 0.05 - 1)) (EV-0045). Flooring the Strength part alone gives the same number
-// while the shield's part is whole; the two differ only under a BlockValueMultiplier, where which one the game
-// floors is not measured, so the whole is floored.
+// Block value in EV-0045.
 func (unit *Unit) BlockDamageReduction() float64 {
 	return math.Floor(max(0, unit.stats[stats.Strength]*unit.PseudoStats.BlockValuePerStrength-1) + unit.stats[stats.BlockValue]*unit.PseudoStats.BlockValueMultiplier)
 }

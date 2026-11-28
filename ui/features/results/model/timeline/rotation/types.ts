@@ -33,9 +33,8 @@ export interface CastItem {
 	stack: Array<CastLog>;
 }
 
-// The stretch an auto attack waited before it actually went out. It starts left of the cast it
-// belongs to, so it is its own item rather than a wider CastItem: the windower brackets items by
-// their own start/end, and widening the cast would move the cast bar with it.
+// The stretch an auto attack waited before it actually went out. It is its own item rather than a
+// wider CastItem: widening the cast would move the cast bar with it.
 export interface DelayItem {
 	kind: 'delay';
 	start: number;

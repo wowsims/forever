@@ -92,7 +92,7 @@ type actionID struct {
 type registeredName struct {
 	Name       string   `json:"name"`
 	ID         actionID `json:"id"`
-	ICDOnly    bool     `json:"icdOnly,omitempty"`    // Known only as an internal cooldown trigger, which only the ICD kinds find.
+	ICDOnly    bool     `json:"icdOnly,omitempty"`    // Known only as an ICD trigger, which only the ICD kinds find.
 	TalentOnly bool     `json:"talentOnly,omitempty"` // Known only as a talent, which only the talent kinds find.
 	Talent     bool     `json:"talent,omitempty"`     // A talent's own spell, the one thing the talent kinds read.
 	Uncastable bool     `json:"uncastable,omitempty"` // A spell no build of the spec lets a rotation cast (the sim's APL flag).
@@ -195,8 +195,8 @@ func (s *server) rotation(uri string) (any, *ResponseError) {
 	return out, nil
 }
 
-// The rotation path the text at a position of an open file writes, which the panel selects with the cursor and
-// Insert Pattern inserts at; [] outside the rotation's spans and while the file cannot be read.
+// The rotation path the text at a position of an open file writes; [] outside the rotation's spans and while the file
+// cannot be read.
 func (s *server) pathAt(uri string, at Position) (any, *ResponseError) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -210,8 +210,7 @@ func (s *server) pathAt(uri string, at Position) (any, *ResponseError) {
 	return a.doc.PathAt(fromPosition(at)), nil
 }
 
-// The names the panel's pickers offer for an open file's spec. They depend on the spec line and the name table only,
-// so the panel asks again when the spec or rotationResult.Names changes, not on each edit.
+// The names the panel's pickers offer for an open file's spec. They depend on the spec line and the name table only.
 func (s *server) registered(uri string) (any, *ResponseError) {
 	catalog := s.readCatalog(uri)
 	s.mu.Lock()

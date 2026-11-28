@@ -89,7 +89,7 @@ func (rogue *Rogue) registerPrecision() {
 
 var riposteRank = spellData.Riposte.Highest()
 
-// The window a parry opens. The row requires caster aura state 1 and names no aura, so this is the aura the
+// The window a parry opens. The spell requires caster aura state 1 and names no aura, so this is the aura the
 // rogue's own passive (16092) fires, and Riposte's tooltip narrows it to a parry.
 var riposteWindow = spellData.DefensiveStateTriggered.Highest()
 
@@ -98,8 +98,7 @@ func (rogue *Rogue) registerRiposte() {
 		return
 	}
 
-	// Only Riposte's cast spends the window. The row's one charge on any melee ability is not modelled: in game a
-	// Sinister Strike leaves Riposte usable (EV-0099).
+	// Window use in EV-0099.
 	window := rogue.RegisterAura(spelldata.AuraConfig(riposteWindow))
 
 	trigger := spelldata.ProcTrigger(&rogue.Character, spellData.DefensiveState.Highest(),
@@ -111,7 +110,7 @@ func (rogue *Rogue) registerRiposte() {
 	trigger.RequireDamageDealt = false
 	rogue.MakeProcTriggerAura(trigger)
 
-	// Off the GCD: the row's 1 s recovery on category 133 is a category cooldown, not a global one, and Riposte
+	// Off the GCD: the spell's 1 s recovery on category 133 is a category cooldown, not a global one, and Riposte
 	// fires in the same instant as Sinister Strike.
 	config := spelldata.SpellConfig(&rogue.Unit, riposteRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ClassSpellMask = RogueSpellRiposte
@@ -272,7 +271,7 @@ func (rogue *Rogue) registerHackAndSlash() {
 		}
 	}
 
-	// A Windfury Totem hit rolls it at a main-hand hit's chance when the main hand holds a sword or axe (EV-0002, EV-0128).
+	// Totem hit rolls in EV-0002, EV-0128.
 	var extraAttack *core.Spell
 	swordAura := rogue.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Hack and Slash (Axe/Sword)",

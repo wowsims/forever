@@ -353,7 +353,7 @@ func TestSwipeDoesNotScaleWithAttackPower(t *testing.T) {
 		t.Fatal("swipe never hit")
 	}
 	perHit := hits.TotalDamage / float64(hits.Hits)
-	// The row's damage is 83. Attack power on a bear is far larger than the gap this allows.
+	// The spell's damage is 83. Attack power on a bear is far larger than the gap this allows.
 	if perHit < 40 || perHit > 160 {
 		t.Errorf("swipe hit for %.1f, want the row's damage without attack power", perHit)
 	}
@@ -377,7 +377,7 @@ func TestBearSwingRageTakesTheTwoHandFactor(t *testing.T) {
 	}
 }
 
-// Bear Form (Passive2) 21178 raises threat by its row's amount while a bear form is up, and only then.
+// Bear Form (Passive2) 21178 raises threat by its amount while a bear form is up, and only then.
 func TestBearFormsRaiseThreatByTheirPassive(t *testing.T) {
 	want := 1 + spelldata.MustFind(21178).EffectN(1).Percent()
 	sim, bear := newBear(t)
@@ -394,8 +394,7 @@ func TestBearFormsRaiseThreatByTheirPassive(t *testing.T) {
 	}
 }
 
-// A landed Faerie Fire in Dire Bear Form threatens for twice the caster's level, which the form's threat
-// multiplier raises. In Cat Form it threatens for none.
+// A landed Faerie Fire in Dire Bear Form threatens for twice the caster's level; in Cat Form for none.
 func TestFaerieFireThreatensInBearFormOnly(t *testing.T) {
 	cast := func(level int32, inCat bool) (threat, multiplier float64) {
 		sim, bear := newBear(t)
@@ -577,8 +576,7 @@ func TestSwipeGainsThreePercentOfAttackPower(t *testing.T) {
 
 // The bear forms scale the items' bonus armor by their 180% or 360% (A_MOD_BONUS_ARMOR_PCT) as well as
 // their base armor, and Thick Hide adds the level times 3 plus $m1/100 = 2 base armor per point of bonus
-// defense, which the form scales too. The UI's bear has Thick Hide 3/3 and gear with bonus armor and
-// defense.
+// defense, which the form scales too.
 func TestBearFormsScaleBonusArmorAndThickHideDefense(t *testing.T) {
 	sim := core.NewSim(bearRequest(selectedAdaptiveBearAPL(), 1), simsignals.CreateSignals())
 	sim.Reset()
@@ -640,7 +638,7 @@ func TestEnrageReducesItemBonusAndAgilityArmor(t *testing.T) {
 	}
 }
 
-// Thick Hide's level part is the level times the rank, not the game files' per-level formula (EV-0039).
+// Level armor in EV-0039.
 // Dire Bear Form scales it by 360%, 4.6 times in all.
 func TestThickHideArmorIsLevelTimesRank(t *testing.T) {
 	armorAt := func(rank int) float64 {

@@ -148,7 +148,7 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   existing metrics, and the carry-over lets the next stage sim only the iteration delta for the survivors.
 - Finalist stage (`runBulkSimFinalistStage` / `runConcurrentBulkSimFinalistStage`): the top `topResults` and the
   baseline get lockstep extra iterations until every adjacent pair separates at `BulkSimZ95`, or
-  `BulkSimFinalistMaxExtraIterationMultiplier` × the iterations so far is spent. Its results are the displayed set.
+  `BulkSimFinalistMaxExtraIterationMultiplier` × the iterations so far is used up. Its results are the displayed set.
   `all_results` ranks every candidate, generated ones too, and the sim resolves it to its candidate count, so native
   Gear runs need no count from the UI. Both modes send the batch's top results (`BulkSimOverrides.topResults`) through
   `Sim.runBulkSim`: an override of N goes out as `top_results` N, an override of 0 (All) sets `all_results`, and with

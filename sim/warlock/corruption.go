@@ -17,7 +17,7 @@ func (warlock *Warlock) registerCorruptionRank(rankedSpell *spelldata.Spell) *co
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = WarlockSpellCorruption
 
-	// Tick the row's average, rolling only the crit: the hit was rolled when the dot landed
+	// Tick the spell's average, rolling only the crit: the hit was rolled when the dot landed
 	config.Dot = spelldata.DotConfig(rankedSpell, corruptionTick)
 	config.Dot.OnTick = spelldata.PeriodicDamageTick(corruptionTick, rankedSpell.TickOutcome)
 
@@ -30,7 +30,7 @@ func (warlock *Warlock) registerCorruptionRank(rankedSpell *spelldata.Spell) *co
 		spell.DealOutcome(sim, result)
 	}
 
-	// Calculate expected damage from the row's average tick
+	// Calculate expected damage from the spell's average tick
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
 		return spell.CalcPeriodicDamage(sim, target, corruptionTick.Average(), rankedSpell.ExpectedMagicTickOutcome(spell))
 	}

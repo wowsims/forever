@@ -122,8 +122,6 @@ func (o *reforgeOptimizer) solveModel(
 	if !anyCapsExceeded {
 		return solution.variables, solution.result, 1, nil
 	}
-	// Cap refinement consumed part of the budget; keep a positive floor so the tightened re-solve
-	// still gets a valid (non-negative) HiGHS time_limit even once the budget is spent.
 	remainingSeconds := math.Max(maxSeconds-elapsedSeconds, minSolveSeconds)
 	selected, result, passes, err := o.solveModel(updatedWeights, reforgeCaps, updatedSoftCaps, updatedVariables, updatedConstraints, remainingSeconds)
 	return selected, result, passes + 1, err

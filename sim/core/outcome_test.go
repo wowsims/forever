@@ -51,8 +51,8 @@ func TestCritTakenReductionLowersPhysicalCritOnly(t *testing.T) {
 	}
 }
 
-// A level 60 attacker with 0.05 crit per Agility against a level 63 target loses 3% to the level and
-// up to 1.8% more of the crit beyond its base and Agility crit, from any source.
+// A level 60 attacker against a level 63 target loses 3% to the level and up to 1.8% more of the crit
+// beyond its base and Agility crit, from any source.
 func TestPhysicalCritSuppressionCountsOnlyAuraCrit(t *testing.T) {
 	for _, tc := range []struct {
 		name            string

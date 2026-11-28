@@ -19,8 +19,7 @@ export const SavedRotation = () => {
 		SavedRotationProto.create({ rotation: player.getResolvedAplRotation() }),
 	);
 
-	// An Auto and an APL rotation can serialise differently and still be the same rotation, so this
-	// slot is the one that needs the panel's semantic override rather than its JSON comparison.
+	// An Auto and an APL rotation can serialise differently and still be the same rotation.
 	const isActive = useCallback(
 		(entry: SavedDataPanelEntry<SavedRotationProto>) => isEqualAPLRotation(player, current.rotation, entry.data.rotation),
 		[player, current],

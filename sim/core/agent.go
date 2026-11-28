@@ -162,10 +162,8 @@ func PlayerProtoToSpec(player *proto.Player) proto.Spec {
 	return configSpecs[typeName]
 }
 
-// PlayerProtoToSpecSafe is PlayerProtoToSpec with the failure modes made explicit: it returns an
-// error instead of panicking on a missing spec oneof, and reports an unregistered agent type
-// (agent factories must have been registered, e.g. via sim.RegisterAll) instead of returning the
-// zero Spec.
+// PlayerProtoToSpec with the failure modes made explicit: it returns an error instead of panicking
+// on a missing spec oneof, and reports an unregistered agent type instead of returning the zero Spec.
 func PlayerProtoToSpecSafe(player *proto.Player) (proto.Spec, error) {
 	if player == nil || player.GetSpec() == nil {
 		return proto.Spec_SpecUnknown, fmt.Errorf("player is missing a spec")
@@ -208,7 +206,6 @@ func NewAgent(party *Party, partyIndex int, player *proto.Player, raidConfig *pr
 
 // Applies the spec options to the given player. This is only necessary because
 // the generated proto code does not export oneof interface types.
-// Player is returned so this function can be used in-line with player creation.
 func WithSpec(player *proto.Player, spec any) *proto.Player {
 	typeName := reflect.TypeOf(spec).Elem().Name()
 

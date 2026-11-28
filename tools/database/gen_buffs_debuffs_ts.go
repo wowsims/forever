@@ -2,9 +2,6 @@ package database
 
 // Renders the settings-UI buff and debuff inputs from the resolved manifest into
 // ui/features/settings/model/buffs_debuffs_auto_gen.ts.
-//
-// It is rendered in the same pass as the Go buff files, from the same resolved
-// rows, and committed like them.
 
 import (
 	"bytes"
@@ -23,7 +20,7 @@ const buffsDebuffsTSFile = "ui/features/settings/model/buffs_debuffs_auto_gen.ts
 
 // The state count a multistate input counts up to. An int32 field counts casts
 // or mana, and how far it counts is a UI choice the game files do not
-// state; the four Atiesh inputs share one count.
+// state.
 var buffInputNumStates = map[string]int{
 	"atiesh_mage":      5,
 	"atiesh_warlock":   5,
@@ -73,8 +70,7 @@ type tsBuffRegistryEntry struct {
 	OwnerClass string // "" when the manifest names no owning class
 }
 
-// A raid buff that names an ElixirCategory, which overwrites the elixirs and scrolls granting as much of
-// its stats (R-0054).
+// Elixir overwrites in R-0054.
 type tsOverwritingBuffEntry struct {
 	Const string
 	Stats []tsStatAmount

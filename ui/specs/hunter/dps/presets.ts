@@ -26,7 +26,7 @@ import PreBisWeaveCheapGearJson from './gear_sets/prebis_weave_cheap.gear.siml';
 // The spec's defaults, from defaults.siml.
 export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecHunter, DefaultsJson);
 
-// The best Phase 1 gear outside raids for each playstyle, from batch sims of the SV Weave, MM and SV Melee builds.
+// The best Phase 1 gear outside raids for each playstyle.
 // Cheap leaves out exalted reputation, battleground quartermaster gear, epic crafts, the Beastmaster vendor pieces and
 // world drops other than random-suffix ones, Sword of Zeal and Eaglehorn Long Bow. Max takes Exalted with one faction,
 // Alterac Valley's, for Don Julio's Band, and no Warsong Gulch gear that needs Exalted. The weave's two-hander and bow
@@ -41,9 +41,8 @@ export const PreBisTurretCheapGear = PresetUtils.makePresetGear('Pre-BiS (Cheap)
 export const PreBisMeleeGear = PresetUtils.makePresetGear('Pre-BiS', PreBisMeleeGearJson, { group: 'Melee' });
 export const PreBisMeleeCheapGear = PresetUtils.makePresetGear('Pre-BiS (Cheap)', PreBisMeleeCheapGearJson, { group: 'Melee' });
 
-// Measured in Agility on each playstyle's Pre-BiS set and build (SV Weave, MM, SV Melee) over a three minute fight. The
-// sets sit at the 8% hit cap, so hit is measured with 20 hit rating taken off, for its value below the cap. Intellect
-// is mana and, through Careful Aim, attack power and ranged attack power.
+// Measured in Agility on each playstyle's Pre-BiS set and build over a three minute fight. The sets sit at the 8% hit
+// cap, so hit is measured with 20 hit rating taken off, for its value below the cap.
 export const WeaveEpWeights = PresetUtils.makePresetEpWeights(
 	'Weave',
 	Stats.fromMap(
@@ -116,7 +115,7 @@ export const TurretAPLRotation = PresetUtils.makePresetAPLRotation('Turret', Tur
 export const TurretMultiAPLRotation = PresetUtils.makePresetAPLRotation('Turret (Multi-Shot)', TurretMultiAPL);
 export const TurretHawkAPLRotation = PresetUtils.makePresetAPLRotation('Turret (Hawks)', TurretHawkAPL);
 // The max weave walks in after every Auto Shot; the normal weave walks in only once the shots are cooling and stays
-// for the melee cooldowns, which suits a dual wielder.
+// for the melee cooldowns.
 export const WeaveAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Max)', WeaveAPL);
 export const NormalWeaveAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Normal)', NormalWeaveAPL);
 // The weave with no toggles: every shot goes ahead of the weave, which walks in once Auto Shot has gone off and back
@@ -132,8 +131,8 @@ export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spe
 const build = (name: string, json: any, gear: PresetUtils.PresetGear): PresetUtils.PresetBuild =>
 	PresetUtils.makePresetBuildFromSiml(name, Spec.SpecHunter, json, { gear });
 
-// Gear, talents, rotation, pet and distance together, each with its playstyle's Pre-BiS set. Only Survival has a weave
-// build: Beast Mastery deals more damage shooting from range, and a weave's talents put most points into Survival.
+// Only Survival has a weave build: Beast Mastery deals more damage shooting from range, and a weave's talents put most
+// points into Survival.
 export const Builds = [
 	build('SV Weave', SvWeaveBuild, PreBisWeaveGear),
 	build('MM', MmBuild, PreBisTurretGear),

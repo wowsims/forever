@@ -179,7 +179,7 @@ var Raid = []BuffSpec{
 		},
 	},
 	// A pet ability the hunter class family does not file, so the owner is stated. It does not stack
-	// with Battle Shout: the two share one category and the stronger applies.
+	// with Battle Shout: the stronger applies.
 	{
 		Field:      "furious_howl",
 		SpellID:    24597,
@@ -424,8 +424,6 @@ var Individual = []BuffSpec{
 			proto.Stat_StatMP5,
 		},
 	},
-	// The game files no longer have Greater Blessing of Salvation 25895 or Greater Blessing of Light
-	// 25890, so the two fields stay in saved settings and do nothing.
 	{
 		Field:  "greater_blessing_of_salvation",
 		Kind:   KindFlag,
@@ -490,9 +488,9 @@ var Debuffs = []BuffSpec{
 			proto.Stat_StatRangedAttackPower,
 		},
 	},
-	// The Holy damage taken is applied by NewSpellDataJudgementOfTheCrusaderAuraRank in debuffs.go,
-	// which the paladin's own ranks share. The improved state is a paladin wearing Libram of Fervor
-	// (23203), whose equip spell 28852 adds a flat 33 to every effect of the judgement.
+	// The Holy damage taken is applied by NewSpellDataJudgementOfTheCrusaderAuraRank in debuffs.go.
+	// The improved state is a paladin wearing Libram of Fervor, whose equip spell adds a flat 33 to
+	// every effect of the judgement.
 	{
 		Field:     "judgement_of_the_crusader",
 		SpellID:   20303,
@@ -547,7 +545,7 @@ var Debuffs = []BuffSpec{
 		},
 	},
 	// The -450 armor is per combo point, so the raid config's debuff is the five-point finisher. A
-	// rogue spending fewer needs a driver that prices the aura, and there is none.
+	// rogue using fewer needs a driver that prices the aura, and there is none.
 	{
 		Field:    "expose_armor",
 		SpellID:  11198,
@@ -661,11 +659,9 @@ var Debuffs = []BuffSpec{
 			proto.Stat_StatAttackPower,
 		},
 	},
-	// The raid's copy is one wielder's Annihilator proccing it, which the driver rolls on the wielder's
-	// swings and its other landed hits.
-	// In game it never lands while Curse of Recklessness or Faerie Fire is on the target, and either
-	// one landing removes it (EV-0147). It is weaker than either even at full stacks, so bidding in
-	// their slot gives the target the same armor.
+	// The raid's copy is one wielder's Annihilator proccing it. In game it never lands while Curse of
+	// Recklessness or Faerie Fire is on the target (EV-0147). It is weaker than either even at full
+	// stacks, so bidding in their slot gives the target the same armor.
 	{
 		Field:    "armor_shatter",
 		SpellID:  16928,
@@ -702,11 +698,9 @@ var Debuffs = []BuffSpec{
 		},
 	},
 	// The state is the weapon one wielder procs it with: 1 Bashguuder and 2 Rivenspike land 17315,
-	// 3 Vibroblade its own 1293005. The driver rolls the weapon's proc on the wielder's swings and its
-	// other landed hits, and the target dodges some of the strikes the proc casts. In game it
-	// never lands while Curse of Recklessness or Faerie Fire is on the target, and either one landing
-	// removes it (EV-0147). It is weaker than either even at full stacks, so bidding in their slot
-	// gives the target the same armor.
+	// 3 Vibroblade its own 1293005. The target dodges some of the strikes the proc casts. In game it
+	// never lands while Curse of Recklessness or Faerie Fire is on the target (EV-0147). It is weaker
+	// than either even at full stacks, so bidding in their slot gives the target the same armor.
 	{
 		Field:    "puncture_armor",
 		SpellID:  17315,

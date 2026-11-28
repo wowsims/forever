@@ -23,8 +23,7 @@ export enum SimRequest {
 	simlPrint = 'simlPrint',
 }
 
-// The endpoints that run asynchronously (progress-id handshake + progress polling). Single
-// source for the async/sync split; the HTTP worker derives its routing from this list.
+// The endpoints that run asynchronously (progress-id handshake + progress polling).
 export const ASYNC_SIM_REQUESTS = [SimRequest.raidSimAsync, SimRequest.statWeightsAsync, SimRequest.bulkSimAsync, SimRequest.reforgeOptimizeAsync] as const;
 export type AsyncSimRequest = (typeof ASYNC_SIM_REQUESTS)[number];
 
@@ -47,8 +46,8 @@ export interface WorkerReceiveMessageSimRequest extends Required<WorkerReceiveMe
 	msg: SimRequest;
 }
 
-// Reply to a worker's wasmModuleRequest: the compiled sim module, fetched and compiled once
-// on the main thread and shared with every wasm worker via structured clone.
+// Reply to a worker's wasmModuleRequest: the compiled sim module, shared with every wasm worker
+// via structured clone.
 export interface WorkerReceiveMessageWasmModule {
 	msg: 'wasmModule';
 	module: WebAssembly.Module;

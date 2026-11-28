@@ -11,9 +11,9 @@ const REQUEST_TYPE: Record<SimRunKind, RequestTypes> = {
 };
 
 // What a starting run clears first, which is not always its own type. Stat weights fan out across
-// the whole worker pool, so vanilla aborted everything before starting one; leaving a DPS sim
-// running means the two compete for workers and the DPS run finishes behind the modal and
-// overwrites the results panel. Bulk narrows to itself deliberately — see `features/bulk/model/run/run`.
+// the whole worker pool; leaving a DPS sim running means the two compete for workers and the DPS
+// run finishes behind the modal and overwrites the results panel. Bulk narrows to itself
+// deliberately (see `features/bulk/model/run/run`).
 const ABORT_SCOPE: Record<SimRunKind, RequestTypes> = {
 	...REQUEST_TYPE,
 	[SimRunKind.StatWeights]: RequestTypes.All,
@@ -28,9 +28,8 @@ interface SignalHost {
 	abortType(typeMask: RequestTypes): Promise<void>;
 }
 
-// Runs a store write inside a caller-supplied wrapper. React commits an update
-// scheduled from outside React on a microtask, so `app/` passes `flushSync`; the
-// sim layer keeps no React import.
+// React commits an update scheduled from outside React on a microtask, so `app/`
+// passes `flushSync`; the sim layer keeps no React import.
 export type RunFlush = (write: () => void) => void;
 
 export class SimRuns {

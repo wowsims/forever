@@ -58,7 +58,7 @@ type parser struct {
 	spell *Spell
 
 	// The character the unit belongs to, for the rows whose helper is a character's rather than a
-	// unit's. An aura on a unit with no character of its own - an enemy's debuff - leaves it nil,
+	// unit's. An aura on a unit with no character of its own (an enemy's debuff) leaves it nil,
 	// and those rows are skipped there.
 	character *core.Character
 
@@ -70,7 +70,7 @@ type parser struct {
 	// skipped instead of attached.
 	conditional bool
 
-	// The row states CumulativeAura, or the caller counts the aura more than once, so a value follows
+	// The spell states CumulativeAura, or the caller counts the aura more than once, so a value follows
 	// a level other than 1. The rows whose value cannot be scaled are skipped while this is set;
 	// IgnoreStacks clears the stacks' share of it.
 	stacking bool
@@ -82,7 +82,7 @@ type parser struct {
 	// DryRun: the rows are read for what they would attach, and nothing is registered on the unit.
 	dry bool
 
-	// OnHand: the weapon the row sits on.
+	// OnHand: the weapon the spell sits on.
 	hand core.ProcMask
 
 	// The slot FromCaster names, which the rows that reach only the caster's attacks share. Nil
@@ -96,7 +96,7 @@ type parser struct {
 	// AllManaRegen: a mana regen percent is Innervate's multiplier on the mana regen.
 	allManaRegen bool
 
-	// The item or spell the combat log names for the row's bonuses against mob types (ForItem).
+	// The item or spell the combat log names for the spell's bonuses against mob types (ForItem).
 	versusSource core.ActionID
 }
 
@@ -141,9 +141,9 @@ func skipped(reason string) *attachment {
 type row func(p *parser, e *Effect, v float64) *attachment
 
 // The auras the parser knows, keyed the way the game files store them. A_ADD_FLAT_MODIFIER and
-// A_ADD_PCT_MODIFIER name a spell property in their misc value and read the two tables below it;
-// the percentage table is handed its value as a fraction. A percentage crit chance is the same
-// percentage points the flat one adds, so it reads the flat row with the game files' own number.
+// A_ADD_PCT_MODIFIER name a spell property in their misc value and read the two tables below it.
+// A percentage crit chance is the same percentage points the flat one adds, so it reads the flat row
+// with the game files' own number.
 var auraTable = map[dbcenums.EffectAuraType]row{
 	dbcenums.A_ADD_FLAT_MODIFIER: func(p *parser, e *Effect, v float64) *attachment {
 		return lookup(flatModTable, dbcenums.SpellModOp(e.Misc))(p, e, v)
@@ -160,10 +160,9 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	// mod on the attacks made with them; one that names a melee weapon holds while it is equipped. A
 	// melee weapon's row of every school is one multiplier. Any other gives its Physical as a school
 	// multiplier and every other school the percent on its melee-defense spells only, whether the mask
-	// names that school or leaves it out, so a magic-defense or ranged-defense spell of a school past
-	// Physical takes none (EV-0064, EV-0022). A row whose aura reaches beyond its weapon
-	// (WeaponDamageSchools) gives every school of its mask as a school multiplier, and the
-	// schools past the mask the percent on their melee-defense spells.
+	// names that school or leaves it out; the game files hold no such row with a school past Physical. A
+	// row whose aura reaches beyond its weapon (WeaponDamageSchools) gives every school of its mask as a
+	// school multiplier (EV-0022), and the schools past the mask the percent on their melee-defense spells.
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE: func(p *parser, e *Effect, v float64) *attachment {
 		rule, scope, ok := p.weaponScope(e)
 		switch {
@@ -405,10 +404,10 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		}
 		return p.statBuff(stats.MP5, v)
 	},
-	// The share of spirit regen that continues while casting, which core caps at all of it, and a
-	// multiplier on spirit regen, or under AllManaRegen Innervate's multiplier on the mana regen. The
-	// energy bar's regen and Innervate's are speeds, which need the Simulation an aura's gain hands over.
-	// On an aura whose row also raises the mana regen by a percent (Innervate, Evocation), each change
+	// The share of spirit regen that continues while casting, and a multiplier on spirit regen, or under
+	// AllManaRegen Innervate's multiplier on the mana regen. The energy bar's regen and Innervate's are
+	// speeds, which need the Simulation an aura's gain hands over.
+	// On an aura whose spell also raises the mana regen by a percent (Innervate, Evocation), each change
 	// is told to the aura's boost too, so core credits the regen the aura adds to its own metrics.
 	dbcenums.A_MOD_MANA_REGEN_INTERRUPT: func(p *parser, e *Effect, v float64) *attachment {
 		fields := []*float64{&p.unit.PseudoStats.SpiritRegenRateCasting}
@@ -471,7 +470,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 
 	// The tooltip's "armor from items" is stated twice: this effect scales the items' base armor, and
 	// A_MOD_BONUS_ARMOR_PCT beside it scales their bonus armor ("+N Armor"), a stat of its own. In game each
-	// applies once and the armor from Agility and Mark of the Wild stays whole (EV-0037).
+	// applies once (EV-0037).
 	dbcenums.A_MOD_BASE_RESISTANCE_PCT: func(p *parser, e *Effect, v float64) *attachment {
 		if e.Misc&miscArmor == 0 {
 			return nil
@@ -671,9 +670,8 @@ var flatModTable = map[dbcenums.SpellModOp]row{
 	dbcenums.SPELLMOD_RANGE: func(p *parser, e *Effect, v float64) *attachment {
 		return p.rangeMod("SpellMod_Range_Flat", p.modConfig(e, core.SpellMod_Range_Flat), v)
 	},
-	// The chance of the procs the class mask names, in percentage points: the rows the mask names are
-	// the proc auras themselves, and a trigger built from one rolls at the raised chance, wherever it
-	// sits: on the caster, on a pet or on the target.
+	// The chance of the procs the class mask names, in percentage points: the rows the mask names are the
+	// proc auras themselves, and a trigger built from one rolls at the raised chance, wherever it sits.
 	dbcenums.SPELLMOD_CHANCE_OF_SUCCESS: func(p *parser, e *Effect, v float64) *attachment {
 		return p.modFloat("SpellMod_ProcChance_Flat", p.modConfig(e, core.SpellMod_ProcChance_Flat), v)
 	},
@@ -684,9 +682,9 @@ var flatModTable = map[dbcenums.SpellModOp]row{
 
 // A_ADD_PCT_MODIFIER: a percentage the game files state as an integer, handed over as a fraction. Two such
 // rows on one spell multiply, for cost, direct damage and periodic damage alike, and a flat
-// A_ADD_FLAT_MODIFIER on the same spell applies before any percent. The aura type decides which table a row
-// takes, whatever its tooltip reads: Unleashed Fury 19616 describes a percent and its row is a flat 107
-// modifier, so the flat value is what the sim applies and the tooltip's number is flagged, not adopted.
+// A_ADD_FLAT_MODIFIER on the same spell applies before any percent. The aura type decides which table a
+// row takes, whatever its tooltip reads: Unleashed Fury 19616 describes a percent and the game files state a
+// flat 107 modifier.
 var pctModTable = map[dbcenums.SpellModOp]row{
 	dbcenums.SPELLMOD_DAMAGE: func(p *parser, e *Effect, v float64) *attachment {
 		// Direct hits only: ticks take SPELLMOD_DOT, which a talent states beside it when it raises both.
@@ -743,9 +741,8 @@ func pctDamageDone(p *parser, e *Effect, v float64) *attachment {
 }
 
 // SPELLMOD_EFFECT1/2/3 name one effect of the target spell, and which effect carries the damage is a
-// property of that spell rather than of this one. Reading it would mean resolving every spell the
-// class mask names, so the parser assumes the named effect is the damage and says so in the kind: a
-// caller whose spell states something else there has to wire that effect by hand.
+// property of that spell rather than of this one. The parser assumes the named effect is the damage
+// and says so in the kind.
 func flatEffectAmount(p *parser, e *Effect, v float64) *attachment {
 	return p.modFloat(effectAssumedKind(e.Misc, "SpellMod_BaseDamage_Flat"),
 		p.modConfig(e, core.SpellMod_BaseDamage_Flat), v)
@@ -1481,7 +1478,7 @@ func (e *Effect) TotalStatPercentStats() []stats.Stat {
 // The stats a flat damage mask names: the sim keeps one stat for physical damage and one for magic,
 // plus a stat per magic school, so a mask of every school is the first two together, a mask of every
 // magic school is the second alone, and any other mask names a stat for each school it states: the
-// Spellstones' 36 is fire and shadow damage. The item generator reads the aura's stats by the same rule.
+// Spellstones' 36 is fire and shadow damage.
 func DamageDoneStats(mask int32) []stats.Stat {
 	switch mask {
 	case miscAllSchools:
@@ -1520,8 +1517,7 @@ func resistanceStats(mask int32) []stats.Stat {
 	return out
 }
 
-// The stats an A_MOD_ARMOR_NO_MODS mask names: ArmorNoMods for school 1 alone, nothing for any other
-// mask. The item generator reads the aura's armor by the same rule.
+// The stats an A_MOD_ARMOR_NO_MODS mask names: ArmorNoMods for school 1 alone, nothing for any other mask.
 func ArmorNoModsStats(mask int32) []stats.Stat {
 	if mask == miscArmor {
 		return []stats.Stat{stats.ArmorNoMods}

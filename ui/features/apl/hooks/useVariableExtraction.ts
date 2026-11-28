@@ -23,10 +23,6 @@ export interface VariableExtraction {
 /**
  * "Extract to variable": names the value at one index, moves it into the rotation's variable list
  * and leaves a reference behind.
- *
- * Three lists offer it — the priority list, a group's actions and any nested value list — and each
- * reaches its value differently, so the two accessors are the parameter. A value that is already a
- * variable reference, or has no kind at all, has nothing to extract and the entry stays hidden.
  */
 export const useVariableExtraction = (
 	player: Player<any>,

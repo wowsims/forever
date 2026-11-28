@@ -7,16 +7,14 @@ import (
 	"strings"
 )
 
-// This file produces a stable, exact CPLEX LP text encoding of the model for the HiGHS solver.
-// The serialization is fully deterministic down to the byte level (including the quirk that the
-// leading space is dropped on the first wrapped line), so an unchanged model always yields the
-// same LP text and therefore the same HiGHS tie-breaking among equal-objective solutions.
+// A stable, exact CPLEX LP text encoding of the model for the HiGHS solver. The serialization is
+// fully deterministic down to the byte level, so an unchanged model always yields the same LP text
+// and therefore the same HiGHS tie-breaking among equal-objective solutions.
 
 // The longest LP line written before the expression wraps.
 const maxLPLineLength = 200
 
-// An optional bound row: a lower bound (min), an upper bound (max), or both. lessEq builds a "<="
-// row (max) and greaterEq builds a ">=" row (min).
+// An optional bound row: a lower bound (min), an upper bound (max), or both.
 type lpConstraint struct {
 	min, max       float64
 	hasMin, hasMax bool
@@ -30,10 +28,8 @@ func greaterEq(n float64) lpConstraint { return lpConstraint{min: n, hasMin: tru
 //
 // Each variable carries coefficients in TWO parallel spaces:
 //   - byName holds the CAP coefficients (fully stat-dependency-resolved via resolveStatDelta)
-//     plus the structural/constraint keys. modelToLPFormat's constraint
-//     rows and checkCaps read byName, so every dependency counts toward caps.
-//   - objByName holds the OBJECTIVE coefficients (the EP-calibrated applyReforgeStat output).
-//     updateReforgeScores reads objByName to compute each variable's 'score' coefficient, so
+//     plus the structural/constraint keys, so every dependency counts toward caps.
+//   - objByName holds the OBJECTIVE coefficients (the EP-calibrated applyReforgeStat output), so
 //     the LP objective stays exactly as calibrated.
 type lpVariables struct {
 	order     []string
@@ -102,8 +98,7 @@ func (c *lpConstraints) has(name string) bool {
 	return ok
 }
 
-// A shallow copy that can be extended without mutating the original; checkCaps tightens it into
-// the constraint set for the next refinement pass.
+// A shallow copy that can be extended without mutating the original.
 func (c *lpConstraints) clone() *lpConstraints {
 	out := &lpConstraints{
 		order:  append([]string(nil), c.order...),
@@ -163,8 +158,6 @@ func modelToLPFormat(model *lpModel) (string, []string) {
 		lines = append(lines, constraintLines...)
 	}
 
-	// buildBounds emits nothing for binary variables; the "Bounds" header is only written
-	// when there are bound lines.
 	if !model.binaries && idx > 0 {
 		lines = append(lines, "Bounds")
 		for i := 0; i < idx; i++ {

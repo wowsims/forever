@@ -13,8 +13,7 @@ func (priest *Priest) registerMindFlaySpell(_ int32, rank *spelldata.Spell) {
 	config.Flags |= core.SpellFlagFullResistanceTicks
 
 	if priest.Talents.ImprovedMindFlay > 0 {
-		// Improved Mind Flay: each tick deals X% more than the one before it, so the nth tick of the
-		// channel is worth (1 + X%)^(n-1) of the first.
+		// Improved Mind Flay: each tick deals X% more than the one before it.
 		ramp := spellData.ImprovedMindFlay.EffectAt(1).MultiplierAt(priest.Talents.ImprovedMindFlay)
 		onTick := config.Dot.OnTick
 		config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {

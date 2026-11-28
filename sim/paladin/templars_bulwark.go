@@ -27,7 +27,7 @@ func (paladin *Paladin) registerTemplarsBulwark() {
 		},
 	})
 
-	// The row's excluded caster aura is Forbearance, so the cast requirement refuses it while
+	// The spell's excluded caster aura is Forbearance, so the cast requirement refuses it while
 	// Forbearance is up.
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty

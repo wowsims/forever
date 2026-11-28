@@ -100,8 +100,8 @@ var DefaultRangedWeaponTypes = []proto.RangedWeaponType{
 	proto.RangedWeaponType_RangedWeaponTypeIdol,
 }
 
-// Self keeps the mana. Someone else still spends the cast and the cooldown; a dummy receives the mana.
-// Without Dreamstate the caster gains none of it.
+// Innervate on someone else still uses the cast and the cooldown; without Dreamstate the caster gains
+// none of the mana.
 func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	for _, c := range []struct {
 		name     string
@@ -344,7 +344,7 @@ func TestHurricaneTicksRollNoOmenAndGrantNoNaturesGrace(t *testing.T) {
 }
 
 // A Hurricane tick is cast by the channel, so it is a proc, heard only by listeners that can proc from
-// procs, unless its row is flagged Not a Proc.
+// procs, unless the spell is flagged Not a Proc.
 func TestHurricaneTickIsAProcAsItsRowStates(t *testing.T) {
 	_, druid := newBalanceDruid(t, 1, 0)
 	tick := druid.Hurricane.RelatedDotSpell
@@ -354,8 +354,8 @@ func TestHurricaneTickIsAProcAsItsRowStates(t *testing.T) {
 	}
 }
 
-// The Hurricane cast rolls Omen of Clarity once for each target its area reaches, after it spends
-// Clearcasting, so a cast that spends the buff can come out with a new one.
+// The Hurricane cast rolls Omen of Clarity once for each target its area reaches, after it uses
+// Clearcasting, so a cast that uses the buff can come out with a new one.
 func TestHurricaneCastRollsOmenPerTarget(t *testing.T) {
 	const casts = 400
 	procsOn := func(targets int) int {
@@ -380,8 +380,7 @@ func TestHurricaneCastRollsOmenPerTarget(t *testing.T) {
 	}
 }
 
-// A Hurricane cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the channel
-// starts, and its ticks roll none (EV-0115).
+// Rolls per enemy in EV-0115.
 func TestHurricaneCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)
@@ -447,7 +446,7 @@ func TestHurricaneCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	}
 }
 
-// A helpful cast such as Thorns rolls Omen of Clarity in Moonkin Form, after it spends Clearcasting;
+// A helpful cast such as Thorns rolls Omen of Clarity in Moonkin Form, after it uses Clearcasting;
 // in caster form it rolls nothing, and neither does a shift into Moonkin Form.
 func TestHelpfulCastsRollOmenInMoonkinFormOnly(t *testing.T) {
 	const casts = 400

@@ -15,12 +15,12 @@ A bonus against a creature type and the share of armor the unit ignores live on 
 Those tables exist once the environment is finalized, so the static path sets both values from a
 post-finalize effect.
 `ParseEffects(character, aura, row, opts...)` makes the same attachments follow an aura: they turn on
-when it is gained, off when it expires, and scale with its stacks where the row states
+when it is gained, off when it expires, and scale with its stacks where the spell states
 `CumulativeAura`.
 
 The game files' own class flags limit a modifier effect. `EffectSpellClassMask` decides which
 registered spells the mod reaches, so a talent touches exactly the spells the game files name it for.
-An effect that names no spells at all, on a row of a class family, reaches that whole family; that is
+An effect that names no spells at all, on a spell of a class family, reaches that whole family; that is
 what the game files mean by an unmasked class modifier.
 
 **Call `ParseEffects` before the aura activates.** It attaches through `ApplyOnGain` and
@@ -32,15 +32,15 @@ stay off until the aura is applied again.
 **An aura that several ranks share takes a modifier once**, however many of those ranks the modifier's
 mask names, because the mod is attached to the aura and not to each spell pointing at it.
 
-|                              |                                                                                                                     |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `Effects(1, 2)`              | only these effects, counted from 1 by position the way `EffectN` counts                                             |
-| `SkipEffects(3)`             | everything but these                                                                                                |
-| `Conditional(fn)`            | a condition every attachment is gated on, read on gain and whenever the caller calls `Refresh(sim)`                 |
-| `IgnoreStacks()`             | the values do not follow the aura's stacks, which is what a row stating charges rather than cumulative stacks means |
-| `FromCaster(unit, i, total)` | the unit that cast a debuff, for the rows that reach only its attacks, in slot `i` of `total` on its attack table   |
-| `ShowAsSchoolHit(schools)`   | the schools whose hit the character sheet shows the row's `SPELLMOD_RESIST_MISS_CHANCE` hit in                      |
-| `AllManaRegen()`             | the row's mana regen percent multiplies the Spirit regen and the MP5 but no energize tick (Innervate)               |
+|                              |                                                                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `Effects(1, 2)`              | only these effects, counted from 1 by position the way `EffectN` counts                                            |
+| `SkipEffects(3)`             | everything but these                                                                                               |
+| `Conditional(fn)`            | a condition every attachment is gated on, read on gain and whenever the caller calls `Refresh(sim)`                |
+| `IgnoreStacks()`             | the values do not follow the aura's stacks, which is what a spell with charges rather than cumulative stacks means |
+| `FromCaster(unit, i, total)` | the unit that cast a debuff, for the rows that reach only its attacks, in slot `i` of `total` on its attack table  |
+| `ShowAsSchoolHit(schools)`   | the schools whose hit the character sheet shows the row's `SPELLMOD_RESIST_MISS_CHANCE` hit in                     |
+| `AllManaRegen()`             | the spell's mana regen percent multiplies the Spirit regen and the MP5 but no energize tick (Innervate)            |
 
 **A debuff that reaches only its caster's attacks** sits on the target and is parsed onto the target's
 aura with `FromCaster`: Shadow Weaving's shadow damage (`A_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER`, by the
@@ -64,8 +64,8 @@ spelldata.ParseEffects(nil, swAura, spellData.ShadowWeavingTriggered.Highest(),
 ```
 
 Defensive Stance uses both shapes at once (`sim/warrior/stances.go`). The stance passive is parsed onto
-the stance aura. Defiance is parsed onto the same aura with a `Conditional` for the shield: its row
-states the shield, the parse does not scope to it, and `Refresh` re-reads the condition on an off-hand
+the stance aura. Defiance is parsed onto the same aura with a `Conditional` for the shield: the game files
+state the shield, the parse does not scope to it, and `Refresh` re-reads the condition on an off-hand
 swap.
 
 The call answers a `*Parsed`. `Applied` names each attachment, or each part of one that has parts (the
@@ -100,7 +100,7 @@ The table writes the sim's own units, which differ from stat to stat:
 | `PseudoStats.SpiritRegenRateCasting`                                                                           | a share of spirit regen while casting, capped at 1    | the value over 100                                                     |
 | `PseudoStats.BonusRangedDamageTaken`                                                                           | flat damage on each physical ranged attack            | the value, where the school mask names physical                        |
 | `PseudoStats.MeleeDamageTakenMultiplier`                                                                       | a multiplier on each melee attack, of any school      | `1 + value/100`                                                        |
-| ArmorPenetration, SpellPiercing                                                                                | flat points of the target's armor or resistance       | the value's size, whichever sign the row states it with                |
+| ArmorPenetration, SpellPiercing                                                                                | flat points of the target's armor or resistance       | the value's size, whichever sign the game files state it with          |
 | `PseudoStats.SchoolSpellPiercing`                                                                              | flat points of one school's resistance                | the value's size, for each school the misc value's mask names          |
 | AttackPower, RangedAttackPower, SpellDamage, or flat damage done (physical and spell), against a creature type | flat power on each attack table's `VersusStats`       | the value, for each mob type the misc value's creature type mask names |
 | damage dealt against a creature type                                                                           | `DamageDealtMultiplier` of each masked table          | `1 + value/100`                                                        |
@@ -136,7 +136,7 @@ spell of the school the flags miss, such as Holy Shield's damage under Divine Pr
 spell hit, and the reforge optimizer's hit caps read the row as it stands. A row that attaches no hit
 modifier panics with the option; a Nil row, an untaken rank, parses nothing. `PseudoStats.SchoolBonusHitChance`
 is the bonus stats' school hit, which reaches every spell of the school with a `ClassSpellMask` or class
-flags and no melee roll. A talent written into it by hand loses its row's spell list, and one written in
+flags and no melee roll. A talent written into it by hand loses the talent's spell list, and one written in
 beside the parse counts its hit twice.
 
 Armor has two flat auras on misc 1. `A_MOD_RESISTANCE` (22) is armor like any other, and
@@ -164,7 +164,7 @@ does not parse the row.
 `A_MOD_ATTACK_POWER_OF_STAT_PERCENT` (598) and `A_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT` (580) add a
 share of the misc value's stat to attack power: Cat Form (Passive) 3025 states melee attack power as
 100% of Agility, Careful Aim 1223984 both as a share of Intellect. `dbcenums` names them after those
-rows, and 635 `A_IGNORE_FOG_OF_WAR` after Enchanted Flare 1221416, which has nothing to model.
+spells, and 635 `A_IGNORE_FOG_OF_WAR` after Enchanted Flare 1221416, which has nothing to model.
 
 Innervate 29166 states both mana regen auras. `A_MOD_MANA_REGEN_INTERRUPT` adds its share to
 `SpiritRegenRateCasting`, and core caps the sum at the full spirit regen, so Innervate's 100% on top

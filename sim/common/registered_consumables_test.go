@@ -10,8 +10,7 @@ import (
 	_ "github.com/wowsims/forever/sim/rogue"
 )
 
-// Every consumable db.json ships is one the sim applies: a hand-written or data-driven registration
-// for its id. The rogue registers its poisons itself, on import.
+// Every consumable db.json ships is one the sim applies. The rogue registers its poisons itself, on import.
 func TestEveryShippedConsumableIsRegistered(t *testing.T) {
 	registerAllEffects()
 

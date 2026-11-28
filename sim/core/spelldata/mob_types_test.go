@@ -139,9 +139,8 @@ func TestAVersusAuraGainAndExpireDoNotAllocate(t *testing.T) {
 	}
 }
 
-// A_MOD_DAMAGE_DONE_VERSUS multiplies the damage dealt to the masked mob types while its aura is up,
-// and divides it back out on expiry; crit damage follows the damage rather than being multiplied
-// again. A row stating 1 against mask 32, Undead.
+// A_MOD_DAMAGE_DONE_VERSUS multiplies the damage dealt to the masked mob types while its aura is up;
+// crit damage follows the damage rather than being multiplied again.
 func TestADamageVersusAuraFollowsItsAuraOnTheAttackTables(t *testing.T) {
 	sim := &core.Simulation{}
 	character := parseWarrior()
@@ -227,8 +226,7 @@ func TestACritDamageVersusRowMultipliesTheCritOnTheAttackTables(t *testing.T) {
 }
 
 // A_SPELL_AURA_MOD_ARMOR_PENETRATION_PCT is the share of every defender's armor the unit's attacks
-// ignore: Serrated Blades 14171 at 3 of 3 ranks ignores the share its rank states, once the attack
-// tables exist.
+// ignore: Serrated Blades 14171 ignores the share its rank states, once the attack tables exist.
 func TestAnArmorPenetrationRowIgnoresAShareOfTheArmor(t *testing.T) {
 	withGeneratedStore(t)
 	serratedBlades := Talent(14171, 3).Rank(3)

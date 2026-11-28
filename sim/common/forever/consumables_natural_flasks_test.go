@@ -44,8 +44,7 @@ func warriorWithFlask(t *testing.T, flaskID int32) *core.Character {
 	return sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// Each flask's 1293740-1293743 states Stamina in its first effect, and in its A_DUMMY the percent of
-// the zone bonus the text names: hit, crit, less chance to be dodged or parried (expertise), or haste.
+// Each flask's 1293740-1293743 states Stamina in its first effect, and in its A_DUMMY the zone bonus percent.
 func TestNaturalFlasksGrantStaminaAndTheirZoneBonus(t *testing.T) {
 	bare := warriorWithFlask(t, 0)
 	for _, tc := range []struct {

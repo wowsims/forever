@@ -10,16 +10,15 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
-// The hunter's pet families, from the client's skill lines: one "Pet - <family>" line per family in
+// The hunter's pet families, from the game files' skill lines: one "Pet - <family>" line per family in
 // the class-skills category, told apart from a warlock's demons by the Hunter Pet Scaling passive
-// every hunter line carries. Two lines can name one family - the client has two "Pet - Bat" - and
-// they merge. Nothing hand-maintained.
+// every hunter line carries. Two lines can name one family (the game files have two "Pet - Bat"), and
+// they merge.
 //
 // A family is what the sim reads off it: the Tamed Pet Passive (DND) that states the family's
-// damage, armor and health, and the abilities the line teaches, pet side. The abilities are not
-// rendered as ids of their own: every one is already the triggered ladder of a hunter family - the
-// hunter learns Bite through Beast Training and its rank teaches the pet's Bite - so the file names
-// those ladders, and an ability no hunter ladder carries is reported rather than rendered.
+// damage, armor and health, and the abilities the line teaches, pet side. Every ability is already the
+// triggered ladder of a hunter family, so the file names those ladders, and an ability no hunter ladder
+// carries is reported.
 type petFamily struct {
 	// The line's name after "Pet - ", and the Go identifier fieldNameOf makes of it, which is the
 	// map key and what proto.HunterOptions_PetType names the family.
@@ -30,7 +29,7 @@ type petFamily struct {
 	// which the shared ones do not carry.
 	Passive int32
 
-	// The hunter ladders whose triggered ladder the family learns, in the client's name order.
+	// The hunter ladders whose triggered ladder the family learns, in name order.
 	Abilities []string
 }
 
@@ -102,7 +101,7 @@ func discoverPetFamilies(db *sql.DB, ladders []rankLadder, triggered map[string]
 			}
 			f.Passive = id
 		case name == hunterPetScaling, passive:
-			// Shared by every family, and stated by the server rather than the rows.
+			// Shared by every family, and stated by the server rather than the game files.
 		case subtext == "" || rankSubtext.MatchString(subtext):
 			abilities[family] = append(abilities[family], abilityRow{name, id})
 		}

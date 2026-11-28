@@ -27,7 +27,7 @@ describe('swapValueKind', () => {
 	});
 
 	// `APLValue.create` copies what it is handed, so identity is asserted against the message read
-	// back out of the built fixture — which is the object the live rotation tree actually holds.
+	// back out of the built fixture.
 	it('unwraps a negation when the new kind is what it held', () => {
 		const negation = value('not', { val: value('const', { val: '5' }) });
 		const inner = (negation.value as Record<string, any>).not.val;

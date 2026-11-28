@@ -127,8 +127,7 @@ describe('PresetConfigurationPicker, grouped by phase', () => {
 		expect(JSON.parse(window.localStorage.getItem('spec__presetFilters__')!)).toEqual({ phase: 3 });
 	});
 
-	// Applying a build writes its phase to the bar, so the chip that was just clicked stays on
-	// screen; no tab is clicked first, so the write is the build's alone.
+	// Applying a build writes its phase to the bar, so the chip that was just clicked stays on screen.
 	it('follows the applied build to its phase', () => {
 		const { container } = setup(phased);
 

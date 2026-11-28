@@ -141,16 +141,6 @@ func parseGo(path, text string) *parsedFile {
 			return
 		}
 
-		// Ladder.Each can receive either:
-		//
-		//     ladder.Each(func(_ int32, rank *spelldata.Spell) {
-		//         registerSpell(rank)
-		//     })
-		//
-		// or a method/function value:
-		//
-		//     ladder.Each(paladin.registerSpell)
-		//
 		// Parentheses around a function literal are harmless, so unwrap them first.
 		callback := call.Args[0]
 		for {
@@ -166,31 +156,19 @@ func parseGo(path, text string) *parsedFile {
 			return
 		}
 
-		// Inline callback:
-		//
-		//     ladder.Each(func(_ int32, rank *spelldata.Spell) { ... })
-		//
-		// Find calls inside the callback which pass the callback spell parameter
+		// Inline callback: find calls inside the callback which pass the callback spell parameter
 		// as an argument.
 		if fn, ok := callback.(*ast.FuncLit); ok {
 			if fn.Type == nil || fn.Type.Params == nil {
 				return
 			}
 
-			// Ladder.Each has the shape:
-			//
-			//     func(rank int32, spell *spelldata.Spell)
-			//
-			// We only care about the second parameter. The first is the numeric rank.
 			if fn.Type.Params.List == nil || len(fn.Type.Params.List) < 2 {
 				return
 			}
 
-			// Ladder.Each has the callback shape:
-			//
-			//	func(rank int32, spell *spelldata.Spell)
-			//
-			// The parameter names are arbitrary; parameter position is the API contract.
+			// Ladder.Each has the callback shape func(rank int32, spell *spelldata.Spell). The parameter
+			// names are arbitrary; parameter position is the API contract.
 			rankParam := fn.Type.Params.List[0]
 			if types.ExprString(rankParam.Type) != "int32" {
 				return
@@ -206,8 +184,6 @@ func parseGo(path, text string) *parsedFile {
 				return
 			}
 
-			// We deliberately require the second callback parameter to be
-			// *spelldata.Spell.
 			if types.ExprString(spellParam.Type) != "*spelldata.Spell" {
 				return
 			}
@@ -251,14 +227,10 @@ func parseGo(path, text string) *parsedFile {
 			return
 		}
 
-		// Method/function value callback:
-		//
-		//	ladder.Each(paladin.registerConsecration)
-		//
-		// The callback has no explicit argument identifiers at the call site.
-		// Instead, record the callback function and let parameterDeclaration
-		// resolve its *spelldata.Spell parameter later. The callback may be
-		// declared in a different file in the same package.
+		// Method/function value callback: it has no explicit argument identifiers at the call site.
+		// Instead, record the callback function and let parameterDeclaration resolve its
+		// *spelldata.Spell parameter later. The callback may be declared in a different file in the
+		// same package.
 		callbackSelector, ok := callback.(*ast.SelectorExpr)
 		if !ok {
 			return
@@ -363,12 +335,8 @@ func (f *parsedFile) enclosingEachRankParameter(pos token.Pos) string {
 		rankParam := params[0]
 		spellParam := params[1]
 
-		// Ladder.Each's callback contract is:
-		//
-		//     func(rank int32, spell *spelldata.Spell)
-		//
-		// The names are arbitrary; the parameter positions and types
-		// define their meaning.
+		// Ladder.Each's callback contract is func(rank int32, spell *spelldata.Spell). The names are
+		// arbitrary; the parameter positions and types define their meaning.
 		if types.ExprString(rankParam.Type) != "int32" ||
 			types.ExprString(spellParam.Type) != "*spelldata.Spell" {
 			continue
@@ -407,8 +375,7 @@ type workspace struct {
 }
 
 // A file's declarations and what they were read at: the editor's text for a file it holds, else the
-// modification time on disk, which is how a change the editor does not report - a checkout, a
-// generator, another session - reaches the cache.
+// modification time on disk, which is how a change the editor does not report reaches the cache.
 type cachedFile struct {
 	key              any
 	decls            []declaration
@@ -494,9 +461,8 @@ func (w *workspace) declarations(folder string, current *parsedFile, at int, tra
 
 	// Infer function parameters from SpellData ladder .Each callbacks.
 	if own != "" {
-		// Find the function containing the hover position. Parameter names such
-		// as "rank" are local to that function, so package-wide callback sources
-		// must not overwrite one another.
+		// Find the function containing the hover position. Parameter names are local to that
+		// function, so package-wide callback sources must not overwrite one another.
 		currentFunction := ""
 		ast.Inspect(current.file, func(node ast.Node) bool {
 			fn, ok := node.(*ast.FuncDecl)
@@ -518,8 +484,7 @@ func (w *workspace) declarations(folder string, current *parsedFile, at int, tra
 					continue
 				}
 
-				// Inline callbacks have their parameter declaration in the
-				// current file.
+				// Inline callbacks have their parameter declaration in the current file.
 				if source.index >= 0 {
 					d, ok := parameterDeclaration(current, source)
 					if !ok || d.from > at || at > d.to {
@@ -545,9 +510,7 @@ func (w *workspace) declarations(folder string, current *parsedFile, at int, tra
 					continue
 				}
 
-				// Method-value callbacks may be declared in any file in the
-				// same package. Search for the callback with the same function
-				// name as the function containing the hover.
+				// Method-value callbacks may be declared in any file in the same package.
 				for _, callbackPath := range paths {
 					text, err := w.text(callbackPath)
 					if err != nil {
@@ -622,12 +585,9 @@ func parameterDeclaration(file *parsedFile, source parameterSource) (declaration
 		for _, field := range params {
 			names := field.Names
 
-			// A method receiver isn't part of Type.Params, so this index
-			// exactly matches the Ladder.Each callback argument position.
-			//
-			// For method-value callbacks we don't know the index when
-			// bindEach sees the callback, so find the *spelldata.Spell
-			// parameter directly.
+			// A method receiver isn't part of Type.Params, so this index matches the Ladder.Each
+			// callback argument position. For method-value callbacks we don't know the index when
+			// bindEach sees the callback, so find the *spelldata.Spell parameter directly.
 
 			if source.index < 0 && types.ExprString(field.Type) == "*spelldata.Spell" {
 				if len(names) == 0 {
@@ -1164,13 +1124,9 @@ func resolvedWithin(c *chain, name string, declarations map[string]declaration, 
 			break
 		}
 
-		// A declaration can refer to the virtual rank indirectly through
-		// a deferred Ladder.Each rank argument:
-		//
-		//	tickSpell := spellData.ConsecrationTriggered.Rank(n)
-		//
-		// The numeric value of n is intentionally not resolved here.
-		// The existing virtual-rank state supplies the selected rank later.
+		// A declaration can refer to the virtual rank indirectly through a deferred Ladder.Each rank
+		// argument, `tickSpell := spellData.ConsecrationTriggered.Rank(n)`. The numeric value of n is
+		// intentionally not resolved here: the virtual-rank state supplies the selected rank later.
 		if source, name, ok := virtualParameterForChain(declaration.chain, declarations); ok && parameter == nil {
 			parameter = source
 			parameterName = name
@@ -1195,9 +1151,8 @@ func resolvedWithin(c *chain, name string, declarations map[string]declaration, 
 		parameterLadder = through.rank.ladder
 	}
 
-	// A Ladder.Each callback parameter is a virtual spell rank.
-	// Its declaration points at the ladder itself, so it cannot be
-	// resolved as an ordinary chain.
+	// A Ladder.Each callback parameter is a virtual spell rank. Its declaration points at the ladder
+	// itself, so it cannot be resolved as an ordinary chain.
 	if parameter != nil {
 		return chainHover{
 			chain:     current,

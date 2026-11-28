@@ -8,8 +8,7 @@ import { createSimStore, patchSlice, type SimState, type SimStore } from '../sta
 import type { StoreSubscribe } from '../state/subscriptions';
 import { useStoreSubscribe } from './useStoreSubscribe';
 
-// Field sources built the way state/subscriptions.ts builds them, but without needing a Sim or a
-// Player: the question under test is how React reacts to the store, not how the facades write to it.
+// Field sources built the way state/subscriptions.ts builds them, without needing a Sim or a Player.
 const gated = <U,>(store: SimStore, selector: (s: SimState) => U): StoreSubscribe =>
 	((onChange: () => void) => subscribeGated(store.subscribe, selector, onChange)) as StoreSubscribe;
 

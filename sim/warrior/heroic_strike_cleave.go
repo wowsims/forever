@@ -62,10 +62,9 @@ func (warrior *Warrior) registerCleave() {
 	warrior.makeQueueSpellsAndAura(warrior.Cleave)
 }
 
-// Heroic Strike and Cleave go off on the next main-hand swing (ON_NEXT_SWING in the game files): the
-// APL casts the tag 1 spell, which queues the attack after the Queue Delay, and the next swing, extra
-// attacks included, casts it in the swing's place. One attack is queued at a time, and a swing the
-// rage no longer covers drops the queue.
+// Heroic Strike and Cleave go off on the next main-hand swing (ON_NEXT_SWING in the game files): the next
+// swing, extra attacks included, casts the queued attack in the swing's place, and a swing the rage no
+// longer covers drops the queue.
 func (warrior *Warrior) makeQueueSpellsAndAura(srcSpell *core.Spell) {
 	queueAura := warrior.RegisterAura(core.Aura{
 		Label:    "HS/Cleave Queue Aura-" + srcSpell.ActionID.String(),

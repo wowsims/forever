@@ -22,15 +22,13 @@ func (warrior *Warrior) registerBattleShout() {
 }
 
 func (warrior *Warrior) registerBattleShoutRank(rank *spelldata.Spell) {
-	// A warrior that shouts builds its own copy. One that never shouts gets the
-	// isPlayer=false constructor, whose aura is the raid's external copy, and the
-	// raid's Battle Shout state sets what that copy is worth.
+	// A warrior that shouts builds its own copy. One that never shouts gets the raid's external copy,
+	// and the raid's Battle Shout state sets what that copy is worth.
 	castsOwnShout := warrior.UseBattleShout
 
-	// Three pieces of Battlegear of Wrath add a flat 30 to the shout. HasBsT2 is
-	// set by the user or by the set worn at the start. The set is worth the 30 on
-	// the shout this warrior makes, so it raises what that copy applies and what
-	// the cast is worth to the category together.
+	// Three pieces of Battlegear of Wrath add a flat 30 to the shout. The set is worth the 30 on the
+	// shout this warrior makes, so it raises what that copy applies and what the cast is worth to the
+	// category together.
 	battleShoutBase := buffs.BattleShoutRankValue(rank)
 	battleShoutValue := battleShoutBase
 	shoutsWithTheSet := castsOwnShout && warrior.HasBsT2
@@ -59,18 +57,15 @@ func (warrior *Warrior) registerBattleShoutRank(rank *spelldata.Spell) {
 		return aura
 	})
 
-	// What holds the Battle Shout category decides whether shouting is worth a
-	// global. Nothing there and the cast puts the buff up. This rank's own copy
-	// there and the cast only refreshes it, which is worth a global once it is
-	// about to run out. Anything else has to be outbid first, as a warrior without
-	// the set would otherwise keep recasting a shout the category turns away
-	// while a stronger external one is up.
+	// What holds the Battle Shout category decides whether shouting is worth a global. Another shout
+	// there has to be outbid first, as a warrior without the set would otherwise keep recasting a shout
+	// the category turns away while a stronger external one is up.
 	battleShoutCategory := warrior.GetExclusiveEffectCategory(buffs.BattleShoutCategory)
 
 	config := spelldata.SpellConfig(&warrior.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty
 	config.ThreatMultiplier = 1
-	// No rank carries a threat effect, and every rank measured in game makes no threat (EV-0043, EV-0220).
+	// No rank carries a threat effect. Shout threat in EV-0043, EV-0220.
 	config.FlatThreatBonus = 0
 
 	config.ExtraCastCondition = func(sim *core.Simulation, _ *core.Unit) bool {

@@ -679,7 +679,6 @@ func (unitMetrics *UnitMetrics) calculateTMI(unit *Unit, sim *Simulation) float6
 		if ev-firstEvent > 0 {
 			sum := float64(0)
 
-			// Add up everything in the bin
 			for j := firstEvent; j < ev; j++ {
 				sum += unit.Metrics.tmiList[j].WeightedDamage
 			}

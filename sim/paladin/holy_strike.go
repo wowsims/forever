@@ -12,19 +12,16 @@ var HolyStrikeRankMap = spellData.HolyStrike
 //
 // An instant strike that causes 50% weapon damage plus an additional 97 to 121 as Holy damage.
 //
-// The row states the flat part as its normalized-weapon-damage effect and the percentage as a
-// second effect, and the percentage scales the flat part too: the 2 to 4 is Rank 1's 12 ± 1.5 at 25%.
+// The spell states the flat part as its normalized-weapon-damage effect and the percentage as a
+// second effect, and the percentage scales the flat part too.
 //
 // The spell power coefficient sits on the flat effect, but the paladin's own spell power goes
-// through the weapon percent, as it does for the Seal of Command proc: Rank 3's 0.429 at 32% is
-// 0.137 per point of spell power. The strike takes no spell damage against the target's creature
-// type (EV-0189), and the Holy damage the target takes extra, Judgement of the Crusader, is taken at
-// the full coefficient after the done multipliers, where core adds it.
+// through the weapon percent. Creature type damage in EV-0189.
+// Judgement of the Crusader is taken at the full coefficient after the done multipliers.
 func (paladin *Paladin) registerHolyStrike(_ int32, rank *spelldata.Spell) {
 	coefficient := rank.DamageEffect().Coeff()
 
-	// No BonusCoefficient: the spell power goes through the weapon percent, so the strike adds it by
-	// hand below rather than letting CalcDamage add it on top.
+	// No BonusCoefficient: the spell power goes through the weapon percent, so the strike adds it by hand.
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ClassSpellMask = SpellMaskHolyStrike
 	config.TakenBonusCoefficient = coefficient

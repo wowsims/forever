@@ -45,7 +45,7 @@ const cast = (over: Record<string, unknown> = {}) =>
 	}) as unknown as CastItem;
 
 // Every line is a locale string, and a damage line splices its target and amount in as elements that
-// only exist once the string resolves; the test setup loads no locale, so this suite loads the English one.
+// only exist once the string resolves; the test setup loads no locale.
 beforeAll(() => {
 	i18n.addResourceBundle('en', 'translation', english, true, true);
 });

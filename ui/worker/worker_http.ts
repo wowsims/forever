@@ -12,7 +12,7 @@ const defaultRequestOptions = {
 };
 
 // ProgressMetrics final_* field numbers (proto/api.proto), mirroring WorkerPool.isFinalProgress. Scanning tags avoids
-// bundling every proto type into this worker; a field missed here only costs one extra poll.
+// bundling every proto type into this worker.
 const FINAL_PROGRESS_FIELDS = new Set([6, 7, 10, 11]);
 
 const isFinalProgress = (progressMetrics: Uint8Array) => {
@@ -76,8 +76,6 @@ export const setupHttpWorker = (baseURL: string) => {
 		return new Uint8Array();
 	};
 
-	// Route every endpoint through the sync handler except the declared async ones, so a new
-	// async endpoint only needs its ASYNC_SIM_REQUESTS entry to poll progress correctly.
 	const handlers = Object.fromEntries(
 		Object.values(SimRequest).map(request => [request, (ASYNC_SIM_REQUESTS as readonly SimRequest[]).includes(request) ? asyncHandler : syncHandler]),
 	) as Record<SimRequest, HandlerFunction>;

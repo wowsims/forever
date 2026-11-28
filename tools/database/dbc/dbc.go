@@ -32,9 +32,7 @@ type DBC struct {
 	ItemSetSpells          map[int][]ItemSetSpell // Item set ID
 	ShieldBlockValues      map[int]ShieldBlock
 
-	// Every spell's effects flattened into effect index order. Built once by indexSpellEffects and
-	// served by SpellEffectsInOrder, which every trigger chain walk goes through - sorting per call
-	// meant two allocations and a sort for each spell visited.
+	// Every spell's effects flattened into effect index order. Built once by indexSpellEffects.
 	spellEffectsOrdered map[int][]SpellEffect
 }
 

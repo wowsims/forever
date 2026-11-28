@@ -27,9 +27,8 @@ func shippedConsumable(t *testing.T, instance *dbc.DBC, id int) *proto.Consumabl
 	return ShippedConsumable(&catalogued, routing, instance)
 }
 
-// Elixirs whose first aura is the same share one group, and a different first aura, another stat or
-// another school, is another group. The elixirs granting a crit chance share one group whatever
-// their first aura. A scroll shares its group with its ranks alone.
+// Elixirs whose first aura is the same share one group. The elixirs granting a crit chance share one
+// group whatever their first aura. A scroll shares its group with its ranks alone.
 func TestAConsumableTakesItsExclusiveGroup(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()

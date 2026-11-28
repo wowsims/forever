@@ -1,5 +1,4 @@
-// What this pins is the shell's behaviour, which is everything the four importers share: what gets
-// handed to `onImport`, and what happens to the dialog when it resolves and when it rejects.
+// What this pins is the shell's behaviour, which is everything the four importers share.
 import { renderWithHost } from '@testing/react';
 import { act, fireEvent, screen } from '@testing-library/react';
 import { useState } from 'react';

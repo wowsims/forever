@@ -37,8 +37,8 @@ func (hunter *Hunter) registerMongooseBite() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := mongooseBiteRank.WeaponStrike(sim, spell, hunter.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
 		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
-		// A bite spends Expose Prey when both windows are up (EV-0206). The dodge window lasts as long as the bite's
-		// cooldown, so whether the bite spends it too changes nothing.
+		// A bite uses Expose Prey when both windows are up (EV-0206). The dodge window lasts as long as the bite's
+		// cooldown, so whether the bite uses it too changes nothing.
 		hunter.MongooseBiteAura.Deactivate(sim)
 		exposePrey.Deactivate(sim)
 	}
@@ -50,8 +50,7 @@ func (hunter *Hunter) registerMongooseBite() {
 var exposePreyWindow = spellData.ExposePreyTriggered.Highest()
 
 // Expose Prey opens its own Mongoose Bite window off any attack on a target carrying Hunter's Mark.
-// The rate is the effect ladder the tooltip's $m1 names, 5/10 by rank, and the mark is the caller's
-// condition. Without the talent the window is nil, which reads as an aura that is down.
+// Without the talent the window is nil, which reads as an aura that is down.
 func (hunter *Hunter) registerExposePrey() *core.Aura {
 	if hunter.Talents.ExposePrey == 0 {
 		return nil

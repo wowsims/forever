@@ -1,5 +1,4 @@
-// The hunter builds set what they state and leave the rest as the page has it: a .siml build writes no bool it
-// leaves off, and loading one leaves "in front of target" and item swap to the page.
+// A .siml build writes no bool it leaves off, and loading one leaves "in front of target" and item swap to the page.
 import { isBuildActive } from '@app/preset_build_state';
 import { applyBuild } from '@features/settings/model/apply_build';
 import { Spec } from '@generated/proto/common';

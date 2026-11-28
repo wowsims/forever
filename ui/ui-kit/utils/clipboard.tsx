@@ -11,8 +11,8 @@ export const showForManualCopy = (text: string) =>
 	});
 
 /**
- * Writes `text` to the clipboard. With no `navigator.clipboard` or `writeText` (an insecure origin, an older
- * browser) or a refused write, a toast holds the text for a manual copy. Resolves whether the write landed.
+ * With no `navigator.clipboard` or `writeText` (an insecure origin) or a refused write, a toast holds the
+ * text for a manual copy.
  */
 export const writeToClipboard = async (text: string): Promise<boolean> => {
 	try {

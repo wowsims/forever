@@ -20,19 +20,15 @@ import (
 // all and a stale one prints the paths alone.
 var progress io.Writer = os.Stderr
 
-// Writes the rendered files, but only once the sim compiles against them - unless unchecked skips
-// that.
+// Writes the rendered files, but only once the sim compiles against them.
 //
 // The generated files are the sim's data: one that does not compile takes the whole repository down
 // with it, gen_db included, and gen_db is what rebuilds the database the generator reads. So the
-// files go to a staging directory first and are type-checked there through go build's overlay,
-// which lets the compiler read the staged bytes in the place of the committed ones without any of
-// them being in the tree. A failure leaves the tree exactly as it was and prints what the compiler
-// said.
+// files go to a staging directory first and are type-checked there through go build's overlay. A
+// failure leaves the tree exactly as it was.
 //
 // unchecked skips the staging build: a class file whose call sites cannot compile against what it
 // will state until they move has to be written first, so nothing would ever write for it otherwise.
-// -check is what closes the loop once they have.
 func writeSpellDataFiles(files map[string][]byte, unchecked bool) error {
 	if !unchecked {
 		if err := buildAgainst(files); err != nil {
@@ -78,8 +74,7 @@ func buildAgainst(files map[string][]byte) error {
 	return buildStaged(staging, overlay, packagesOf(files))
 }
 
-// The committed files that are not what the generator writes today. Named rather than rewritten:
-// the caller is a check, and a check that edits the tree is not one.
+// The committed files that are not what the generator writes today.
 func checkSpellDataFiles(files map[string][]byte) ([]string, error) {
 	var stale []string
 	for path, out := range files {
@@ -122,10 +117,9 @@ func buildStaged(staging string, overlay map[string]string, packages []string) e
 	return nil
 }
 
-// The packages to type-check: the ones the rendered Go files belong to, which is the store, the
-// shared enums, the buffs and the classes rendered, and every class package besides. The settings
-// inputs and the proto messages are not Go. A class a partial run does not render still compiles
-// against the store, the forms and the buffs it rewrites.
+// The packages to type-check: the ones the rendered Go files belong to, and every class package
+// besides. A class a partial run does not render still compiles against the store, the forms and
+// the buffs it rewrites.
 func packagesOf(files map[string][]byte) []string {
 	seen := map[string]bool{}
 	for path := range files {
@@ -154,9 +148,9 @@ func goTool() string {
 	return "go"
 }
 
-// Regenerates every spell data file, once the sim compiles against all of them - or without that
-// check when unchecked is set - and writes the game files rows the store was built from beside them:
-// they are what lets the store be regenerated and checked without the game files database, so they are
+// Regenerates every spell data file, once the sim compiles against all of them (or without that check
+// when unchecked is set), and writes the game files rows the store was built from beside them: they
+// are what lets the store be regenerated and checked without the game files database, so they are
 // written from the same pass that wrote it and only once that pass has landed.
 func GenerateSpellDataFiles(helper *DBHelper, unchecked bool, only SpellDataGroups) error {
 	committed, err := loadCommittedInputs()
@@ -173,10 +167,10 @@ func GenerateSpellDataFiles(helper *DBHelper, unchecked bool, only SpellDataGrou
 	return writeStoreInputs(inputs)
 }
 
-// The committed files that no longer match what the generator writes, for a caller that wants to
-// know rather than to regenerate. Silent on the way there: its output is the lists it returns. behind
-// names the spell data groups recorded on a different game build from the database's. Those are not
-// ported yet, and their files are rendered from the committed inputs.
+// The committed files that do not match what the generator writes. Silent on the way there: its
+// output is the lists it returns. behind names the spell data groups recorded on a different game
+// build from the database's. Those are not ported yet, and their files are rendered from the
+// committed inputs.
 func CheckSpellDataFiles(helper *DBHelper) (stale []string, behind []string, err error) {
 	progress = io.Discard
 	defer func() { progress = os.Stderr }()
@@ -204,9 +198,8 @@ func CheckSpellDataFiles(helper *DBHelper) (stale []string, behind []string, err
 		return nil, nil, err
 	}
 
-	// The committed inputs are checked too, and not only the store they render: a capture that no
-	// longer matches the database renders the committed store all the same - it was written from that
-	// capture - so nothing else here would notice it going stale.
+	// The committed inputs are checked too: a capture that does not match the database renders the
+	// committed store all the same, so nothing else here would notice it going stale.
 	current, err := storeInputsAreCurrent(inputs)
 	if err != nil {
 		return nil, nil, err

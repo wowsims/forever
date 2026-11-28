@@ -1,6 +1,4 @@
-// Reforge-solve request/cache-key helpers, extracted from the ReforgeOptimizer
-// component so the domain layer (sim.ts, bulk sim, reforge cache) does not
-// depend on the view layer.
+// Reforge-solve request/cache-key helpers.
 import { Player as PlayerProtoMessageType, ReforgeOptimizeRequest } from '@generated/proto/api';
 import { Debuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
 

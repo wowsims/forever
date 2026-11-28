@@ -12,7 +12,7 @@ func TestOmenOfClarityUsesThePlaceholderRate(t *testing.T) {
 	}
 }
 
-// The game files state no attack power share on Ferocious Bite; every rank carries the top rank's measured one,
+// No attack power share for Ferocious Bite in game files; every rank carries the top rank's measured one,
 // so a lower rank registered later does not read 0.
 func TestFerociousBiteRanksShareTheAttackPowerPerComboPoint(t *testing.T) {
 	top := spellData.FerociousBite.Highest().DamageEffect().APCoeff()

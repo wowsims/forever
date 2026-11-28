@@ -7,7 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// A bonus whose row the parse states whole, exposed to the APL under the row's id.
+// A bonus whose spell the parse states whole, exposed to the APL under the spell's id.
 func parsedSetBonus(id int32) core.ApplySetBonus {
 	row := spelldata.MustFind(id)
 	return func(agent core.Agent, setBonusAura *core.Aura) {
@@ -61,8 +61,7 @@ var ItemSetFineryOfInfiniteWisdom = core.NewItemSet(core.ItemSet{
 		proto.ItemSlot_ItemSlotBack,
 	},
 	Bonuses: map[int32]core.ApplySetBonus{
-		// Increases the damage of your Shadow Word: Pain spell by 5%. The row's class flags name
-		// Shadow Word: Pain alone.
+		// Increases the damage of your Shadow Word: Pain spell by 5%.
 		3: parsedSetBonus(26172),
 	},
 })

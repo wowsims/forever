@@ -11,8 +11,7 @@ import (
 )
 
 // Two weapons stating their own procs-per-minute rate on the same trigger spell each get a manager
-// at their rate: Forging Strike at 3 PPM on one, 1 PPM on the other, read off the item's effect
-// entry when the shape passes none.
+// at their rate, read off the item's effect entry when the shape passes none.
 func TestWeaponProcRateComesFromTheItemEffect(t *testing.T) {
 	const trigger = forgingStrike
 	for _, tc := range []struct {
@@ -45,9 +44,8 @@ func TestWeaponProcRateComesFromTheItemEffect(t *testing.T) {
 	}
 }
 
-// A weapon whose trigger's row states a flat chance in its column, and whose effect entry states no
+// A weapon whose trigger states a flat chance in its column, and whose effect entry states no
 // procs-per-minute rate, rolls that chance on the hits of the hand that carries it and on no other's.
-// The same item in both hands registers once, so its one listener hears both hands.
 func TestFlatChanceWeaponProcRollsOnItsOwnHand(t *testing.T) {
 	const flatID, plainID, trigger int32 = 992611, 992612, forgingStrike
 	editRow(t, trigger, func(s *spelldata.Spell) {
@@ -98,7 +96,7 @@ func TestFlatChanceWeaponProcRollsOnItsOwnHand(t *testing.T) {
 }
 
 // An item swap that moves a flat-chance weapon from the main hand to the off hand moves its rolls
-// with it: before the swap it rolls on main-hand hits only, after it on off-hand hits only.
+// with it.
 func TestFlatChanceWeaponProcFollowsItsItemThroughASwap(t *testing.T) {
 	const flatID, plainID, otherPlainID, trigger int32 = 992613, 992614, 992615, forgingStrike
 	editRow(t, trigger, func(s *spelldata.Spell) {

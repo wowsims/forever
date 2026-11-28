@@ -5,9 +5,8 @@ import (
 	"github.com/wowsims/forever/sim/core"
 )
 
-// Weapon proc helpers, ported from the SoD sim. Every helper rolls the proc on the weapon's own
-// PPM manager, which follows the item through item swaps, and registers the trigger aura with
-// ItemSwap so the proc toggles with the weapon.
+// Weapon proc helpers. Every helper rolls the proc on the weapon's own PPM manager and registers the
+// trigger aura with ItemSwap so the proc toggles with the weapon.
 
 type WeaponProcTrigger struct {
 	ItemID int32
@@ -15,8 +14,7 @@ type WeaponProcTrigger struct {
 	PPM    float64
 
 	// Set for an "Equip" proc, which is an aura the game matches by proc flags and which never
-	// hears proc hits. Left unset it means a "Chance on hit" proc: a weapon proc that rolls on
-	// every hit of its weapon except those suppressing weapon procs.
+	// hears proc hits. Left unset it means a "Chance on hit" proc.
 	EquipProc          bool
 	TriggerImmediately bool
 
@@ -24,8 +22,7 @@ type WeaponProcTrigger struct {
 	Handler func(character *core.Character) core.ProcHandler
 }
 
-// Registers a weapon proc whose handler runs on every landed hit that passes the weapon's PPM
-// roll. The other helpers build on this one.
+// Registers a weapon proc whose handler runs on every landed hit that passes the weapon's PPM roll.
 func CreateWeaponProcTrigger(config WeaponProcTrigger) {
 	core.NewItemEffect(config.ItemID, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -107,7 +104,7 @@ type WeaponProcSpell struct {
 	PPM    float64
 
 	// Runs once per character and returns the spell to cast at the hit target, or nil to opt
-	// the character out (e.g. a resource proc on a class without that resource).
+	// the character out.
 	Spell func(character *core.Character) *core.Spell
 }
 

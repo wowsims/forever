@@ -14,7 +14,7 @@ import (
 func init() {
 	// Thunderfury, Blessed Blade of the Windseeker
 	//
-	// The game files state no rate; the item's chance-on-hit entry carries it.
+	// No rate in game files; the item's chance-on-hit entry carries it.
 	core.NewItemEffect(19019, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		procActionID := core.ActionID{SpellID: 21992}
@@ -57,7 +57,7 @@ func init() {
 			})
 		})
 
-		// The bounce is the same row's resistance chain, so it resists all or nothing as the row does.
+		// The bounce is the same spell's resistance chain, so it resists all or nothing as the spell does.
 		bounceSpell := character.RegisterSpell(core.SpellConfig{
 			ActionID:    procActionID.WithTag(2),
 			SpellSchool: core.SpellSchoolNature,

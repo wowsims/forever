@@ -6,7 +6,7 @@ export const SPELL_ACTION_CATEGORY = 2;
 export const DEFAULT_ACTION_CATEGORY = 3;
 
 // A fixed sort category for casts whose default MELEE/SPELL/DEFAULT bucket would order them
-// badly. An entry belongs here only if its id is reachable - a spellId in a committed APL, a
+// badly. An entry belongs here only if its id is reachable: a spellId in a committed APL, a
 // `SpellID:` literal in sim/**/*.go, an id the game files' spellIcons table knows, a reference in
 // ui/*.ts(x), or one in a committed ui/ JSON. Spells register under a rank id (Arcane Shot is
 // 27019 here, not 3044). Flat Record<number, number> keyed by anyId(), so an OtherAction id and a

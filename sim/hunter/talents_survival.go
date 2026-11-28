@@ -45,11 +45,9 @@ var trackCreatureSpells = []spelldata.Ladder{
 	spellData.TrackGiants, spellData.TrackHumanoids, spellData.TrackUndead,
 }
 
-// One tracking at a time: a permanent self-buff, and the spell that swaps to it, castable only at a
-// target of a type it names that it does not track yet, so the rotation tracks the target and tracks
-// again when a target of another type comes up. Improved Tracking raises effect 2,
-// A_MOD_DAMAGE_DONE_VERSUS the tracked creature type, by 1% a rank, so its bonus holds while the
-// target's type is tracked; a target of no type or a mechanical one, which no Track names, gets none.
+// One tracking at a time: a permanent self-buff, and the spell that swaps to it. Improved Tracking
+// raises effect 2, A_MOD_DAMAGE_DONE_VERSUS the tracked creature type; a target of no type or a
+// mechanical one, which no Track names, gets no bonus.
 func (hunter *Hunter) registerTracking() {
 	mult := spellData.ImprovedTracking.MultiplierAt(hunter.Talents.ImprovedTracking)
 	versusSource := core.ActionID{SpellID: spellData.ImprovedTracking.Highest().ID}
@@ -133,8 +131,8 @@ func (hunter *Hunter) registerResourcefulness() {
 	buff := hunter.RegisterAura(spelldata.AuraConfig(resourcefulnessBuff))
 	spelldata.ParseEffects(&hunter.Character, buff, resourcefulnessBuff)
 
-	// The row states the chance on effect 2. Its proc flags (0x110) state melee and ranged abilities
-	// and no crit; the tooltip limits the trigger to those abilities' crits.
+	// The buff's proc flags (0x110) state melee and ranged abilities and no crit; the tooltip limits the
+	// trigger to those abilities' crits.
 	trigger := spelldata.ProcTrigger(&hunter.Character, rank,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			buff.Activate(sim)
@@ -145,8 +143,8 @@ func (hunter *Hunter) registerResourcefulness() {
 	hunter.MakeProcTriggerAura(trigger)
 }
 
-// The cooldown mod matches every trap's placement spell and Deterrence; the sim registers only the
-// Immolation and Explosive Trap placements, and their shared category cooldown shortens with them.
+// The cooldown mod matches every trap's placement spell; the sim registers only the Immolation and
+// Explosive Trap placements, and their shared category cooldown shortens with them.
 func (hunter *Hunter) registerSurvivalistsDiscipline() {
 	if hunter.Talents.SurvivalistsDiscipline == 0 {
 		return
@@ -167,8 +165,7 @@ func (hunter *Hunter) registerStriderKick() {
 
 	config := spelldata.SpellConfig(&hunter.Unit, striderKickRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
-	// Effect 3 is the hunter's own movement speed for the row's duration.
-	// The speed comes with a kick that misses, is dodged or is parried too (EV-0206).
+	// Speed on avoided kicks in EV-0206.
 	speed := hunter.RegisterAura(spelldata.AuraConfig(striderKickRank))
 	speed.NewActiveMovementSpeedEffect(striderKickRank.EffectN(3).Percent())
 
@@ -205,8 +202,8 @@ func (hunter *Hunter) registerLaceratingStrikes() {
 	// A share of the damage the bite dealt, which has every modifier and the target's armor on it already.
 	config.Flags |= core.SpellFlagIgnoreModifiers | core.SpellFlagIgnoreResists
 
-	// The tick is a share of the bite that landed, not the row's amount: 1310536's periodic effect
-	// states one base point, so the amount is snapshot from the bite and the resolver's tick replaced.
+	// 1310536's periodic effect states one base point, so the amount is snapshot from the bite and
+	// the resolver's tick replaced.
 	var bleedDamage float64
 	config.Dot = spelldata.DotConfig(laceratingStrikesBleed, tick)
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
@@ -223,9 +220,9 @@ func (hunter *Hunter) registerLaceratingStrikes() {
 
 	bleed := hunter.RegisterSpell(config)
 
-	// The proc shape with no roll: 1310533 fires on a melee ability and names Mongoose Bite only in
-	// its tooltip, so the listener is narrowed to it by hand. Raptor Strike carries the bite's class
-	// flags, so the flags alone would let it start the bleed too.
+	// 1310533 fires on a melee ability and names Mongoose Bite only in its tooltip, so the listener
+	// is narrowed to it by hand. Raptor Strike carries the bite's class flags, so the flags alone
+	// would let it start the bleed too.
 	trigger := spelldata.ProcTrigger(&hunter.Character, spellData.LaceratingStrikes.Rank(1),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			bleedDamage = result.Damage * share
@@ -240,8 +237,7 @@ func (hunter *Hunter) registerLaceratingStrikes() {
 	hunter.MakeProcTriggerAura(trigger)
 }
 
-// Effect 1 lengthens Freezing and Frost Trap, which the sim does not place; effect 2 raises the
-// Immolation and Explosive Trap damage.
+// Effect 1 lengthens Freezing and Frost Trap, which the sim does not place.
 func (hunter *Hunter) registerCleverTraps() {
 	if hunter.Talents.CleverTraps == 0 {
 		return
@@ -250,8 +246,7 @@ func (hunter *Hunter) registerCleverTraps() {
 	spelldata.ParseStatic(&hunter.Character, spellData.CleverTraps.Rank(hunter.Talents.CleverTraps), spelldata.Effects(2))
 }
 
-// Hit with Immolation and Explosive Trap. The talent also names Freezing Trap, Frost Trap and Feign
-// Death, which the sim does not cast.
+// Hit with Immolation and Explosive Trap.
 func (hunter *Hunter) registerSurvivalTactics() {
 	if hunter.Talents.SurvivalTactics == 0 {
 		return

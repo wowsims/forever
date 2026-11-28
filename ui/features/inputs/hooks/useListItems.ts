@@ -15,9 +15,8 @@ export interface ListItemsConfig<M, T> extends InputConfig<M, Array<T>> {
  * Binds a list to a config: every operation reads the list off the source, writes one fresh array
  * through `config.setValue` and leaves the source array alone.
  *
- * `itemConfig` hands a row a binding to its own item. Its `getValue` re-reads the source and finds
- * the item by key, so a binding made before a reorder, or before the source replaced every row with
- * a clone, still reads its own row.
+ * `itemConfig`'s `getValue` finds the item by key, so a binding made before a reorder, or before the
+ * source replaced every row with a clone, still reads its own row.
  */
 export const useListItems = <M, T>(modObject: M, config: ListItemsConfig<M, T>) => {
 	const configRef = useRef(config);

@@ -5,8 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.Pyroblast lists.
+// Only the highest rank is registered.
 func (mage *Mage) registerPyroblastSpell() {
 	mage.registerPyroblastRank(spellData.Pyroblast.Len(), spellData.Pyroblast.Highest())
 }

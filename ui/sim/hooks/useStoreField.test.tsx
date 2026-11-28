@@ -80,8 +80,7 @@ describe('useStoreField', () => {
 		expect(fired.n).toBe(5);
 	});
 
-	// The identity is what `useStoreSubscribe` re-subscribes on, so an unstable one would put the
-	// picker back on the extra render this seam exists to remove.
+	// The identity is what `useStoreSubscribe` re-subscribes on.
 	it('holds one source identity across renders, for a single field and for several', () => {
 		const seen: Array<unknown> = [];
 		let rerender = () => {};

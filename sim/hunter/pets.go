@@ -29,10 +29,7 @@ var petAttackSpeeds = map[proto.HunterOptions_PetAttackSpeed]spelldata.Ladder{
 	proto.HunterOptions_FasterAttackVII: spellData.FasterAttackVII,
 }
 
-// A tamed pet's own armor and health are the creature values for its level in the game files
-// (core.CreatureArmorMaxLevel, core.CreatureHealthMaxLevel), and its own attack power is 30% of the creature
-// dps (core.CreatureStatsByLevel) as attack power, 14 a point of dps, with nothing from Strength:
-// the creature dps × 4.2 rounded down, with the owner's 10% rounded down beside it (EV-0070).
+// Pet base stats in EV-0070.
 // TODO: Health is one reading (EV-0070). The creature health is kept until a second reading at another
 // Stamina.
 var petBaseStats = stats.Stats{
@@ -43,11 +40,7 @@ var petBaseStats = stats.Stats{
 
 var petAttackPower = 0.3 * 14 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps
 
-// The creature dps is the pet's auto attack damage with its own attack power in it, so the swing before
-// attack power is the creature dps less that attack power over 14, over the 2.0 s, spanning 20% either side:
-// a Cat's logged swings before armor are this swing plus attack power over 14, over the swing as sped up,
-// with the Cat's +10% and happiness (EV-0071). The pet sheet shows the whole creature dps as the weapon and leaves
-// happiness out, so its damage range is not the damage the pet deals.
+// Swing before attack power in EV-0071.
 var petSwingAverage = (core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps - petAttackPower/14) * 2
 
 var petSwing = core.Weapon{
@@ -113,8 +106,7 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	return hp
 }
 
-// A ranged haste aura of the hunter's (A_MOD_RANGED_HASTE: Quick Shots, Rapid Fire, Berserking) speeds the pet's
-// focus regeneration by its haste while it lasts. The quiver's haste does not (EV-0072).
+// Focus regeneration haste in EV-0072.
 func (hunter *Hunter) speedPetFocusWith(aura *core.Aura, multiplier float64) {
 	if hunter.Pet == nil {
 		return
@@ -132,10 +124,8 @@ func rangedHasteOf(row *spelldata.Spell) float64 {
 }
 
 // Hunter Pet Scaling (415429) states every inherited stat without an amount, the server pricing
-// them: 2 health a point of stamina, 30% of armor, 10% of the higher attack power, the owner's
-// higher crit (inheritedCrit), the owner's ranged hit, 17/8 of it as spell hit, and the owner's
-// expertise. The armor, attack power and crit are not linear in the owner's (EV-0070), so the pet
-// snapshots them; registerStatInheritance says when.
+// them. The armor, attack power and crit are not linear in the owner's (EV-0070), so the pet
+// snapshots them.
 // TODO: The health a point of Stamina is not read; see petBaseStats.
 func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
@@ -157,9 +147,7 @@ func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	}
 }
 
-// The higher of the melee and ranged crit the in-game character sheet shows, at least 0. Melee is the
-// owner's physical crit; ranged adds the ranged crit. Each loses 0.04% a point of its weapon's skill
-// below the level-based maximum.
+// The higher of the melee and ranged crit the in-game character sheet shows, at least 0.
 // TODO: A pet sheet read the owner's ranged crit whole at a bow skill just below the maximum
 // (EV-0070), where this takes 0.04% off; a reading at a skill well below the maximum decides.
 func (hunter *Hunter) inheritedCrit(ownerStats stats.Stats) float64 {
@@ -175,10 +163,7 @@ func inheritedHit(ownerStats stats.Stats) float64 {
 	return max(0, ownerStats[stats.PhysicalHitPercent]+ownerStats[stats.RangedHitPercent])
 }
 
-// The attack power and health the pet takes at the summon stay until it is dismissed; the rest follows
-// the owner. The pet's attack power holds through Aspect of the Hawk toggles and a gear swap in one
-// summon, its health through the owner's Stamina changes, and its armor follows each gear swap
-// (EV-0072).
+// Summon stat snapshot in EV-0072.
 func (hp *HunterPet) keepSummonStats(inherited stats.Stats) stats.Stats {
 	// The summon: Enable snapshots the owner before it marks the pet enabled.
 	if !hp.IsEnabled() {
@@ -190,7 +175,7 @@ func (hp *HunterPet) keepSummonStats(inherited stats.Stats) stats.Stats {
 }
 
 // The server's HunterPetInheritance: the pet snapshots its owner's stats when summoned and again on
-// any action it takes, at most once every 2 s, keeping the summon's attack power and health.
+// any action it takes, at most once every 2 s.
 func (hp *HunterPet) registerStatInheritance() {
 	hp.MakeProcTriggerAura(core.ProcTrigger{
 		Name:     "Hunter Pet Inheritance",
@@ -203,9 +188,8 @@ func (hp *HunterPet) registerStatInheritance() {
 }
 
 // The family's own damage, armor and health, and what Beast Training taught the pet that changes
-// its damage: each is a passive the pet is never without, applied as its effects read. Great
-// Stamina, Natural Armor, Pet Hardiness and Pet Resistance change nothing the sim measures, and no
-// Beast Training teaching spell in the game files teaches Pet Aggression.
+// its damage. Great Stamina, Natural Armor, Pet Hardiness and Pet Resistance change nothing the sim
+// measures, and no Beast Training teaching spell in the game files teaches Pet Aggression.
 func (hp *HunterPet) ApplyTalents() {
 	opts := hp.hunterOwner.Options
 	// The family's armor share is stated on armor from items, which a pet has none of: its armor is
@@ -266,8 +250,8 @@ func (hp *HunterPet) OnEncounterStart(_ *core.Simulation) {
 
 func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 	target := hp.CurrentTarget
-	// The pet starts beside the hunter and walks in to melee range, closing with Charge, Dash or Dive
-	// when it has one, and casting on the way what reaches from where it stands, e.g. Lightning Breath.
+	// The pet starts beside the hunter and walks in to melee range, casting on the way what reaches
+	// from where it stands.
 	if hp.DistanceFromTarget > core.MaxMeleeRange {
 		if !hp.castFirstReady(sim, target, hp.closers) {
 			hp.castFirstReady(sim, target, hp.abilities)
@@ -283,8 +267,7 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 		return
 	}
 
-	// Autocast decides in 0.8 s steps, and every ability's 1.5 s global cooldown puts the next cast two of
-	// them after the last; it picks evenly among what it can cast (EV-0187).
+	// Autocast steps and picks in EV-0187.
 	if sim.CurrentTime >= hp.nextAutocast {
 		hp.nextAutocast = sim.CurrentTime + petAutocastStep
 		if hp.castRandomReady(sim, target) {
@@ -320,9 +303,9 @@ func (hp *HunterPet) castFirstReady(sim *core.Simulation, target *core.Unit, spe
 	return false
 }
 
-// An ability by its row's name in the game files, so the generated family table needs no hand list
-// beside it. A name not here stays unregistered: Cower, Growl and Shell Shield change nothing the sim
-// measures, and Prowl's 40% slower walk in from the hunter costs more than its +50% first attack gains.
+// An ability by its name in the game files. A name not here stays unregistered: Cower, Growl and
+// Shell Shield change nothing the sim measures, and Prowl's 40% slower walk in from the hunter costs
+// more than its +50% first attack gains.
 func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 	var spell *core.Spell
 	switch rank.Name {
@@ -352,9 +335,7 @@ func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 	hp.abilities = append(hp.abilities, spell)
 }
 
-// The row's config for a spell of the pet's: out of the owner's rotation, and cast only while the
-// pet is up. Autocast holds a row that reaches more than one enemy (Savage Rend, Swipe, Mine!) while
-// only one enemy is up (EV-0187).
+// Area autocast in EV-0187.
 func (hp *HunterPet) spellConfig(rank *spelldata.Spell, opts ...spelldata.SpellOpt) core.SpellConfig {
 	config := spelldata.SpellConfig(&hp.Unit, rank, opts...)
 	config.Flags &^= core.SpellFlagAPL
@@ -365,7 +346,7 @@ func (hp *HunterPet) spellConfig(rank *spelldata.Spell, opts ...spelldata.SpellO
 	return config
 }
 
-// The proc mask and metrics a damaging row wants: a physical row is a melee special, any other a
+// The proc mask and metrics a damaging spell wants: a physical spell is a melee special, any other a
 // spell of its school.
 func schoolOpt(rank *spelldata.Spell) spelldata.SpellOpt {
 	if rank.SpellSchool() == core.SpellSchoolPhysical {
@@ -374,7 +355,7 @@ func schoolOpt(rank *spelldata.Spell) spelldata.SpellOpt {
 	return spelldata.Magic(core.ProcMaskSpellDamage)
 }
 
-// How the row's application is rolled: a landed-or-not roll on the row's defense type.
+// How the spell's application is rolled: a landed-or-not roll on the spell's defense type.
 func hitOutcome(spell *core.Spell, rank *spelldata.Spell) core.OutcomeApplier {
 	switch rank.DefenseTypeCore() {
 	case core.DefenseTypeMagic:
@@ -398,7 +379,7 @@ func hitAndCritOutcome(spell *core.Spell, rank *spelldata.Spell) core.OutcomeApp
 }
 
 // How many enemies the damage reaches: a chain states its count, an area around the pet takes the
-// row's cap, anything else hits the target alone.
+// spell's cap, anything else hits the target alone.
 func targetsOf(rank *spelldata.Spell, damage *spelldata.Effect) int32 {
 	if damage.ChainTargets > 0 {
 		return int32(damage.ChainTargets)
@@ -409,8 +390,8 @@ func targetsOf(rank *spelldata.Spell, damage *spelldata.Effect) int32 {
 	return 1
 }
 
-// A direct hit, on one enemy or several, with the row's roll. onCast runs after the damage whatever
-// it did, for a row whose second effect is not the hit's.
+// A direct hit, on one enemy or several, with the spell's roll. onCast runs after the damage whatever
+// it did, for a spell whose second effect is not the hit's.
 func (hp *HunterPet) registerStrike(rank *spelldata.Spell, onCast func(sim *core.Simulation, target *core.Unit)) *core.Spell {
 	damage := rank.DamageEffect()
 	targets := targetsOf(rank, damage)
@@ -446,7 +427,7 @@ func (hp *HunterPet) registerDemoralizingScreech(rank *spelldata.Spell) *core.Sp
 	return spell
 }
 
-// A periodic effect the row's roll puts on the enemy.
+// A periodic effect the spell's roll puts on the enemy.
 func (hp *HunterPet) registerDot(rank *spelldata.Spell) *core.Spell {
 	config := hp.spellConfig(rank, schoolOpt(rank))
 	config.Dot = spelldata.DotConfig(rank, rank.PeriodicEffect())
@@ -461,7 +442,7 @@ func (hp *HunterPet) registerDot(rank *spelldata.Spell) *core.Spell {
 }
 
 // The same, stacking: each application refreshes the poison and adds a stack, and a tick deals the
-// row's amount once per stack.
+// spell's amount once per stack.
 func (hp *HunterPet) registerScorpidPoison(rank *spelldata.Spell) *core.Spell {
 	tick := rank.PeriodicEffect()
 
@@ -491,8 +472,7 @@ func (hp *HunterPet) registerDustCloud(rank *spelldata.Spell) *core.Spell {
 		return buffs.NewSpellDataDustCloudAura(target, true, 0)
 	})
 
-	// Autocast casts it only onto an enemy without the pet's Dust Cloud: its own target, or else another enemy
-	// (EV-0187).
+	// Autocast targets in EV-0187.
 	bare := func(sim *core.Simulation, target *core.Unit) *core.Unit {
 		if !auras.Get(target).IsActive() {
 			return target
@@ -510,7 +490,7 @@ func (hp *HunterPet) registerDustCloud(rank *spelldata.Spell) *core.Spell {
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
 		return enabled(sim, target) && bare(sim, target) != nil
 	}
-	// The row states one stack, and the armor follows the stacks.
+	// The spell states one stack, and the armor follows the stacks.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		aura := auras.Get(bare(sim, target))
 		aura.Activate(sim)
@@ -523,7 +503,7 @@ func (hp *HunterPet) registerDustCloud(rank *spelldata.Spell) *core.Spell {
 // Attack power for the raid, every player and pet of any party, priced at the pet's level. A guardian
 // gets none, as with totems, and the logs carry no buff on a guardian (EV-0199).
 // A second hunter's wolf shares the aura the first registered on each unit.
-// TODO: the row reaches only the raid within 15 yd of the pet, which the sim leaves out, and in the logs
+// TODO: the spell reaches only the raid within 15 yd of the pet, which the sim leaves out, and in the logs
 // the hunter gets about half the howls (EV-0199).
 func (hp *HunterPet) registerFuriousHowl(rank *spelldata.Spell) *core.Spell {
 	auras := hp.NewAllyAuraArray(func(unit *core.Unit) *core.Aura {
@@ -546,7 +526,7 @@ func (hp *HunterPet) registerFuriousHowl(rank *spelldata.Spell) *core.Spell {
 	return hp.RegisterSpell(config)
 }
 
-// The pet runs to the enemy at three times its speed, and its next swing or ability takes the row's
+// The pet runs to the enemy at three times its speed, and its next swing or ability takes the spell's
 // attack power. The stun the charge triggers changes nothing the sim measures.
 func (hp *HunterPet) registerCharge(rank *spelldata.Spell) *core.Spell {
 	buff := hp.RegisterAura(spelldata.AuraConfig(rank))
@@ -566,7 +546,7 @@ func (hp *HunterPet) registerCharge(rank *spelldata.Spell) *core.Spell {
 	return hp.RegisterSpell(config)
 }
 
-// A buff on the pet whose effects the row states.
+// A buff on the pet whose effects the spell states.
 func (hp *HunterPet) registerSelfBuff(rank *spelldata.Spell) *core.Spell {
 	aura := hp.RegisterAura(spelldata.AuraConfig(rank))
 	spelldata.ParseEffects(&hp.Character, aura, rank)
@@ -578,7 +558,7 @@ func (hp *HunterPet) registerSelfBuff(rank *spelldata.Spell) *core.Spell {
 	return hp.RegisterSpell(config)
 }
 
-// Dash and Dive: the pet's movement speed for the row's duration.
+// Dash and Dive: the pet's movement speed for the spell's duration.
 func (hp *HunterPet) registerSprint(rank *spelldata.Spell) *core.Spell {
 	aura := hp.RegisterAura(spelldata.AuraConfig(rank))
 	aura.NewActiveMovementSpeedEffect(rank.EffectN(1).Percent())

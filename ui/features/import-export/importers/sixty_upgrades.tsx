@@ -45,8 +45,7 @@ export const SIXTY_UPGRADES_IMPORTER: ImporterDefinition = {
 		}
 
 		// Sixty Upgrades names a talent by the spell id of the rank taken. A Forever talent reports
-		// one id for all of its ranks, so the export does not say how many points went in and every
-		// talent would import as 1/N.
+		// one id for all of its ranks, so the export does not say how many points went in.
 		const droppedTalents = (importJson?.talents as any[] | undefined)?.length ?? 0;
 
 		let hasRemovedRandomSuffix = false;

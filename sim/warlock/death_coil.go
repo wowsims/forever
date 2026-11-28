@@ -5,8 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// E_HEALTH_LEECH: the caster heals for all the damage dealt. The fear (effect 2) does not affect sims, and
-// the 2 min cooldown is the row's category cooldown.
+// E_HEALTH_LEECH: the caster heals for all the damage dealt. The fear (effect 2) does not affect sims.
 func (warlock *Warlock) registerDeathCoil() {
 	rankedSpell := spellData.DeathCoil.ByID(17926)
 	deathCoilHit := rankedSpell.EffectN(1)
@@ -27,7 +26,7 @@ func (warlock *Warlock) registerDeathCoil() {
 		})
 	}
 
-	// Calculate expected damage from the row's average hit
+	// Calculate expected damage from the spell's average hit
 	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
 		return spell.CalcDamage(sim, target, deathCoilHit.Average(), spell.OutcomeExpectedMagicCrit)
 	}

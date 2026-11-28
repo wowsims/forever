@@ -65,8 +65,8 @@ describe('usePlayerStore', () => {
 		expect(renders.n).toBe(afterMount);
 	});
 
-	// The slice values are replace-on-write, so the reference is the memo key a consumer needs; there
-	// is no snapshot cache keeping it stable, only patchKeyed not replacing what did not change.
+	// There is no snapshot cache keeping the reference stable, only patchKeyed not replacing what
+	// did not change.
 	it('returns a stable reference across renders that are not a change to that field', () => {
 		const seen: Array<Stats> = [];
 		let rerender = () => {};
@@ -89,9 +89,7 @@ describe('usePlayerStore', () => {
 	});
 });
 
-// `useReadyStoreSubscribe` exists because `useSyncExternalStore` calls its snapshot on the FIRST
-// render, before any ready gate, so a read touching a null `sim.db` took the whole app down. These
-// two tests establish which shapes can still do that.
+// `useSyncExternalStore` calls its snapshot on the FIRST render, before any ready gate.
 describe('the first-render read that useReadyStoreSubscribe guards', () => {
 	const uninitialised = () => {
 		throw new TypeError("Cannot read properties of null (reading 'getItems')");
@@ -116,8 +114,8 @@ describe('the first-render read that useReadyStoreSubscribe guards', () => {
 		expect(container.textContent).toBe('undefined');
 	});
 
-	// The counter form keeps the hazard: useMemo runs during the first render exactly as
-	// getSnapshot did, so a selector reaching sim.db must still be gated by its caller.
+	// useMemo runs during the first render, so a selector reaching sim.db must still be gated
+	// by its caller.
 	it('still bites useAplRotation: the selector runs on the first render', () => {
 		const silence = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const Probe = () => <span>{String(useAplRotation(uninitialised))}</span>;

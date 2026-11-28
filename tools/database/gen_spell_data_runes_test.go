@@ -2,8 +2,7 @@ package database
 
 // The class files carry what a Forever character can learn, so a family only a Season of Discovery
 // rune grants is left out and a rune ability a trainer or a talent also teaches stays. Reads
-// SkillLineAbility and SpellItemEnchantment, which the store's inputs do not capture, so it skips
-// without tools/database/wowsims.db.
+// SkillLineAbility and SpellItemEnchantment, so it skips without tools/database/wowsims.db.
 
 import (
 	"testing"

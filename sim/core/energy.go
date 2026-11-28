@@ -207,8 +207,7 @@ func (eb *energyBar) updateMaxEnergyInternal(sim *Simulation, bonusEnergy float6
 }
 
 // Combo points live on one unit. A gain on another unit drops the points held on the old one, and the gain
-// lands on the new one; a target swap with no gain keeps them. The gain's metrics spend the dropped points, as a
-// shapeshift's own metrics spend the rage it drops.
+// lands on the new one; a target swap with no gain keeps them. The gain's metrics use the dropped points.
 func (eb *energyBar) AddComboPoints(sim *Simulation, target *Unit, pointsToAdd int32, metrics *ResourceMetrics) {
 	if target != eb.comboPointTarget {
 		if eb.comboPoints > 0 {
@@ -243,7 +242,7 @@ func (eb *energyBar) dropComboPointsOn(sim *Simulation, target *Unit) {
 	eb.comboPointTarget = nil
 }
 
-// A spend on a unit that holds no combo points spends none.
+// Using combo points on a unit that holds none uses none.
 func (eb *energyBar) SpendPartialComboPoints(sim *Simulation, target *Unit, pointsToSpend int32, metrics *ResourceMetrics) {
 	eb.spendComboPointsInternal(sim, target, pointsToSpend, metrics)
 }

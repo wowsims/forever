@@ -6,9 +6,8 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The debuff is this warlock's own copy of the one the raid option builds, parsed from the row: -75 to
-// all resistances and 10% more damage taken. Its category keeps it from stacking with another warlock's
-// copy or a raid one.
+// The debuff is this warlock's own copy of the one the raid option builds. Its category keeps it from
+// stacking with another warlock's copy or a raid one.
 func (warlock *Warlock) registerCurseOfElements() {
 	rankedSpell := spellData.CurseOfTheElements.ByID(1311680)
 

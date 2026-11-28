@@ -15,7 +15,7 @@ import (
 	"github.com/wowsims/forever/sim/druid"
 )
 
-// A dodged bite gives back its row's miss refund of the base energy and keeps the extra energy and the
+// A dodged bite gives back the spell's miss refund of the base energy and keeps the extra energy and the
 // combo points.
 func TestBiteDodgeRefundsAndKeepsExtraEnergyAndComboPoints(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
@@ -53,7 +53,7 @@ func TestBiteLandedSpendsExtraEnergyAndComboPoints(t *testing.T) {
 	}
 }
 
-// The trainer's top rank and the book rank of Ferocious Bite each register, and either spends the extra energy and
+// The trainer's top rank and the book rank of Ferocious Bite each register, and either uses the extra energy and
 // the combo points when it lands.
 func TestBothBiteRanksSpendExtraEnergyAndComboPoints(t *testing.T) {
 	for _, id := range []int32{22829, 31018} {
@@ -200,7 +200,7 @@ func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
 	}
 }
 
-// A missed Pounce stuns nothing, awards no combo point, rolls no bleed and gives back its row's miss
+// A missed Pounce stuns nothing, awards no combo point, rolls no bleed and gives back the spell's miss
 // refund of the cost.
 func TestMissedPounceRefundsAndAppliesNothing(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
@@ -397,8 +397,7 @@ func TestBleedImmuneTargetTakesNoRakeAndNoAssumedBleed(t *testing.T) {
 }
 
 // Rend and Tear raises Shred on a bleeding target, by the same amount under each of the cat's own
-// bleeds. With the bleed assumed, a target with no bleed of the cat's own takes the same raised Shred,
-// and another player's bleed counts the same.
+// bleeds, an assumed bleed and another player's bleed.
 func TestAssumedBleedRaisesShredLikeOwnBleed(t *testing.T) {
 	const rendAndTear5 = "0000000000000000-00000000000100005000-0000000000000000"
 	shred := func(assume bool, bleed func(cat, other *FeralDruid) *druid.DruidSpell) float64 {
@@ -454,7 +453,7 @@ func newCatBesideAnother(t *testing.T, talents string) (*core.Simulation, *Feral
 }
 
 // Rend and Tear raises Rake, Rip and Pounce Bleed ticks. Each tick counts its own bleed as the bleed on the
-// target, and the talent is the only difference between the two builds.
+// target.
 func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 	const rendAndTear5 = "0000000000000000-00000000000000005000-0000000000000000"
 	want := 1 + spelldata.Talent(1223246, 5).Rank(5).EffectN(1).Percent()

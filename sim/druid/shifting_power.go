@@ -5,7 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// In game each energy Shifting Power gives threatens for 0.5, without the form's threat multiplier (EV-0035).
+// In game each energy Shifting Power gives threatens without the form's threat multiplier (EV-0035).
 const shiftingPowerThreatPerEnergy = 0.5
 
 func (druid *Druid) registerShiftingPowerSpell() {
@@ -15,7 +15,7 @@ func (druid *Druid) registerShiftingPowerSpell() {
 	config := spelldata.SpellConfig(&druid.Unit, rank)
 	config.Flags |= core.SpellFlagAPL
 	// The October 8 hotfixes: "Shifting Power can no longer be used while already at Full Energy."
-	// The rows state no such rule.
+	// Not in game files.
 	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
 		return druid.Talents.ShiftingPower && druid.CurrentEnergy() < druid.MaximumEnergy()
 	}

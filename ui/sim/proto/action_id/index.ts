@@ -15,7 +15,7 @@ const SHIELDSWORN_TAG = 1328544;
 const MANA_REGEN_BOOST_TAG = 99997;
 // The Holy Shield hit a Shieldsworn Holy Strike casts, a spell of its own.
 const SHIELDSWORN_STRIKE_ID = 456544;
-// The Echo Unsealed Wrath stores for each seal that deals damage. A seal's hit that a spent Echo casts is
+// The Echo Unsealed Wrath stores for each seal that deals damage. A seal's hit that a used Echo casts is
 // tagged with the Echo's spell id.
 const UNSEALED_WRATH_ECHO_TAGS: Record<string, number> = {
 	'Seal of Command': 1311703,

@@ -12,16 +12,14 @@ type BaseStatsKey struct {
 
 var BaseStats = map[BaseStatsKey]stats.Stats{}
 
-// ClassBaseStats holds the level 60 base attributes of each class: health,
-// the five primary attributes and the flat attack power before any stat
-// converts into it. The game files carry no table for these.
+// The level 60 base attributes of each class: health, the five primary attributes and the flat
+// attack power before any stat converts into it. The game files carry no table for these.
 //
 // Health is the class base; the character adds 10 health per Stamina point
 // beyond the first 20.
 //
 // ClassBaseStats + RaceOffsets hold TRUE pre-racial base attributes: the
-// multiplier racials (The Human Spirit ×1.1 spirit, applied via MultiplyStat
-// in racials.go) are NOT included here.
+// multiplier racials (The Human Spirit ×1.1 spirit) are NOT included here.
 // A naked character sheet shows floor(base × racial), e.g. human paladin
 // spirit 75 shows as 82; multipliers (racial, Kings, %-stat talents) stack
 // multiplicatively on the unfloored value with a single floor at the end.
@@ -163,9 +161,8 @@ var ClassBaseStats = map[proto.Class]stats.Stats{
 		stats.Stamina:     50,
 		stats.AttackPower: -10,
 	},
-	// A level 60 Dwarf shaman's sheet less the Dwarf offset (EV-0181). No level 60 sheet of another
-	// shaman race or of another Dwarf class has been read, so how the sheet splits between this row and
-	// the Dwarf offset is an assumption.
+	// A level 60 Dwarf shaman's sheet less the Dwarf offset (EV-0181); how the sheet splits between
+	// this row and the Dwarf offset is an assumption.
 	proto.Class_ClassShaman: {
 		stats.Health:      1280,
 		stats.Agility:     52,
@@ -223,10 +220,8 @@ func dodgePerAgility(class proto.Class) float64 {
 	return CritPerAgiMaxLevel[class]
 }
 
-// The LEVEL 60 rows of GameTables/SpellScaling.txt. Only tools/tooltip reads this
-// (dbc_data_provider.go:249), so the sim is unaffected either way, but tooltip spell
-// values used to be computed off the level 90 row -- a MoP-port leftover that was never
-// updated for TBC and was wrong by two expansions at level 60.
+// The LEVEL 60 rows of GameTables/SpellScaling.txt. Only tools/tooltip reads this, so the sim is
+// unaffected.
 //
 // TODO: these numbers came from a MoP-era copy of that gametable. The checked-in
 // assets/db_inputs/basestats/SpellScaling.txt is now the beta's own extraction, and

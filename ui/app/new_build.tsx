@@ -7,10 +7,9 @@ import { Button } from '@ui-kit/Button';
 import { toastManager } from '@ui-kit/Toast';
 
 // Back, Forward and a tab the browser restores at start show the page from the browser's cache without asking the
-// server: the host's `max-age=0, must-revalidate` does not hold on those loads, and the back/forward cache keeps the
-// whole page in memory. The files the sim fetches by a fixed name after the load (lib.wasm.gz and the workers) still
-// come from the server, so such a page runs its old code against the new sim until it is reloaded. A `no-store`
-// fetch asks the server on those loads too.
+// server: the host's `max-age=0, must-revalidate` does not hold on those loads. The files the sim fetches by a fixed
+// name after the load (lib.wasm.gz and the workers) still come from the server, so such a page runs its old code
+// against the new sim until it is reloaded. A `no-store` fetch asks the server on those loads too.
 const VERSION_URL = `/${REPO_NAME}/version.json`;
 // The build this tab last reloaded for, kept across the reload.
 const RELOADED_FOR_KEY = 'forever_reloaded_for_build';

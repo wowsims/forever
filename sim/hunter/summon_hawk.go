@@ -32,24 +32,20 @@ func (hawk *HawkPet) ExecuteCustomRotation(sim *core.Simulation) {
 	hawk.WaitUntil(sim, sim.CurrentTime+hawkSummon.Duration())
 }
 
-// What a hawk is, read off combat logs: 5% of the creature health for its level and no armor or attack
-// power of its own; 80% of the owner's attack power and 30% of the owner's armor on top (EV-0074, EV-0073).
-// The row that scales a hawk, Hunter Guardian Hawk Pet Scaling 01 (1293586), is not in the store, so the
-// swing below is fitted to those logs (EV-0073).
+// What a hawk is, read off combat logs (EV-0074, EV-0073). The swing below is fitted to those logs
+// (EV-0073).
 var hawkBaseStats = stats.Stats{
 	stats.Health: 0.05 * core.CreatureHealthMaxLevel,
 }
 
 // The attack power a hawk takes its 80% of is the owner's ranged attack power and what the main-hand
-// weapon adds to it in game, 14 a point of its dps; the ranged weapon and the off hand add nothing,
-// and with no main-hand weapon it adds 7 (EV-0073).
+// weapon adds to it (EV-0073).
 const hawkOwnerAPPerMainHandDPS = 14.0
 const hawkOwnerUnarmedWeaponAP = 7.0
 
-// A swing before armor is 0.153 of the creature dps over the 2.5 s at level 60, spanning 0.22 either side,
-// and 60 attack power a point of dps (EV-0073). Both are fitted, as the game files state
-// neither, and were read with Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks, so the
-// swing here is before them.
+// The swing before armor and the attack power a point of dps are fitted (EV-0073), as the game files
+// state neither. Both were read with Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks,
+// so the swing here is before them.
 var hawkLogDamageMultiplier = spellData.UnleashedFury.MultiplierAt(5) * spellData.FocusedFire.MultiplierAt(2)
 var hawkSwingAverage = 0.153 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps * 2.5 / hawkLogDamageMultiplier
 
@@ -61,10 +57,10 @@ var hawkSwing = core.Weapon{
 	MaxRange:          core.MaxMeleeRange,
 }
 
-// Effect 3 is the number of hawks up at once. A hawk's swing follows its owner's ranged speed while
-// it is up, a quiver's and Quick Shots' included; Berserking's attack speed does not reach it in
-// game. Its crit is the tamed pet's, the higher of the owner's melee and ranged crit (inheritedCrit)
-// with none from Agility. Its melee hit and expertise are the tamed pet's (EV-0074).
+// A hawk's swing follows its owner's ranged speed while it is up, a quiver's and Quick Shots'
+// included; Berserking's attack speed does not reach it in game. Its crit is the tamed pet's, the
+// higher of the owner's melee and ranged crit (inheritedCrit) with none from Agility. Its melee hit and
+// expertise are the tamed pet's (EV-0074).
 func (hunter *Hunter) newHawks() []*HawkPet {
 	if !hunter.Talents.SummonHawk {
 		return nil
@@ -129,10 +125,8 @@ func (hunter *Hunter) pets() []*core.Pet {
 	return pets
 }
 
-// The dive's damage, then a hawk for 18 s. The dive flies the row's minimum of 1 s at any distance
-// in range, and the hawk appears as it lands and swings at once, on a fresh swing timer when it
-// replaces another (EV-0127). The hawks take turns, so one past the count replaces the one with the
-// least time left.
+// The dive's damage, then a hawk for 18 s. The hawk appears as the dive lands and swings at once
+// (EV-0127). The hawks take turns, so one past the count replaces the one with the least time left.
 func (hunter *Hunter) registerSummonHawk() {
 	if !hunter.Talents.SummonHawk {
 		return

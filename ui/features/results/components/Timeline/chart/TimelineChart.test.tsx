@@ -101,8 +101,8 @@ describe('TimelineChart', () => {
 		expect(charts[0].destroyed).toBe(true);
 	});
 
-	// StrictMode replays the effect over the same options object the first chart was built from —
-	// the same path a second result takes, and chart.js keeps a reference to what it is handed.
+	// StrictMode replays the effect over the same options object the first chart was built from, and
+	// chart.js keeps a reference to what it is handed.
 	it('leaves exactly one live chart under StrictMode', () => {
 		render(
 			<StrictMode>

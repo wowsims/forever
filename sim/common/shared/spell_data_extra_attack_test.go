@@ -21,8 +21,8 @@ func withExtraAttackWeapon(t *testing.T, itemID int32) {
 		[]ItemVariant{{ItemID: itemID, ItemName: "Test Thrash Blade"}})
 }
 
-// Each proc swings the main hand as often as the row grants, under the granting spell's tag, and the
-// swing it grants does not proc it again: two strikes grant twice the row's count.
+// Each proc swings the main hand as often as the spell grants, under the granting spell's tag, and the
+// swing it grants does not proc it again.
 func TestExtraAttackProcSwingsTheMainHandOncePerProc(t *testing.T) {
 	const itemID int32 = 992501
 	withExtraAttackWeapon(t, itemID)

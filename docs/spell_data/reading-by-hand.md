@@ -28,7 +28,7 @@ With no resolver to read the row for the caller, a registration reads these valu
 | `rank.Cost()`                                      | the cost off the first power the row states, in the sim's units (rage already divided by ten); it answers a `float64`, so an `int32` field like `ManaCostOptions.FlatCost` needs a cast |
 | `rank.ReagentCount(item)`                          | how many of that item each cast consumes, off `Reagents` (SpellReagents); 0 for an item it does not take                                                                                |
 | `rank.GCD()`, `rank.CastTime()`                    | the global cooldown and the cast time                                                                                                                                                   |
-| `max(rank.Cooldown(), rank.CategoryCooldown())`    | the row's own cooldown, or the one it shares with a category                                                                                                                            |
+| `max(rank.Cooldown(), rank.CategoryCooldown())`    | the spell's own cooldown, or the one it shares with a category                                                                                                                          |
 | `rank.Duration()`                                  | an aura or dot's length; the game files' -1 becomes `core.NeverExpires`                                                                                                                 |
 | `rank.SpellSchool()`, `rank.DefenseTypeCore()`     | already in core's enums: the accessor converts the game files' byte                                                                                                                     |
 | `float64(rank.MaxRange)`, `float64(rank.MinRange)` | the plain fields, in yards                                                                                                                                                              |
@@ -62,11 +62,11 @@ func (mage *Mage) frostBoltConfig(config core.SpellConfig) core.SpellConfig {
 ```
 
 **An amount is `Average()`, or `Roll(sim)` where the class rolls it.** These classes read every
-amount as `Average`, both ends of a `(low, high)` alike. A row can still carry a spread (Frostbolt's
+amount as `Average`, both ends of a `(low, high)` alike. A spell can still carry a spread (Frostbolt's
 `Variance` is 0.105), and `Roll(sim)`/`Min`/`Max` read it where a class asks for one. A ported number
 reads `Average` so that it stays equal to the one it replaces, not because the data has no spread.
 
-**Name the effect by role where one applies; by position where the row hides it behind another
+**Name the effect by role where one applies; by position where the spell hides it behind another
 effect.** `DamageEffect()`, `HealEffect()`, `EnergizeEffect()` and `PeriodicEffect()` answer the first
 effect of their kind, which is right wherever a spell has only one. Hellfire's tick is an exception.
 `PeriodicEffect()` would find the `A_PERIODIC_TRIGGER_SPELL` at position 1 (the trigger that fires the
@@ -99,7 +99,7 @@ that spell's `DamageEffect()`, and the tick length still comes off the aura's ow
 periodic dummy that carries no damage of its own (`Effect(dbcenums.A_PERIODIC_DUMMY, 0).Period()`).
 
 **`EffectAt(n)` counts from 1 by position, like `EffectN`; it does not follow the game files'
-`EffectIndex`.** `EffectAt(n+1)` lines up with game files index `n` only where the row's indices run
+`EffectIndex`.** `EffectAt(n+1)` lines up with game files index `n` only where the spell's indices run
 contiguously from 0. Where they do not, or where two of a talent's effects share an aura and a misc
 value, `EffectAt` takes the position. Otherwise `Effect(aura, misc)` names the effect, as the mage's
 Wand Specialization does in `sim/mage/talents_arcane.go`:
@@ -122,7 +122,7 @@ X.Rank(rank).EffectN(1).Average()   // not X.EffectAt(1).ValueAt(rank)
 **A dot ticks on current stats, so there is no `OnSnapshot`.** `OnTick` reads the effect's own
 `Average` straight into `CalcAndDealPeriodicDamage` (or `CalcAndDealPeriodicHealing`) every time it
 fires, on whatever stats and multipliers are in force then. An input the cast fixes, such as combo
-points about to be spent or a stack about to be consumed, is read where the cast reads it. It is kept
+points about to be used or a stack about to be consumed, is read where the cast reads it. It is kept
 in a variable the `OnTick` closure captures and never re-read at the tick. A finisher reads its combo
 points in `ApplyEffects`, before `SpendComboPoints` runs them to zero; by the time `OnTick` runs, the
 count is gone. The tick itself is a package-level read of the row, as in `sim/druid/rip.go`:
@@ -160,7 +160,7 @@ Each rank's tooltip names one spell for both ticks, and the family's own `Consec
 ladder carries those spells rank for rank (`Refs()[0]` reaches the same row). The two ticks sit on its
 first two effects and are read by position, since both are school damage and `DamageEffect()` cannot
 tell them apart. Effect 1 is the base tick. Effect 2 is the bonus its first four targets take, with its
-own spell power share. The periodic dummy on Consecration's own row states no tick: its period times
+own spell power share. The periodic dummy on Consecration itself states no tick: its period times
 the ticks, and its points are how many targets take the bonus. The paladin registers the spell
 through `spelldata.SpellConfig`, but it reads the ticks by hand. From `sim/paladin/consecration.go`:
 

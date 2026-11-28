@@ -149,7 +149,7 @@ type PendingVersus = {
 };
 
 // Reads the " [Versus Undead (Beast): {ItemID: 1} x1.05; ...]" tag at the end of a damage line. An entry
-// that does not read is dropped, a header that does not read drops the tag.
+// that does not read is dropped, and a header that does not read drops the tag.
 function parseVersusTag(raw: string, requestId: (logString: string) => string): PendingVersus | null {
 	const tag = VERSUS_TAG_REGEX.exec(raw);
 	if (!tag) return null;

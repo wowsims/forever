@@ -219,8 +219,8 @@ func seconds(ms int32) string {
 	return number(float64(ms)/1000) + " s"
 }
 
-// Read back as the float32 the game files' columns are, so a base point of 5.449999809265137 - the
-// widening of the game files' 5.45 - prints as the game files state it.
+// Read back as the float32 the game files' columns are, so a base point of 5.449999809265137, the
+// widening of the game files' 5.45, prints as the game files state it.
 func number(v float64) string {
 	return strconv.FormatFloat(v, 'f', -1, 32)
 }

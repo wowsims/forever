@@ -12,8 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Infernal Lasso 219345's on-use: ItemEffect 183857 casts 443265, A_PERIODIC_DAMAGE on the target. The
-// test's on-use puts it on a 5 min cooldown in category 1141 for 12 s.
+// Infernal Lasso 219345's on-use: ItemEffect 183857 casts 443265, A_PERIODIC_DAMAGE on the target.
 const (
 	lassoSpell    int32 = 443265
 	lassoCategory int32 = 1141
@@ -87,8 +86,8 @@ func dealtUntil(t *testing.T, sim *core.Simulation, spell *core.Spell, start, af
 	return spell.SpellMetrics[target.UnitIndex].TotalDamage - before
 }
 
-// The amount a row's ticking effect lands each tick before power, how often it ticks, and how many
-// ticks its duration holds. A row that ticks nothing leaves the test nothing to check, and fails it.
+// The amount a spell's ticking effect lands each tick before power, how often it ticks, and how many
+// ticks its duration holds.
 func ticksOf(t *testing.T, row *spelldata.Spell) (float64, time.Duration, int) {
 	t.Helper()
 	e := row.PeriodicEffect()
@@ -106,7 +105,7 @@ func needAmount(t *testing.T, what string, amount float64) {
 	}
 }
 
-// The lasso lands nothing when it is used, then deals its row's amount every period until its
+// The lasso lands nothing when it is used, then deals its spell's amount every period until its
 // duration runs out, on the target it was used on.
 func TestOnUseDotTicksItsAmountOnTheTarget(t *testing.T) {
 	const itemID int32 = 991001
@@ -145,7 +144,7 @@ func TestOnUseDotTicksItsAmountOnTheTarget(t *testing.T) {
 }
 
 // Each tick reads the spell power the wearer has when it lands. 443265 states no spell power share, so
-// a copy stating 1 stands in for the rows that do.
+// a copy stating 1 stands in for the spells that do.
 func TestOnUseDotTicksOnTheSpellPowerOfTheTick(t *testing.T) {
 	const itemID int32 = 991002
 	editRow(t, lassoSpell, func(s *spelldata.Spell) { s.Effects[0].SPCoef = 1 })
@@ -228,7 +227,7 @@ func TestOnUseHealsTheWearer(t *testing.T) {
 	}
 }
 
-// Furbolg Medicine Pouch 16768's on-use, 20631, heals the wearer its row's amount every period for
+// Furbolg Medicine Pouch 16768's on-use, 20631, heals the wearer its spell's amount every period for
 // its duration.
 func TestOnUseHotHealsTheWearerOverTime(t *testing.T) {
 	const itemID int32 = 991006
@@ -316,8 +315,8 @@ func TestOnUseDotRollsItsHitOnceWhenApplied(t *testing.T) {
 	}
 }
 
-// Where the row states Periodic Can Crit, a landed lasso's ticks roll the spell crit and still no hit.
-// 443265 states no such attribute, so a copy stating it stands in for the rows that do.
+// Where the spell states Periodic Can Crit, a landed lasso's ticks roll the spell crit and still no hit.
+// 443265 states no such attribute, so a copy stating it stands in for the spells that do.
 func TestOnUseDotTicksCritWithoutAHitRoll(t *testing.T) {
 	const itemID int32 = 991017
 	editRow(t, lassoSpell, func(s *spelldata.Spell) { s.Attr[dbcenums.ATTR_INDEX_EX_8] |= dbcenums.ATTR_EX_8_PERIODIC_CAN_CRIT })
@@ -338,9 +337,8 @@ func TestOnUseDotTicksCritWithoutAHitRoll(t *testing.T) {
 	}
 }
 
-// A copy of Linken's Boomerang 11905's on-use, 15712, thrown from 20 yards, states a cast time
-// and no global cooldown: it lands when the cast completes. A copy of the lasso's 443265 states
-// neither and lands at once.
+// A copy of Linken's Boomerang's 15712 states a cast time and no global cooldown: it lands when the
+// cast completes. A copy of the lasso's 443265 states neither and lands at once.
 func TestOnUseCastsForTheCastTimeItsRowStates(t *testing.T) {
 	const boomerangID, lassoID int32 = 991018, 991019
 	editRow(t, 15712, func(s *spelldata.Spell) { s.CastTimeMs, s.GCDMs = 500, 0 })
@@ -373,7 +371,7 @@ func TestOnUseCastsForTheCastTimeItsRowStates(t *testing.T) {
 	}
 }
 
-// A copy of the heal of 9163 stating a 1.5 s global cooldown spends it on use.
+// A copy of the heal of 9163 stating a 1.5 s global cooldown uses it when cast.
 func TestOnUseSpendsTheGlobalCooldownItsRowStates(t *testing.T) {
 	const itemID int32 = 991020
 	editRow(t, 9163, func(s *spelldata.Spell) { s.GCDMs = 1500 })
@@ -425,7 +423,7 @@ func TestOnUseDotTicksReachTheDamageDealtListeners(t *testing.T) {
 }
 
 // Shard of the Fallen Star 21891's on-use, 26789, reaches a listener on the hits the wearer deals.
-// The same row cast as a damage proc's spell does not.
+// The same spell cast as a damage proc does not.
 func TestOnUseHitReachesTheDamageDealtListenersAndAProcsHitDoesNot(t *testing.T) {
 	const neckID, itemID int32 = 991012, 991013
 	const shard int32 = 26789
@@ -460,9 +458,8 @@ func TestOnUseHealReachesTheHealingListeners(t *testing.T) {
 	}
 }
 
-// Dragonfire Potion's 1252554 states Always Hit. Used from an item it lands for a wearer who cannot
-// hit anything, and its damage over time goes on with it; the same row cast as a proc's spell lands
-// too.
+// Dragonfire Potion's 1252554 states Always Hit: used from an item it lands for a wearer who cannot hit
+// anything, and the same spell cast as a proc lands too.
 func TestAnAlwaysHitRowUsedFromAnItemNeverMisses(t *testing.T) {
 	const neckID, itemID int32 = 991021, 991022
 	const dragonfire int32 = 1252554
@@ -489,7 +486,7 @@ func TestAnAlwaysHitRowUsedFromAnItemNeverMisses(t *testing.T) {
 	}
 }
 
-// An on-use heal whose row also restores mana restores it with the heal: Major Recombobulator's 23064
+// An on-use heal whose spell also restores mana restores it with the heal: Major Recombobulator's 23064
 // on a test trinket.
 func TestOnUseHealRestoresTheManaItsRowStates(t *testing.T) {
 	const itemID int32 = 992902

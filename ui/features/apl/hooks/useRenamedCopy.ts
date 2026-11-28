@@ -22,12 +22,8 @@ export interface RenamedCopy {
 }
 
 /**
- * Copying an item that is referenced **by name** — a group or a variable.
- *
- * Neither can be duplicated the way every other list duplicates a row, because two entries sharing
- * a name are two entries the rotation cannot tell apart. Both lists therefore intercept `copy`,
- * ask for the new name and insert the renamed clone next to the original. The dialog starts on the
- * next free name (`freeName`), as a paste's does in `useAplPaste`.
+ * Copying an item that is referenced **by name**: a group or a variable. Two entries sharing a name
+ * are two entries the rotation cannot tell apart.
  */
 export interface FreeNameDialogOptions extends Omit<AplNameDialogProps, 'open' | 'defaultValue' | 'existingNames'> {
 	/** The name the new copy starts from; the dialog is open while it is set. */
@@ -46,8 +42,7 @@ export const freeNameDialog = ({ name, taken, ...props }: FreeNameDialogOptions)
 
 export const useRenamedCopy = <T>(player: Player<any>, { itemName, inputLabel, read, write, nameOf, copy }: RenamedCopyOptions<T>): RenamedCopy => {
 	const [copying, setCopying] = useState<number | null>(null);
-	// Read at render, which the dialog's own `copying` state has just triggered — so this is the
-	// list as it stands the moment the dialog opens.
+	// Read at render, so this is the list as it stands the moment the dialog opens.
 	const items = read(player.aplRotation);
 
 	return {

@@ -207,8 +207,8 @@ func TestStampProcRatesPutsEachRateOnItsGear(t *testing.T) {
 	}
 }
 
-// Each settled rate lands on its piece of gear: the rate on an item's or an enchant's effects, a chance
-// as a percent, a measured rate override on the spell an item, enchant or set bonus casts, an enchant's and
+// Each settled rate lands on its piece of gear: the rate on an item's or an enchant's effects, a measured
+// rate override on the spell an item, enchant or set bonus casts, an enchant's and
 // a set bonus's row chance. Each proc row of hand-written gear takes, over the effects of its gear, the gear's
 // own rate override for its spell, else the spell's rate override, else what the row states, and a gear rate
 // override replaces them all: one with no kind leaves the gear with none, one with a kind states its rate with
@@ -431,8 +431,9 @@ func TestMissingSetBonusesRender(t *testing.T) {
 }
 
 // A set no registered set covers is generated with every piece count, and a bonus is supported only when
-// each of its rows registers: it parses whole, or it is a proc trigger the set builds. A set covered by id, or by name for a set registered with ID 0, and a
-// set with no items in the database stay out. The skill line the ItemSet row requires is the set's profession.
+// each of its rows registers: it parses whole, or it is a proc trigger the set builds. A set covered by id,
+// or by name for a set registered with ID 0, and a set with no items in the database stay out. The skill
+// line the ItemSet row requires is the set's profession.
 func TestGeneratedSetsTakeTheSetsNoRegisteredSetCovers(t *testing.T) {
 	const hit, proc = 460230, 1321560 // +2% hit; a proc trigger firing mana over time, which a generated set cannot build
 	const lightning = 18979           // a 10% chance on melee hits to cast 18980's Nature damage
@@ -621,7 +622,7 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 // Each gear proc rate names gear the sim registers by hand, once, and states a Reason. A rate comes only with
 // a kind and a Source the gear tab reads, a chance is at most 1, and a row with no kind may leave Source empty.
 // A row whose gear's tooltip prints the chance as a fraction of the column states no kind, since that gear
-// shows no rate. The check refuses Bonechill Hammer 14487, whose proc the generated files register.
+// shows no rate.
 func TestGearProcRatesNameHandWrittenGear(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()

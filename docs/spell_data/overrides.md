@@ -25,7 +25,7 @@ until the next regeneration at most:
 
 |                                   |                                                                                       | stale when                               |
 | --------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `PPM`                             | procs per minute, onto `Spell.RPPM`                                                   | the row states a `SpellProcsPerMinuteID` |
+| `PPM`                             | procs per minute, onto `Spell.RPPM`                                                   | the spell gets a `SpellProcsPerMinuteID` |
 | `FlatThreat`                      | threat the tooltip states without a number                                            | the spell gains a threat effect          |
 | `ThreatPerSpellLevel`             | flat threat of the value times the rank's spell level, onto `Spell.FlatThreat`        | the spell gains a threat effect          |
 | `APCoefDirect` / `APCoefPeriodic` | an attack power coefficient the game files keep in script                             | the game files state one on that effect  |
@@ -33,7 +33,7 @@ until the next regeneration at most:
 | `SPCoefDirect`                    | a spell power coefficient the direct effect does not state                            | the game files state one on that effect  |
 | `ProcChancePct`                   | a whole percentage onto `Spell.ProcChance`                                            | the tooltip states a chance of its own   |
 | `DurationMs`                      | an aura duration                                                                      | the game files state a `SpellDuration`   |
-| `ICDMs`                           | the internal cooldown between two procs, onto `Spell.ICDMs`                           | the row states a `ProcCategoryRecovery`  |
+| `ICDMs`                           | the ICD between two procs, onto `Spell.ICDMs`                                         | the spell gets a `ProcCategoryRecovery`  |
 | `StatMask`                        | the stats of an `A_MOD_TOTAL_STAT_PERCENTAGE` effect, onto its second misc value      | the effect states either misc value      |
 | `Hint`                            | the `ProcHint` bits the tooltip's wording did not yield                               | -                                        |
 | `ProcClassMask`                   | the proc effect's class mask word, where the game files' names no spell of the family | the effect states the same word          |
@@ -62,7 +62,7 @@ and a spell or heal hit never procs it. `dpmForMask` strips the other bits for e
 `a procs-per-minute rate hears no weapon hits in this mask`, so the aura stays listed and does not
 register a proc that would never fire. An enchant the game does let spells proc is an exception to
 state there, by enchant; there is none today. A stated chance (Fiery Blaze 36's 15%, Insight 8216's
-35%) is not a rate, and it hears what its row says.
+35%) is not a rate, and it hears what its spell says.
 
 Revelation 8217 stays listed. Its rate is scripted, and the game files do not state it. Trigger
 1248806's `ProcChance` 100 is the sentinel beside the tooltip's "a chance", and its effect entry
@@ -74,7 +74,7 @@ and an item swap moves it with the weapon. An enchant on something other than a 
 a shield or a held-in-off-hand item) is priced off the main hand (`NewLegacyPPMManager`, which prices
 every mask but the off hand's and the ranged one's at the main hand's speed).
 
-Where a combat spell and an aura apply the same spell (Crusader), the slot whose row states a rate is
+Where a combat spell and an aura apply the same spell (Crusader), the slot whose spell states a rate is
 the one kept, so putting the override on the combat spell keeps the combat spell. After adding a row,
 run `gen_spelldata` and then `gen_db`, which classifies the procs out of the store compiled into it.
 `TestEnchantProcRoutingTakesAPPMOverride` in `tools/database` and `TestSpellDataProcTakesAPPMOverride`
@@ -88,11 +88,11 @@ in Volcanic areas" on Molten Fury). A row names the AreaGroup ids (any one of th
 on the effect's amounts and the factor on its duration. These go onto `Spell.AreaBonusGroups`,
 `AreaMultiplier` and `AreaDurationMultiplier`. `row.AreaBonus()` reads them as two `core.AreaBonus`
 values, which `character.RegisterArea` turns into the factors in the encounter and lists on the stats
-sheet. The override is stale once the row states a `RequiredAreasID` of its own. The on-use stat actives that `shared.NewSimpleStatActive` registers and the on-use resource gains
+sheet. The override is stale once the spell states a `RequiredAreasID` of its own. The on-use stat actives that `shared.NewSimpleStatActive` registers and the on-use resource gains
 `shared.NewSpellDataEnergizeOnUse` registers read it; a proc chance the tooltip says is doubled has no
 reader yet.
 
-`overrides.VersusBonuses` is the third, for a row whose tooltip says it deals, restores or procs N times as
+`overrides.VersusBonuses` is the third, for a spell whose tooltip says it deals, restores or procs N times as
 much against some creatures ("Deals $s2 times as much damage to Plants", "Attacks against Dwarves are $s2
 times as likely to activate this effect"), which no column names. A row names
 the mob types and creature families and the effect whose base points are the factor, or a `Multiplier`
@@ -100,7 +100,7 @@ of its own where no effect states one (Gloves of Holy Might's tripling). These g
 `Spell.VersusEffectIndex`, `VersusMultiplier`, `VersusMobTypes` and `VersusFamilies`, and
 `row.VersusBonus()` reads them; `shared.RegisterVersus` hands it to a spell and the stats sheet. The
 generator refuses a row whose effect no longer holds a factor above 1 on an `E_NONE`, `E_DUMMY`,
-`A_DUMMY` or trigger effect, and a `Multiplier` once the row states a factor above 1 on an `E_NONE`, `E_DUMMY` or
+`A_DUMMY` or trigger effect, and a `Multiplier` once the game files state a factor above 1 on an `E_NONE`, `E_DUMMY` or
 `A_DUMMY` effect.
 
 A consumable's spells take these overrides like any other spell's; the lists that add, remove or

@@ -18,7 +18,7 @@ Re-derive a claim before repeating it:
 | You changed…                                                     | Update                                                                            |
 | ---------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | the order in `cast.go` or `applyEffects`, the proc deferral      | "Cast order", `wowsims-procs` §Building a trigger from a row                      |
-| `IssueRefund`, `MissRefund`, `WeaponStrike`, crit damage         | "What a cast spends", "What scales"                                               |
+| `IssueRefund`, `MissRefund`, `WeaponStrike`, crit damage         | "What a cast uses", "What scales"                                                 |
 | the `CastRequirement` checks in `cast.go` or `spell.go`          | "What the row forbids", `docs/spell_data/auras-and-dots.md`                       |
 | a tick outcome, `exclusive_effect.go`, tags, `MakePermanent`     | "Whose state", "Auras and exclusive effects", `docs/spell_data/auras-and-dots.md` |
 | `versusLogTag`, `versus.go`, `VersusStat`, `mobTypeBonusesProto` | "What scales"                                                                     |

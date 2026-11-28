@@ -1,9 +1,6 @@
-// The per-page Zustand store that is becoming the single source of truth for
-// sim state. One Sim = one store; facade classes (Sim/Raid/Encounter/Player)
-// write it via store.setState(...); consumers subscribe through the helpers in
-// subscriptions.ts (batched by batch.ts) — there is no separate event system.
-//
-// Slices are added here as each facade is converted; a slice absent from this
+// The per-page Zustand store for sim state. One Sim = one store; facade classes
+// (Sim/Raid/Encounter/Player) write it via store.setState(...); consumers
+// subscribe through the helpers in subscriptions.ts. A slice absent from this
 // file still lives in its class.
 import type { PlayerStats } from '@generated/proto/api';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
@@ -44,9 +41,8 @@ export interface UISlice {
 	language: string;
 }
 
-// Encounter settings (owned by Encounter). `targets` is replace-on-write:
-// Encounter.modifyTarget/setTargets store a new array, and the pickers copy
-// before mutating, so subscribers can use reference equality.
+// Encounter settings (owned by Encounter). `targets` is replace-on-write, so
+// subscribers can use reference equality.
 export interface EncounterSlice {
 	duration: number;
 	durationVariation: number;
@@ -85,8 +81,7 @@ export interface SimSettingsSlice {
 	// subscribers watch the version counter, not the value.
 	lastUsedRngSeed: number;
 	lastUsedRngSeedVersion: number;
-	// Bumped when any unit's metadata (spells/auras) changed after a
-	// compute-stats round trip; drives subscribeUnitMetadata().
+	// Bumped when any unit's metadata (spells/auras) changed after a compute-stats round trip.
 	metadataVersion: number;
 }
 
@@ -164,8 +159,6 @@ export const PLAYER_FIELDS = [
 export type PlayerField = (typeof PLAYER_FIELDS)[number];
 
 // Gear-optimizer settings, one slice per player (keyed by storeKey).
-// Values are the source of truth; `v` counters are what subscribers watch
-// (bumped exactly where a change counts).
 export const REFORGE_FIELDS = [
 	'statCaps',
 	'useCustomEPValues',
@@ -268,7 +261,7 @@ export interface BulkSlice {
 
 // One user-visible operation, not one worker request: the combustion calculator
 // issues ten requests under one bar and one stop button. The values are in-memory store keys only,
-// so they are free to change; they read as they do to stay legible in a devtools store dump.
+// so they are free to change.
 export enum SimRunKind {
 	IndividualSim = 'individual-sim',
 	BulkSim = 'bulk-sim',
@@ -356,8 +349,7 @@ export function createSimStore() {
 // subscribers see it once.
 
 // A one-slice state update. Computed keys widen to `{ [x: string]: ... }`, so the
-// cast back to Partial<SimState> is unavoidable; it lives here once instead of at
-// every call site.
+// cast back to Partial<SimState> is unavoidable.
 function sliceUpdate<N extends keyof SimState>(slice: N, value: SimState[N]): Partial<SimState> {
 	return { [slice]: value } as Partial<SimState>;
 }
@@ -371,9 +363,7 @@ export function patchSlice<N extends UnkeyedSlice>(store: SimStore, slice: N, pa
 	store.setState(s => sliceUpdate(slice, { ...s[slice], ...patch }));
 }
 
-// The slices keyed by a player's storeKey. Single source of truth: `KeyedSlice`
-// is derived from it, and deleteKeyed iterates it, so adding a keyed slice
-// cannot leave the disposal path behind.
+// The slices keyed by a player's storeKey.
 export const KEYED_SLICES = ['players', 'reforge', 'statWeights', 'statSweep', 'bulk'] as const;
 type KeyedSlice = (typeof KEYED_SLICES)[number];
 type KeyedEntry<N extends KeyedSlice> = SimState[N][number];
@@ -408,8 +398,8 @@ export function patchKeyed<N extends KeyedSlice>(
 	store.setState(s => {
 		const cur = s[slice][key] as KeyedEntry<N> | undefined;
 		// The entry is gone (deleteKeyed ran for a disposed player). A late write from an
-		// in-flight callback must be a no-op, not a TypeError. Returning the current state
-		// object unchanged makes Zustand skip the notification entirely.
+		// in-flight callback must be a no-op. Returning the current state object unchanged
+		// makes Zustand skip the notification entirely.
 		if (!cur) return s;
 		return sliceUpdate(slice, { ...s[slice], [key]: { ...cur, ...patch, v: bumpVersions<N>(cur.v, bumps) } });
 	});

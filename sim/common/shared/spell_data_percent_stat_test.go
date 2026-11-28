@@ -168,9 +168,8 @@ func TestShieldEnchantBuffDropsWithItsShield(t *testing.T) {
 	}
 }
 
-// Insight 8216's rows on a weapon enchant: trigger 1248758 hears spell damage and heals at its stated
-// chance with a lockout, and its buff 1299796 multiplies Spirit for its duration, on top of whatever
-// Spirit the caster gains while it is up.
+// Insight 8216's spells on a weapon enchant: trigger 1248758's buff 1299796 multiplies Spirit for its
+// duration, on top of whatever Spirit the caster gains while it is up.
 func TestInsightMultipliesSpirit(t *testing.T) {
 	trigger, buff := spelldata.MustFind(1248758), spelldata.MustFind(1299796)
 	percent := buff.FirstAura(dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE).Mean()

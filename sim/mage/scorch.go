@@ -12,8 +12,7 @@ func (mage *Mage) registerScorchSpell() {
 		mage.ImprovedScorchAuras = mage.newFireVulnerabilityAuras()
 	}
 
-	// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-	// spellData.Scorch lists.
+	// Only the highest rank is registered.
 	mage.registerScorchRank(spellData.Scorch.Highest(), procChance)
 }
 
@@ -38,9 +37,8 @@ func (mage *Mage) registerScorchRank(rank *spelldata.Spell, procChance float64) 
 }
 
 // Fire Vulnerability (22959), Improved Scorch's debuff: "Increases Fire damage taken from the Mage by
-// 3% per stack", up to 5. It is A_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER with misc 4, so it scales only
-// the Fire damage of the mage whose Scorch applied it, never another player's: each mage keeps its
-// own stack on the target, parsed onto this mage's attack table against it.
+// 3% per stack". It scales only the Fire damage of the mage whose Scorch applied it: each mage keeps
+// its own stack on the target.
 func (mage *Mage) newFireVulnerabilityAuras() core.AuraArray {
 	debuff := spellData.ImprovedScorchTriggered.Highest()
 

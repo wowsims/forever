@@ -53,8 +53,8 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 			plugins: {
 				legend: {
 					position: 'top',
-					// Threat is off by default in the single-player view — it is rarely what anyone opened
-					// the chart for in MoP — but a legend click sticks for the rest of the session.
+					// Threat is off by default in the single-player view, but a legend click sticks for the
+					// rest of the session.
 					onClick: (_event, item) => {
 						const chart = chartRef.current;
 						const dataset = item.datasetIndex == null ? undefined : (chart?.data.datasets[item.datasetIndex] as TimelineDataset | undefined);

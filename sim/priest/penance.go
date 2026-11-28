@@ -8,7 +8,7 @@ import (
 func (priest *Priest) registerPenance(_ int32, rank *spelldata.Spell) {
 	// The tooltip names the damage bolt first and the channel that times the bolts third. Each bolt is
 	// its own spell, because Holy Precision, Holy Specialization and Inner Focus's crit name the bolt
-	// row's class flags, not the cast's.
+	// spell's class flags, not the cast's.
 	refs := rank.Refs()
 	boltRow := refs[0]
 	healBoltRow := refs[1]
@@ -33,7 +33,7 @@ func (priest *Priest) registerPenance(_ int32, rank *spelldata.Spell) {
 			result = spell.CalcHealing(sim, target, healBolt.Average(), spell.OutcomeHealingCrit)
 		})
 		// A bolt on the priest lands at once. The sim has no distance to an ally, so a bolt on one flies
-		// the enemy distance at the row's speed.
+		// the enemy distance at the spell's speed.
 		if target == &priest.Unit {
 			spell.DealHealing(sim, result)
 			return

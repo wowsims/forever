@@ -18,8 +18,7 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// The add's readings follow the boss's schedule at the preset's inputs: spawn after 10 s, despawn 20 s later, respawn
-// 10 s after that. The boss stays to the fight's end.
+// The add's readings follow the boss's schedule at the preset's inputs. The boss stays to the fight's end.
 func TestDynamicAddsSchedule(t *testing.T) {
 	sim := newWarriorSim(&proto.Debuffs{}, dynamicAddsEncounter(nil))
 	sim.Reset()
@@ -61,8 +60,7 @@ func TestDynamicAddsSchedule(t *testing.T) {
 // The raid's debuffs the debuff tests tick. The warrior in the raid makes the raid's Sunder the player's own aura.
 var raidCurseAndSunder = &proto.Debuffs{CurseOfElements: true, SunderArmor: true}
 
-// A sim of the Dynamic Adds preset with the raid's Curse of the Elements and Sunder Armor ticked and the boss's add
-// debuff inputs set.
+// A sim of the Dynamic Adds preset with the boss's add debuff inputs set.
 func newDynamicAddsDebuffSim(applyDebuffs bool, delay, jitter float64) *core.Simulation {
 	return newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(func(boss *proto.Target) {
 		setAddDebuffInputs(boss, applyDebuffs, delay, jitter)
@@ -113,8 +111,8 @@ func newWarriorSimWithGear(debuffs *proto.Debuffs, encounter *proto.Encounter, g
 	}, simsignals.CreateSignals())
 }
 
-// The times in one iteration at which each raid debuff on the target comes on and goes off, read after every step,
-// starting off at the reset. With sunderStacksAt set, it also returns the Sunder Armor stacks at that time.
+// The times in one iteration at which each raid debuff on the target comes on and goes off. With
+// sunderStacksAt set, it also returns the Sunder Armor stacks at that time.
 func raidDebuffFlips(t *testing.T, sim *core.Simulation, targetIndex int, sunderStacksAt time.Duration) (coe, sunder []time.Duration, stacks int32) {
 	t.Helper()
 	sim.Reset()
@@ -146,8 +144,7 @@ func raidDebuffFlips(t *testing.T, sim *core.Simulation, targetIndex int, sunder
 	return coe, sunder, stacks
 }
 
-// The add's spawns and deaths at the preset's schedule in a 180 s fight: up at 10 s, 40 s, ... and down 20 s later,
-// the last death at the fight's end.
+// The add's spawns and deaths at the preset's schedule in a 180 s fight, the last death at the fight's end.
 var dynamicAddsSpawns = []time.Duration{10 * time.Second, 40 * time.Second, 70 * time.Second, 100 * time.Second, 130 * time.Second, 160 * time.Second}
 
 func dynamicAddsLives(landAfter time.Duration) []time.Duration {
@@ -158,9 +155,9 @@ func dynamicAddsLives(landAfter time.Duration) []time.Duration {
 	return flips
 }
 
-// The raid's debuffs land on the add the boss's Debuff delay after each spawn, respawns included, and are off while it is
-// down, before the first spawn too, where Sunder Armor's ramp at the pull gives the add no stack. A despawn while the
-// ramp runs (delay 15 s, the ramp from 25 s to 31 s) leaves Sunder off. A second iteration starts the same.
+// The raid's debuffs land on the add the boss's Debuff delay after each spawn and are off while it is
+// down, before the first spawn too, where Sunder Armor's ramp at the pull gives the add no stack. A
+// despawn while the ramp runs (delay 15 s, the ramp from 25 s to 31 s) leaves Sunder off.
 func TestDynamicAddsRaidDebuffsLandAfterTheDelay(t *testing.T) {
 	for _, tc := range []struct {
 		delay      float64

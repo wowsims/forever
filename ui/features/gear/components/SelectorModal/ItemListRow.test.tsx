@@ -10,8 +10,7 @@ import type { ItemData, ItemListType } from '../../types';
 import { SelectorModalTabs } from '../../types';
 import type { ItemListRowViewProps } from './ItemListRow';
 
-// The batch seam is mocked rather than driven: the row only asks whether the item is in the batch
-// and calls one of two writes, and both are plain functions over the player now.
+// The batch seam is mocked: the row only asks whether the item is in the batch and calls one of two writes.
 const batch = vi.hoisted(() => ({
 	hasItem: vi.fn((_spec?: unknown) => false),
 	addItem: vi.fn((_spec?: unknown) => undefined),

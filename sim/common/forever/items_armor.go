@@ -29,8 +29,7 @@ func init() {
 		}
 		charge := character.RegisterSpell(config)
 
-		// The row's ProcTypeMask hears melee and ranged hits taken; the block is the tooltip's, and a
-		// block that leaves no damage still fires it.
+		// The block is the tooltip's, and full blocks still fire it.
 		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(22618), func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 			charge.Cast(sim, spell.Unit)
 		})
@@ -69,8 +68,7 @@ func init() {
 	//
 	// Spells and attacks against Swine deal 2 Nature damage.
 	//
-	// 1293783 casts 1293782 on every hit, and the rows deal its Nature damage to any target. The
-	// tooltip limits it to Swine, so the trigger fires only on a hit against one. The tooltip reads
+	// The spells deal the Nature damage to any target; the tooltip limits it to Swine. The tooltip reads
 	// its amount from Cursed Murloc Eye's 1292675; the damage dealt is 1293782's own.
 	core.NewItemEffect(10760, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -99,17 +97,15 @@ func init() {
 	//
 	// Smite your target for 112 Holy damage. Damage is tripled against Undead.
 	//
-	// 1330855 casts 1325229 on a hit, and the rows deal its Holy damage the same to any target: no
-	// second effect, creature type restriction or aura states the tripling, only the tooltip. The row
-	// states no power coefficient, so tripling the amount triples the hit. Its defense type is ranged,
-	// so it rolls on the ranged hit table.
+	// No power coefficient in game files, so tripling the amount triples the hit. Its defense type is
+	// ranged, so it rolls on the ranged hit table.
 	core.NewItemEffect(867, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1325229)
 		damage := row.DamageEffect()
 
 		config := procSpellConfig(character, row)
-		// The tooltip's tripling, which no row states, is an override on 1325229.
+		// The tooltip's tripling, which the game files do not state, is an override on 1325229.
 		config.VersusBonus = shared.RegisterVersus(character, core.ActionID{ItemID: 867}, proto.VersusEffectKind_VersusEffectKindDamage, row)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeRangedHitAndCrit)
@@ -131,9 +127,8 @@ func init() {
 	// When struck by a non-periodic damage spell you have a 30% chance of getting a 6s spell shield
 	// that absorbs 400 of that school of damage.
 	//
-	// 27539 is a scripted dummy carrying the chance, the 10 s internal cooldown and the spell hits
-	// taken it hears. The shield is one row per school; only the Fire one, 27533, is in the spell
-	// store, and the other five state the same absorb, roll and duration on their own school.
+	// The shield is one row per school; only the Fire one, 27533, is in the spell store, and the other
+	// five state the same absorb, roll and duration on their own school.
 	core.NewItemEffect(22196, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		fire := spelldata.MustFind(27533)
@@ -187,7 +182,7 @@ func init() {
 		})
 		trigger.Name = "Thick Obsidian Breastplate"
 		trigger.ActionID = core.ActionID{ItemID: 22196}
-		// A Physical spell has no shield, and does not spend the chance or the cooldown.
+		// A Physical spell has no shield, and does not use the chance or the cooldown.
 		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 			return shieldFor(spell) != nil
 		}
@@ -294,9 +289,8 @@ func init() {
 	// After entering combat, reduce the next instance of Physical damage taken within 20s by 60.
 	//
 	// 1298230 applies 1298231 on entering combat, which is the encounter start in the sim. 1298231
-	// states the 60 as flat Physical damage taken and no charges: the first Physical hit taken that
-	// deals damage, of the direct hits its ProcTypeMask hears, takes the 60 off, half of the hit at most,
-	// and removes it.
+	// states no charges: the first Physical hit taken that deals damage takes the 60 off, half of the hit
+	// at most, and removes it.
 	core.NewItemEffect(13955, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1298231)
@@ -329,10 +323,8 @@ func init() {
 	// When struck in combat, has a chance to energize you for 88 mana. This effect cannot occur more
 	// than once every 15 sec.
 	//
-	// The item's effect names Zealotry 1294666, the mana gain, so the stat-bonus route cannot build it;
-	// 1294668 is the trigger that fires it off melee swings and abilities taken, with the 15 s cooldown.
-	// Each landed melee swing taken outside the cooldown rolls 5%, the row's ProcChance as an override
-	// sets it (EV-0115).
+	// The item's effect names Zealotry 1294666, the mana gain, so the stat-bonus route cannot build it.
+	// Proc chance measurement in EV-0115.
 	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 1294668},
 		[]shared.ItemVariant{
 			{ItemID: 274651, ItemName: "Zealot Plate"},
@@ -344,11 +336,7 @@ func init() {
 	// Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that
 	// strike you are 2 times as likely to activate this effect.
 	//
-	// 17350 rolls on each landed melee hit taken that deals damage, outside its 20 s cooldown. The
-	// procs per minute an override puts on the row are priced on the attacker's time between its own
-	// swings at the hit, slows included: its main hand's interval, or both hands together when it
-	// dual-wields. An attacker with no melee auto attack has no interval and never procs it. The row's
-	// versus bonus is the tooltip's "2 times" when an Undead strikes (EV-0126).
+	// Rate and versus bonus in EV-0126.
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17350, BuffSpellID: 17351,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			row := spelldata.MustFind(17350)
@@ -365,8 +353,7 @@ func init() {
 // Forever.
 // const depletedEyeOfInfluenceChance = 0 // TODO: waiting for PPM data
 
-// The spell an item proc casts, as its row states it: out of the rotation, no cast or cost of its
-// own, and a proc unless the row says it is not.
+// The spell an item proc casts, as the spell states it.
 func procSpellConfig(character *core.Character, row *spelldata.Spell) core.SpellConfig {
 	return procSpellConfigAs(character, row, spelldata.Magic(core.ProcMaskEmpty))
 }
@@ -377,8 +364,7 @@ func procSpellConfigAs(character *core.Character, row *spelldata.Spell, kind spe
 	return config
 }
 
-// A proc's A_PERIODIC_LEECH drain: the cast rolls hit and puts the dot on, and each tick heals the wearer
-// the effect's share of what it dealt.
+// A proc's A_PERIODIC_LEECH drain.
 func registerLeechDrain(character *core.Character, row *spelldata.Spell, label string) *core.Spell {
 	leech := row.FirstAura(dbcenums.A_PERIODIC_LEECH)
 	healthMetrics := character.NewHealthMetrics(core.ActionID{SpellID: row.ID})

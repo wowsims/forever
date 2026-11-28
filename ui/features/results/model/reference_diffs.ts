@@ -9,8 +9,8 @@ export type ReferenceDiff = DeltaText & { significance: string };
 
 export type ReferenceDiffs = Partial<Record<keyof ResultMetrics, ReferenceDiff>>;
 
-// dps and hps are read off the raid where every other metric is read off the first player, which is
-// what the panel has always compared; `oom` carries no delta at all.
+// dps and hps are read off the raid where every other metric is read off the first player;
+// `oom` carries no delta at all.
 const COMPARED: Array<{
 	metric: keyof ResultMetrics;
 	read: (result: SimResult) => DistributionMetrics;

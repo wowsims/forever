@@ -31,9 +31,7 @@ var ItemSetHighlandersPurpose = arathiLeatherSet(471, "The Highlander's Purpose"
 // Blacksmithing - Plate
 // https://www.wowhead.com/forever/item-set=321/imperial-plate
 //
-// Forever reworked the set: Imperial Plate Gauntlets (250589) joined the seven Classic pieces and
-// every bonus is new. The 4-piece bonus keeps movement speed from dropping below 80% and has no
-// place in the sim.
+// The 4-piece bonus keeps movement speed from dropping below 80% and has no place in the sim.
 var ItemSetImperialPlate = core.NewItemSet(core.ItemSet{
 	ID:    321,
 	Name:  "Imperial Plate",
@@ -69,8 +67,8 @@ var ItemSetImperialPlate = core.NewItemSet(core.ItemSet{
 // Blacksmithing - Plate
 // https://www.wowhead.com/forever/item-set=1968/blessed-plate
 //
-// New in Forever. The 4-piece bonus restores 20 health every 5 sec to party members within 10
-// yards; the sim has no health regeneration stat, so it is left out.
+// The 4-piece bonus restores 20 health every 5 sec to party members within 10 yards; the sim has no
+// health regeneration stat, so it is left out.
 var ItemSetBlessedPlate = core.NewItemSet(core.ItemSet{
 	ID:    1968,
 	Name:  "Blessed Plate",
@@ -103,7 +101,7 @@ var ItemSetBlessedPlate = core.NewItemSet(core.ItemSet{
 	},
 })
 
-// The rows the dungeon sets share.
+// The spells the dungeon sets share.
 var (
 	dungeonResistances = spelldata.MustFind(18679)  // 2pc: +8 all resistances
 	dungeonSpellDamage = spelldata.MustFind(9346)   // Dungeon Set 1 3pc: +18 spell damage
@@ -125,8 +123,7 @@ func suddenInsightMana(proc *spelldata.Spell, name string) core.ApplySetBonus {
 		manaMetrics := character.NewManaMetrics(core.ActionID{SpellID: dungeonSuddenMana.ID})
 		mana := dungeonSuddenMana.EnergizeEffect().Average()
 
-		// The rate is the proc chance column with no cooldown, rolled on whatever the row's mask
-		// hears: every spell cast for Magister's, every landed autoattack for Beaststalker.
+		// The rate is the proc chance column with no cooldown, rolled on whatever the spell's mask hears.
 		trigger := spelldata.ProcTrigger(character, proc,
 			func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 				character.AddMana(sim, mana, manaMetrics)
@@ -229,7 +226,7 @@ func dreadmistDarkReward(name string) core.ApplySetBonus {
 		heal := dreadmistHeal.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, dreadmistHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
-		// The row states no defense type, and a heal crits for the magic multiplier.
+		// No defense type in game files, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealHealing(sim, target, heal.DirectAmount(sim), spell.OutcomeHealingCrit)
@@ -285,11 +282,10 @@ var (
 	wildHeartBuff    = spelldata.MustFind(1302707) // 4pc: the movement speed it gives
 )
 
-// The energize proc of Wildheart Raiment and of the Feralheart Raiment reissue, at the procs per minute
-// an override puts on the row; the dummy effect's 5 is no chance (EV-0144). A spell cast restores mana,
-// priced on the cast's time (shared.SpellCastPPMTrigger), and two more listeners restore energy and rage.
-// A shapeshift, a spell whose row spends rage or energy, Frenzied Regeneration's heal among them, and
-// Shifting Power roll nothing (EV-0144).
+// The energize proc of Wildheart Raiment and of the Feralheart Raiment reissue; the dummy effect's 5 is
+// not a chance.
+// PPM measurement in EV-0144.
+// Which casts roll in EV-0144.
 func wildheartEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		character := agent.GetCharacter()
@@ -314,10 +310,8 @@ func wildheartEnergize(name string) core.ApplySetBonus {
 	}
 }
 
-// The energy listener: a landed white swing or Windfury Totem hit rolls the row's rate on the weapon's
-// speed, and casts 27784, which restores its energy every tick and restarts on a new proc (EV-0144). A
-// tick fills a rogue's bar, and a druid's in Cat Form and in a bear form, whose gain comes back with Cat
-// Form. In caster form a tick is left out: the one proc logged there ticked nothing (EV-0144).
+// The energy listener.
+// Swings and ticks in EV-0144.
 // TODO: The manager reads the main hand's speed when it is built, so a druid that shifts between Cat Form
 // and a bear form keeps the paw of the form it started in.
 func attachWildheartSwingEnergy(character *core.Character, setBonusAura *core.Aura, name string) {
@@ -350,10 +344,9 @@ func attachWildheartSwingEnergy(character *core.Character, setBonusAura *core.Au
 	setBonusAura.AttachProcTrigger(trigger)
 }
 
-// The rage listener: a landed melee swing taken rolls the row's rate on the attacker's time between its
-// own swings and restores 27783's rage; a melee ability taken rolls nothing, though the row names it
-// (EV-0144). The rage fills the bar only while rage is the current one: a warrior's always, a druid's in a
-// bear form alone, since a shift into a bear form empties the bar.
+// The rage listener: a melee ability taken never rolls the proc, though the game files name it (EV-0144). The
+// rage fills the bar only while rage is the current one: a druid's in a bear form alone, since a shift
+// into a bear form empties the bar.
 func attachWildheartStruckRage(character *core.Character, setBonusAura *core.Aura, name string) {
 	if !character.HasRageBar() {
 		return
@@ -379,7 +372,7 @@ func attachWildheartStruckRage(character *core.Character, setBonusAura *core.Aur
 
 // Wild Heart, Wildheart Raiment's 4-piece and the Feralheart Raiment reissue's 5-piece: when struck in
 // combat, has a 5% chance to increase your movement speed by 10% for 8 sec. Can only occur once every
-// 60 sec. A landed hit taken rolls the row's chance outside its cooldown (EV-0144). The spell parse
+// 60 sec. A landed hit taken rolls the spell's chance outside its cooldown (EV-0144). The spell parse
 // leaves the buff's speed aura out, so the buff multiplies the movement speed itself.
 func wildHeart(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
@@ -436,9 +429,8 @@ var ItemSetBeaststalkerArmor = core.NewItemSet(core.ItemSet{
 // Dungeon Set 1
 // https://www.wowhead.com/forever/item-set=187/the-elements
 //
-// The 5-piece bonus (450626) buffs spell damage and healing on a melee autoattack or a spell cast, at
-// the procs per minute an override puts on its row. The 4-piece bonus disarms an attacker when struck,
-// which a boss fight does not test.
+// PPM measurement in EV-0144.
+// The 4-piece bonus disarms an attacker when struck, which a boss fight does not test.
 var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 	ID:    187,
 	Name:  "The Elements",
@@ -454,9 +446,8 @@ var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 // Dungeon Set 1
 // https://www.wowhead.com/forever/item-set=188/lightforge-armor
 //
-// The 5-piece bonus (450625) buffs spell damage and healing on a melee autoattack or a spell cast, at
-// the procs per minute an override puts on its row. The 4-piece bonus silences a caster when struck by
-// a spell, which a boss fight does not test.
+// PPM measurement in EV-0144.
+// The 4-piece bonus silences a caster when struck by a spell, which a boss fight does not test.
 var ItemSetLightforgeArmor = core.NewItemSet(core.ItemSet{
 	ID:    188,
 	Name:  "Lightforge Armor",
@@ -490,17 +481,15 @@ var (
 	warriorsResolveHeal = spelldata.MustFind(450589) // Warrior's Resolve, the heal and the rage it casts
 )
 
-// The proc of Battlegear of Valor and of the Battlegear of Heroism reissue. Landed white swings of
-// either hand and Windfury Totem hits roll it at the procs per minute an override puts on the row,
-// each on its weapon's speed; Heroic Strike and Cleave never do (EV-0136). Each proc heals the wearer
-// and restores rage, the rage only to a wearer with a rage bar.
+// The proc of Battlegear of Valor and of the Battlegear of Heroism reissue. Heroic Strike and Cleave
+// never roll it (EV-0136).
 func warriorsResolve(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		character := agent.GetCharacter()
 		heal := warriorsResolveHeal.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, warriorsResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
-		// The row states no defense type, and a heal crits for the magic multiplier.
+		// No defense type in game files, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealHealing(sim, target, heal.DirectAmount(sim), spell.OutcomeHealingCrit)
@@ -522,8 +511,8 @@ func warriorsResolve(name string) core.ApplySetBonus {
 // Dungeon Set 2, Season of Discovery reissue
 // https://www.wowhead.com/forever/item-set=1667/feralheart-raiment
 //
-// The set ships 32 pieces in four groups of eight (caster, healer, melee and tank), all under this id,
-// and pieces of different groups count toward the same bonuses (EV-0144).
+// Pieces of the set's four groups (caster, healer, melee and tank) count toward the same bonuses
+// (EV-0144).
 var ItemSetFeralheartRaimentReissue = core.NewItemSet(core.ItemSet{
 	ID:    1667,
 	Name:  "Feralheart Raiment",
@@ -542,9 +531,9 @@ var (
 	rogueArmorEnergy     = spelldata.MustFind(27788) // the energy it restores
 )
 
-// The energy proc of the two rogue dungeon sets, at the procs per minute an override puts on the row
-// (EV-0144). A Windfury Totem hit rolls it as a main-hand swing (EV-0136). A wearer with no energy
-// bar gets nothing.
+// The energy proc of the two rogue dungeon sets.
+// PPM measurement in EV-0144.
+// A Windfury Totem hit rolls it as a main-hand swing (EV-0136).
 func rogueArmorEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		character := agent.GetCharacter()
@@ -607,9 +596,9 @@ var ItemSetBeastmasterArmorReissue = core.NewItemSet(core.ItemSet{
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// The 4-piece bonus is Lightforge Armor's 5-piece proc (450625), at the procs per minute an override
-// puts on its row. The 5-piece bonus silences a caster when struck by a spell, which a boss fight does
-// not test.
+// PPM measurement in EV-0144.
+// The 4-piece bonus is Lightforge Armor's 5-piece proc (450625). The 5-piece bonus silences a caster when
+// struck by a spell, which a boss fight does not test.
 var ItemSetSoulforgeArmorReissue = core.NewItemSet(core.ItemSet{
 	ID:    1673,
 	Name:  "Soulforge Armor",
@@ -624,8 +613,9 @@ var ItemSetSoulforgeArmorReissue = core.NewItemSet(core.ItemSet{
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// The 4-piece bonus is The Elements' 5-piece proc (450626), at the procs per minute an override puts on
-// its row. The 5-piece bonus disarms an attacker when struck, which a boss fight does not test.
+// PPM measurement in EV-0144.
+// The 4-piece bonus is The Elements' 5-piece proc (450626). The 5-piece bonus disarms an attacker when
+// struck, which a boss fight does not test.
 var ItemSetTheFiveThundersReissue = core.NewItemSet(core.ItemSet{
 	ID:    1679,
 	Name:  "The Five Thunders",
@@ -640,9 +630,9 @@ var ItemSetTheFiveThundersReissue = core.NewItemSet(core.ItemSet{
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// The 4-piece bonus is Battlegear of Valor's 5-piece proc (450587) at Valor's rate (EV-0144). The
-// 3-piece bonus restores health over time and the 5-piece bonus removes a disarm when struck, neither
-// of which has a place in the sim.
+// PPM measurement in EV-0144.
+// The 4-piece bonus is Battlegear of Valor's 5-piece proc (450587). The 3-piece bonus restores health over
+// time and the 5-piece bonus removes a disarm when struck, neither of which has a place in the sim.
 var ItemSetBattlegearOfHeroismReissue = core.NewItemSet(core.ItemSet{
 	ID:    1778,
 	Name:  "Battlegear of Heroism",
@@ -684,11 +674,9 @@ var (
 // (4) Set: Chance on block to heal for 18. Healing is doubled in Strongholds and Cities.
 // (5) Set: Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.
 //
-// Every blocked melee or ranged hit heals, a block that leaves no damage too, at most once a second. The
-// heal rolls around 18, and in Strongholds and Cities it is the flat 44 of the heal's second effect, which
-// the stats sheet lists (EV-0160). Every landed melee or ranged hit taken adds a stack and refreshes the
-// buff, at most once every 3 s. The 5-piece buff also makes the wearer larger and turns them into an ogre at
-// 20 stacks, which has no place in the sim (EV-0160).
+// Heals and stacks in EV-0160.
+// The 5-piece buff also makes the wearer larger and turns them into an ogre at 20 stacks, which has no
+// place in the sim.
 var ItemSetKroldokBattlegear = core.NewItemSet(core.ItemSet{
 	ID:   2135,
 	Name: "Krol'dok Battlegear",
@@ -745,9 +733,8 @@ var furbolgTeachings = spelldata.MustFind(1294087)
 // (2) Set: Your attacks have a chance to increase your Attack Power by 40 and your healing spells have a
 // chance to increase your Intellect by 20 for 15s.
 //
-// A landed melee or ranged hit rolls 1294087's chance and puts Ferocity of the Barkskin 1294071 up. No
-// effect of 1294087 casts the healing half, Wisdom of the Timbermaw 1294070, so a heal procs nothing;
-// that row also states Strength where the tooltip says Intellect.
+// No effect of 1294087 casts the healing half, Wisdom of the Timbermaw 1294070, so a heal procs nothing;
+// that spell also states Strength where the tooltip says Intellect.
 var ItemSetTeachingsOfTheFurbolgs = core.NewItemSet(core.ItemSet{
 	ID:    2071,
 	Name:  "Teachings of the Furbolgs",
@@ -767,10 +754,6 @@ var (
 //
 // (4) Set: Grants your melee attacks a 5% chance when striking from behind to hit a vital point, causing
 // the target to Bleed for 75 Physical damage over 5s.
-//
-// A landed melee swing rolls 1292028's chance while the wearer is not in front of the target, the
-// player's setting that Backstab reads too, and casts the bleed 1292029 at it. The bleed rolls the melee
-// hit table once, without a crit, and a landed roll puts it up or starts it over.
 var ItemSetDefiasLeather = core.NewItemSet(core.ItemSet{
 	ID:   161,
 	Name: "Defias Leather",
@@ -787,7 +770,7 @@ var ItemSetDefiasLeather = core.NewItemSet(core.ItemSet{
 func deviousStrike(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	config := procSpellConfigAs(character, deviousStrikeBleed, spelldata.Melee(core.ProcMaskEmpty))
-	// The bleed's ticks ignore armor, although its row's attributes name a tenth of it (EV-0194).
+	// Armor on ticks in EV-0194.
 	config.Flags &^= core.SpellFlagTenthResistance | core.SpellFlagApplyArmorReduction
 	config.Dot = spelldata.DotConfig(deviousStrikeBleed, deviousStrikeBleed.PeriodicDamageEffect())
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -820,9 +803,7 @@ var (
 // (4) Set: Taking damage has a 15% chance to grant Enraging Light for 10s, causing your melee attacks to
 // deal 20 Holy damage. Deals 3 times as much damage to Undead.
 //
-// A hit taken rolls 1293674's chance and cooldown and puts 1293673 up. While it is up, every landed melee
-// swing or ability casts 1293675 at its target (EV-0173). Against an Undead target the damage is
-// multiplied by 1293674's first effect, the factor the tooltip reads.
+// Triggering hits in EV-0173.
 var ItemSetChainOfTheScarletCrusade = core.NewItemSet(core.ItemSet{
 	ID:   163,
 	Name: "Chain of the Scarlet Crusade",
@@ -848,7 +829,7 @@ func enragingLight(agent core.Agent, setBonusAura *core.Aura) {
 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), outcome)
 	}
 	light := character.RegisterSpell(config)
-	// The row states Always Hit: the damage never misses and can still crit.
+	// The game files state Always Hit: the damage never misses and can still crit.
 	outcome = light.OutcomeMagicHitAndCrit
 	if enragedLight.AlwaysHits() {
 		outcome = light.OutcomeMagicCrit
@@ -904,10 +885,8 @@ var (
 // (4) Set: When your Mana falls below 15%, restore 200 Mana over 10s. Restores twice as much Mana in
 // Haunted and Wasteland areas. May only occur once every 5 min.
 //
-// A cast that leaves the wearer below the share of mana 1321560's first effect states casts 1321558,
-// which restores its mana every tick, and then rests the row's cooldown. The amount takes 1321558's area
-// bonus, which an override supplies: the game files state no doubling for the Haunted and Wasteland areas
-// the tooltip names.
+// The amount takes 1321558's area bonus, which an override supplies: the game files state no doubling
+// for the Haunted and Wasteland areas the tooltip names.
 var ItemSetRotmendersRaiment = core.NewItemSet(core.ItemSet{
 	ID:   2133,
 	Name: "Rotmender's Raiment",
@@ -918,7 +897,7 @@ var ItemSetRotmendersRaiment = core.NewItemSet(core.ItemSet{
 		3: shared.ParsedSetBonus(spelldata.MustFind(9106)),  // +10 Intellect
 		// TODO: Ingame test needed -- whether any cast that leaves mana below 15% triggers it.
 		4: siphonTheGraveMana,
-		// TODO: 5pc (1321587) heals over time off a heal, at a rate its row does not state.
+		// TODO: 5pc (1321587) heals over time off a heal, at a rate the game files do not state.
 	},
 })
 
@@ -964,9 +943,8 @@ var (
 //
 // (2) Set: Chance on Hit: Immobilizes the target and lowers their armor by 100 for 10s.
 //
-// A landed melee swing or ability rolls 17332's chance and puts 17333 on the target. The root has no
-// place in the sim. The armor is the row's own debuff in no armor category, so it stacks with every
-// armor debuff the raid puts up.
+// The root has no place in the sim. The armor is the spell's own debuff in no armor category, so it stacks
+// with every armor debuff the raid puts up.
 var ItemSetSpidersKiss = core.NewItemSet(core.ItemSet{
 	ID:    65,
 	Name:  "Spider's Kiss",
@@ -997,7 +975,7 @@ var ItemSetPartnersInCrime = core.NewItemSet(core.ItemSet{
 	Name:  "Partners in Crime",
 	Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2},
 	Bonuses: map[int32]core.ApplySetBonus{
-		// TODO: 1317039 also puts Angry 1317040 up on a melee swing or ability. Its row states no rate, and
+		// TODO: 1317039 also puts Angry 1317040 up on a melee swing or ability. The game files state no rate, and
 		// the rate is being measured.
 		2: shared.ParsedSetBonus(spelldata.MustFind(1317038)), // +22 Strength
 	},
@@ -1008,7 +986,8 @@ var (
 	roarOfTheCrowd     = spelldata.MustFind(1301124) // 4pc: Roar of the Crowd, the haste it puts up
 )
 
-// The chance a landed melee hit rolls; the row states none (EV-0166).
+// Proc chance measurement in EV-0166.
+// No chance in game files.
 const roarOfTheCrowdChance = 0.072
 
 // https://www.wowhead.com/forever/item-set=1/the-gladiator
@@ -1016,9 +995,9 @@ const roarOfTheCrowdChance = 0.072
 // (4) Set: Chance on hit to gain 5% attack speed for 10s. Attacks while no allies are within 20 yds are 2
 // times as likely to activate this effect.
 //
-// Every landed melee hit rolls the chance, white swings, Windfury hits and melee abilities alike, and puts
-// 1301124 up (EV-0166). The wearer always has an ally within 20 yd, so the chance never doubles. The 2-piece
-// bonus lowers the hit chance of Fear effects, which has no place in the sim.
+// Which hits roll in EV-0166.
+// The wearer always has an ally within 20 yd, so the chance never doubles. The 2-piece bonus lowers the
+// hit chance of Fear effects, which has no place in the sim.
 var ItemSetTheGladiator = core.NewItemSet(core.ItemSet{
 	ID:   1,
 	Name: "The Gladiator",
@@ -1049,7 +1028,8 @@ var (
 	windfuryWeaponStrike = spelldata.MustFind(439440)  // Windfury Weapon hit
 )
 
-// The chance a landed swing rolls; the row states none (EV-0167).
+// Proc chance measurement in EV-0167.
+// No chance in game files.
 const bloodmailChance = 0.107
 
 // https://www.wowhead.com/forever/item-set=123/bloodmail-regalia
@@ -1057,8 +1037,7 @@ const bloodmailChance = 0.107
 // (3) Set: Grants your melee attacks a chance to wound the target, causing them to Bleed for 70 damage over
 // 10s.
 //
-// A landed white swing, Windfury Weapon hit or Windfury Totem hit rolls the chance and puts the bleed
-// 1299739 on the target with no hit roll of its own; melee abilities never roll it (EV-0167).
+// Which hits roll in EV-0167.
 var ItemSetBloodmailRegalia = core.NewItemSet(core.ItemSet{
 	ID:   123,
 	Name: "Bloodmail Regalia",
@@ -1101,16 +1080,16 @@ var (
 	necropileDrain     = spelldata.MustFind(1299735) // 3pc: Necropile Drain, the leech it casts
 )
 
-// The chance a landed harmful spell rolls; the row states none (EV-0168).
+// Proc chance measurement in EV-0168.
+// No chance in game files.
 const necropileDrainChance = 0.139
 
 // https://www.wowhead.com/forever/item-set=122/necropile-raiment
 //
 // (3) Set: Harmful spell casts have a chance to steal 28 life from the target enemy.
 //
-// A landed harmful spell, a damage over time or channel's application included, rolls the chance and casts the
-// leech 1299735 at its target, with no hit roll of its own; periodic ticks never roll it (EV-0168). The row's
-// 10 ms cooldown lets an area spell proc it once.
+// Which landings roll in EV-0168.
+// The spell's 10 ms cooldown lets an area spell proc it once.
 var ItemSetNecropileRaiment = core.NewItemSet(core.ItemSet{
 	ID:   122,
 	Name: "Necropile Raiment",
@@ -1153,9 +1132,8 @@ func landedHits(mask core.ProcMask) spelldata.ProcOpt {
 	}
 }
 
-// The row's amount, or in the tooltip's area the amount its second effect states, as Krol'dok Battlegear's
-// heal reads its own: Violet Meditation's 30 and Defias Juggernaut's 4 are twice the first effect's. The
-// set bonus keeps the factor on the stats sheet.
+// The spell's amount, or in the tooltip's area the amount its second effect states. The set bonus keeps the
+// factor on the stats sheet.
 func secondEffectInArea(character *core.Character, bonus *spelldata.Spell, row *spelldata.Spell, area proto.AreaType) spelldata.ParseOpt {
 	return spelldata.Count(character.RegisterArea(core.ActionID{SpellID: bonus.ID}, proto.VersusEffectKind_VersusEffectKindEffect,
 		core.AreaBonus{AreaTargets: core.AreaTargets{Areas: []proto.AreaType{area}}, Multiplier: row.EffectN(2).BaseValue() / row.EffectN(1).BaseValue()}))
@@ -1174,9 +1152,7 @@ var (
 // This Mana Regeneration is doubled in Strongholds and Cities.
 // (5) Set: Chance on damaging spell to summon an Arcane elemental to aid you in combat.
 //
-// Each landed damaging spell rolls each bonus once for every target it hits, at the procs per minute an
-// override puts on the row, priced on the cast's time with instants at 1.5 s (castTimePPM, EV-0169). The
-// 5-piece rests the row's 15 s cooldown after a summon.
+// PPM measurement in EV-0169.
 var ItemSetVioletSorcerersVestments = core.NewItemSet(core.ItemSet{
 	ID:   2134,
 	Name: "Violet Sorcerer's Vestments",
@@ -1237,9 +1213,7 @@ var (
 // (5) Set: Melee attacks have a chance to increase your Critical Strike chance by 2% for 20s. This effect is
 // doubled in swamps.
 //
-// Every landed melee hit rolls the procs per minute an override puts on the row, priced on the speed of the
-// weapon that hit, and puts 1324683 up. The row names the main hand alone, but off-hand swings proc it as
-// often (EV-0170).
+// The game files name the main hand alone, but off-hand swings proc it as often (EV-0170).
 var ItemSetDefiasEnforcersGarb = core.NewItemSet(core.ItemSet{
 	ID:   2136,
 	Name: "Defias Enforcer's Garb",

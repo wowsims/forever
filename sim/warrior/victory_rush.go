@@ -13,7 +13,7 @@ var victoryRushHealPercent = victoryRushRank.EffectN(2).Percent()
 var victoriousRank = spellData.VictoryRushTriggered.Highest()
 var victoriousStateRank = spellData.VictoriousState.Highest()
 
-// Victorious State hears the killing blow and casts Victorious, which Victory Rush needs and spends.
+// Victorious State hears the killing blow and casts Victorious, which Victory Rush needs and uses.
 // The kill roll stands for the game's experience or honor check, so an add counts like any enemy.
 func (warrior *Warrior) registerVictoryRush() {
 	victoriousAura := warrior.RegisterAura(spelldata.AuraConfig(victoriousRank))
@@ -32,11 +32,9 @@ func (warrior *Warrior) registerVictoryRush() {
 		baseDamage := victoryRushRank.DamageEffect().Average() + victoryRushAPCoef*spell.MeleeAttackPower(target)
 		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 
-		// The attack deals its heal itself, so both show on one row. The heal makes healing threat as any
-		// heal does: half the health it restores, times the stance, split between the enemies in combat.
-		// Whether healing done and taken modifiers change it is not measured, so it restores the row's
-		// share of maximum health with none of them. It skips the healing calculation, which would add
-		// the attack's damage modifiers, and counts no second hit.
+		// The attack deals its heal itself, so both show on one row. Whether healing done and taken
+		// modifiers change it is not measured, so it restores the spell's share of maximum health with none
+		// of them. It skips the healing calculation, which would add the attack's damage modifiers.
 		heal := spell.NewResult(&warrior.Unit)
 		heal.Damage = warrior.MaxHealth() * victoryRushHealPercent
 		heal.Outcome = core.OutcomeHit

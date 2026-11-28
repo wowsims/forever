@@ -7,7 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The rows ItemSetSpell names for each set's thresholds. None of them is a warlock class spell, so the
+// The spells ItemSetSpell names for each set's thresholds. None of them is a warlock class spell, so the
 // generated table carries no reference to them.
 var (
 	pvpSpellDamage    = spelldata.MustFind(14047)   // spell damage
@@ -34,14 +34,14 @@ var sixPieceSlots = []proto.ItemSlot{
 	proto.ItemSlot_ItemSlotFeet,
 }
 
-// A bonus that is the row's parse and nothing else.
+// A bonus that is the spell's parse and nothing else.
 func parsedSetBonus(row *spelldata.Spell) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		spelldata.ParseEffects(agent.GetCharacter(), setBonusAura, row)
 	}
 }
 
-// The PvP sets share their three rows; the sets differ only in the piece counts they grant them at.
+// The PvP sets share their three spells; the sets differ only in the piece counts they grant them at.
 func pvpSetBonuses(spellDamageAt, immolateAt, staminaAt int32) map[int32]core.ApplySetBonus {
 	return map[int32]core.ApplySetBonus{
 		spellDamageAt: parsedSetBonus(pvpSpellDamage),
@@ -166,8 +166,7 @@ var ItemSetPlagueheartRaiment = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		// 2pc (28831) heals the wearer off Shadow Bolt hits, which does not affect sims.
 		4: shared.ParsedSetBonus(plagueCorruption),
-		// Effect 2 lowers the threat of Corruption, Immolate, Curse of Agony and Siphon Life. Effect 1,
-		// 25% less threat from spell crits, has no place in the sim's threat.
+		// Effect 1, 25% less threat from spell crits, has no place in the sim's threat.
 		6: shared.ParsedSetBonus(plagueThreat),
 		// 8pc (28830) takes 12% off Life Tap's health cost, which does not affect sims.
 	},
@@ -186,9 +185,8 @@ var ItemSetDemonheartRaiment = core.NewItemSet(core.ItemSet{
 		4: func(_ core.Agent, setBonusAura *core.Aura) {
 			shared.AttachSpellDamageVersus(setBonusAura, demonheartDemons)
 		},
-		// "Your Life Tap generates 20% more Mana at no additional Health cost." The dummy's amount goes into
-		// lifeTapManaBonus, which registerLifeTap adds to Improved Life Tap's share. No test wears it, since
-		// only four of the six pieces ship.
+		// "Your Life Tap generates 20% more Mana at no additional Health cost." No test wears it, since only
+		// four of the six pieces ship.
 		// TODO: Ingame test needed -- whether the 20% adds to Improved Life Tap or multiplies with it, and
 		// whether the demon's Demonic Energies share grows with it.
 		5: func(agent core.Agent, setBonusAura *core.Aura) {

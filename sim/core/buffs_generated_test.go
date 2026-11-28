@@ -20,9 +20,8 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// The raid's shout is off, the trainer's Rank 6, Rank 7 from Manual of Battle Shout VII, or Rank 7
-// from a warrior wearing three pieces of Battlegear of Wrath. Each rank is worth what its own row
-// states, and the set adds its bonus to what the copy applies and bids.
+// Each rank of the raid's shout is worth what its own spell states, and three pieces of Battlegear of Wrath
+// add the set's bonus to what the copy applies and bids.
 func TestRaidBattleShoutAppliesItsState(t *testing.T) {
 	off := core.NewGeneratedBuffTestCharacter()
 	core.ApplyBuffEffects(off, &proto.RaidBuffs{BattleShout: 0}, &proto.PartyBuffs{}, &proto.IndividualBuffs{})
@@ -105,12 +104,10 @@ func battleShoutSetBonus(t *testing.T) float64 {
 	return rowAmount(t, 23563, dbcenums.A_ADD_FLAT_MODIFIER)
 }
 
-// A warrior who casts Battle Shout and has the external one ticked: both copies
-// are worth the same attack power, and both are equally long, so the tie goes to
-// whichever the build phase activates last. ExclusiveEffect.Activate only turns a
-// newcomer away when the incumbent's remaining duration is longer than the
-// newcomer's, so the player's copy takes the category and the external one is
-// deactivated - the character sheet shows one shout either way.
+// A warrior's own Battle Shout and the external one are worth the same attack power and are equally
+// long, so the tie goes to whichever the build phase activates last. ExclusiveEffect.Activate only
+// turns a newcomer away when the incumbent's remaining duration is longer than the newcomer's, so the
+// player's copy takes the category and the external one is deactivated.
 func TestPlayerBattleShoutTakesTheCategoryOnATie(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
@@ -143,9 +140,8 @@ func TestPlayerBattleShoutTakesTheCategoryOnATie(t *testing.T) {
 	}
 }
 
-// Two copies of the shout that are not worth the same: the stronger one
-// takes the category whichever side it is on, and the character sheet reads it
-// once rather than both added up.
+// Two copies of the shout that are not worth the same: the stronger one takes the category whichever
+// side it is on, and the character sheet reads it once.
 func TestTheStrongerBattleShoutTakesTheCategory(t *testing.T) {
 	for _, row := range []struct {
 		name          string
@@ -282,9 +278,8 @@ func TestGeneratedResistancesCompeteAcrossBuffs(t *testing.T) {
 	}
 }
 
-// A paladin aura holds its own slot and joins the shared one that stops a
-// paladin from having two of them up. Only the player's own copy joins it: the
-// external copy has to be able to sit next to the one the paladin casts.
+// A paladin aura holds its own slot and joins the shared one that stops a paladin from having two of
+// them up. Only the player's own copy joins it.
 func TestGeneratedPaladinAuraJoinsTheSharedCategoryOnThePlayerCopyOnly(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
@@ -309,9 +304,8 @@ func TestGeneratedPaladinAuraJoinsTheSharedCategoryOnThePlayerCopyOnly(t *testin
 		t.Error("the aura's own category is not single-aura, so a second copy could sit next to it")
 	}
 
-	// Both copies bid the same armor and both are permanent, so the paladin's own
-	// cast takes the slot by activating after the external one, and the armor on
-	// the character sheet does not move.
+	// Both copies bid the same armor and both are permanent, so the paladin's own cast takes the slot
+	// by activating after the external one.
 	external := char.GetAura("Devotion Aura (External)")
 	if !player.IsActive() {
 		t.Error("the paladin's own aura did not activate next to the external one")
@@ -368,11 +362,9 @@ func TestGeneratedManaSpringTotemTakesTheTalentedValue(t *testing.T) {
 	}
 }
 
-// The two rows whose stats the manifest names. Leader of the Pack and Moonkin
-// Aura are each worth their game files' amount on physical and spell crit, and
-// with both ticked only the stronger counts. Neither touches RangedCritPercent,
-// which the sim adds on top of the physical one, so a ranged attack gains the
-// amount once.
+// Leader of the Pack and Moonkin Aura are each worth their game files' amount on physical and spell
+// crit. Neither touches RangedCritPercent, which the sim adds on top of the physical one, so a ranged
+// attack gains the amount once.
 func TestGeneratedCritAurasApplyToAllCrit(t *testing.T) {
 	both := max(leaderOfThePack(t), moonkinAura(t))
 	for _, row := range []struct {
@@ -486,8 +478,7 @@ func measureGeneratedBuffStats(char *core.Character) {
 	char.SetStats(char.SortAndApplyStatDependencies(char.GetStats()).FloorGameStats())
 }
 
-// Grace of Air stands for the fight, and as of 1.60.1.70425 stacks with
-// Windfury Totem: under both, the party still gets its agility.
+// Grace of Air stands for the fight. Totem stacking in EV-0102.
 func TestGeneratedGraceOfAirStacksWithWindfuryTotem(t *testing.T) {
 	standing := core.NewGeneratedBuffTestCharacter()
 	core.ApplyBuffEffects(standing,
@@ -530,9 +521,7 @@ func graceOfAirTotemAgility(t *testing.T) float64 {
 	return rowAmount(t, 10626, dbcenums.A_MOD_STAT)
 }
 
-// Each staff in the party is worth its own copy of the aura's amounts: MP5 per
-// druid staff, spell crit per mage one, healing per priest one and spell damage
-// plus healing per warlock one.
+// Each staff in the party is worth its own copy of the aura's amounts.
 func TestGeneratedAtieshStavesCountTheStaves(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
@@ -657,9 +646,7 @@ func TestPartyDarkspearReadsTheItemTheRequestCarries(t *testing.T) {
 	t.Errorf("the character carries no aura of spell %d, want the party's Darkspear", darkspear.GetSpellId())
 }
 
-// The totem aura bids the attack power the Windfury hit adds for the category,
-// and its trigger waits the raid aura's cooldown between procs. The Windfury hit is a
-// main-hand special, and no aura puts the attack power on the character.
+// The totem aura bids the attack power the Windfury hit adds for the category.
 func TestGeneratedWindfuryTotemBidsTheAttackPowerItsStrikeAdds(t *testing.T) {
 	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{WindfuryTotem: true}, &proto.PartyBuffs{}, &proto.IndividualBuffs{})
 	char := sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -716,11 +703,8 @@ func windfuryTotemSim(t *testing.T) (*core.Simulation, *petOwner, *core.Unit, *c
 	return sim, owner, sim.Encounter.AllTargetUnits[0], trigger, strike
 }
 
-// Windfury Totem's proc is the raid aura's: a main-hand auto or main-hand
-// special that lands can fire it, whether or not it deals damage, and so can an
-// off-hand special a rotation casts. No other hit can, another spell's off-hand
-// strike, a proc's hit and a hit with no defense type included. Each proc casts
-// the Windfury hit, and the cooldown lets hits in one instant fire it once.
+// Windfury Totem's proc is the raid aura's. Each proc casts the Windfury hit, and the cooldown lets
+// hits in one instant fire it once.
 func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 	for _, row := range []struct {
 		name    string
@@ -759,11 +743,9 @@ func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 	}
 }
 
-// A proc casts one Windfury hit once the hit that fired it has been dealt, in the
-// same instant. The Windfury hit deals the main hand's weapon damage with the raid
-// aura's attack power added, and never glances. It would roll the totem itself,
-// but it lands inside the cooldown its proc has just started, so a proc never
-// brings a second Windfury hit.
+// A proc casts one Windfury hit once the hit that fired it has been dealt, in the same instant. The
+// Windfury hit would roll the totem itself, but it lands inside the cooldown its proc has just
+// started, so a proc never brings a second Windfury hit.
 func TestGeneratedWindfuryTotemProcCastsOneStrike(t *testing.T) {
 	sim, owner, target, trigger, strike := windfuryTotemSim(t)
 	weapon := *owner.AutoAttacks.MH()
@@ -873,9 +855,8 @@ func TestGeneratedFlametongueTotemDamageFollowsWeaponSpeed(t *testing.T) {
 	}
 }
 
-// A main-hand auto attack that lands strikes the target for the game files'
-// fire damage scaled by the weapon's speed, on the spell hit and crit tables; a
-// special, an off-hand hit or a missed swing strikes nothing.
+// A main-hand auto attack that lands strikes the target for the game files' fire damage scaled by the
+// weapon's speed, on the spell hit and crit tables.
 func TestGeneratedFlametongueTotemStrikesOnMainHandHits(t *testing.T) {
 	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{FlametongueTotem: true}, &proto.PartyBuffs{}, &proto.IndividualBuffs{})
 	char := sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -1302,7 +1283,7 @@ func TestThornsCarriesTheBuffsSpellPower(t *testing.T) {
 }
 
 // The druid's own copy reads the caster's Nature spell power when it deals the hit, so it ignores
-// the stated spell power and bids the row's damage alone.
+// the stated spell power and bids the spell's damage alone.
 func TestThornsPlayerCopyScalesWithTheCastersSpellPower(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
@@ -1412,8 +1393,7 @@ func TestGeneratedInnervatesTakeTurnsBetweenTheirSources(t *testing.T) {
 		t.Fatal("no spell stands for the external innervates")
 	}
 
-	// What the sim asks before it spends one of the sources: its own timer and
-	// the condition the external approximation installs.
+	// What the sim asks before it uses one of the sources.
 	ready := func() bool {
 		return spell.CD.Timer.IsReady(sim) && spell.ExtraCastCondition(sim, &char.Unit)
 	}
@@ -1448,9 +1428,7 @@ func TestGeneratedInnervatesTakeTurnsBetweenTheirSources(t *testing.T) {
 	}
 }
 
-// Power Infusion raises damage and healing done while it is up, and nothing
-// once it has expired. The damage half is the six schools the game files' mask
-// names, which does not include physical.
+// Power Infusion raises damage and healing done while it is up, and nothing once it has expired.
 func TestGeneratedPowerInfusionRaisesDamageAndHealingDone(t *testing.T) {
 	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{}, &proto.PartyBuffs{}, &proto.IndividualBuffs{PowerInfusions: 1})
 	char := sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -1470,8 +1448,7 @@ func TestGeneratedPowerInfusionRaisesDamageAndHealingDone(t *testing.T) {
 	before := char.PseudoStats.SchoolDamageDealtMultiplier[physical]
 
 	aura.Activate(sim)
-	// Spell 10060 states mask 126, which is every school but physical, so a
-	// melee swing is not part of what the infusion raises.
+	// Spell 10060 states mask 126, which is every school but physical.
 	for _, school := range magicSchools {
 		if got := char.PseudoStats.SchoolDamageDealtMultiplier[school]; got != damageDone {
 			t.Errorf("school %d deals %v times the damage, want the game files' %v", school, got, damageDone)
@@ -1554,7 +1531,6 @@ func TestGeneratedDrivenBuffsAreNotBuildPhaseAuras(t *testing.T) {
 }
 
 // Stoneskin takes a flat amount off every physical hit, and Guardian Totems raises it.
-// The reduction lands on PseudoStats.BonusPhysicalDamageTaken, not a stats.Stats entry.
 func TestGeneratedStoneskinTotemTakesTheTalentedValue(t *testing.T) {
 	untalented := rowAmount(t, 10405, dbcenums.A_MOD_DAMAGE_TAKEN)
 	if got := buffs.StoneskinTotemValue(0); got != untalented {
@@ -1704,8 +1680,7 @@ func setupPetOwnerSim(raid *proto.RaidBuffs, party *proto.PartyBuffs) (*core.Sim
 }
 
 // A true pet stands under its owner's totems with the owner's exclusivity, except those whose aura
-// only a player can carry: it has Mana Spring, but never Strength of Earth, Grace of Air or Windfury
-// Totem's proc. A guardian stands under none of them.
+// only a player can carry. A guardian stands under none of them.
 func TestTruePetsStandUnderTheOwnersTotems(t *testing.T) {
 	const trainerEarth, trainerAir = "Strength of Earth Totem Rank 4 (External)", "Grace of Air Totem Rank 2 (External)"
 	const bookEarth, bookAir = "Strength of Earth Totem Rank 5 (External)", "Grace of Air Totem Rank 3 (External)"
@@ -1878,9 +1853,7 @@ func darkInspirationParty(t *testing.T, partyRank int32, priestRank int32) (*cor
 }
 
 // The party's copy and a priest's own bid in one category per stat, so a member has the stronger
-// amount alone. The party's copy stays up throughout: a stronger priest's copy holds the Spirit while
-// it is up and the party's holds it again once it ends, and an equal or weaker one never takes the
-// Spirit from the party's.
+// amount alone. The party's copy stays up throughout.
 func TestGeneratedDarkInspirationAndAPriestsCopyDoNotStack(t *testing.T) {
 	for _, tc := range []struct {
 		name                  string

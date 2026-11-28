@@ -22,14 +22,14 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	blockPercent := rank.Effect(dbcenums.A_MOD_BLOCK_PERCENT, 0).BaseValue()
 	charges := int32(rank.ProcCharges)
 
-	// The per-block damage has no row of its own: it is the shield's own proc-trigger-damage effect.
+	// The per-block damage has no spell of its own: it is the shield's own proc-trigger-damage effect.
 	procConfig := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc(),
 		spelldata.Tag(2))
 	procConfig.ClassSpellMask = SpellMaskHolyShieldProc
-	procConfig.Flags &^= core.SpellFlagHelpful // The row's first effect is the block chance on the paladin.
+	procConfig.Flags &^= core.SpellFlagHelpful // The spell's first effect is the block chance on the paladin.
 	procConfig.BonusCoefficient = damageEffect.Coeff()
 	procConfig.ThreatMultiplier = 1.2 // The tooltip's 20% additional threat.
-	// A block's damage never crits, though its row states no Can't Crit (EV-0189).
+	// Crits on block damage in EV-0189. No Can't Crit in game files.
 	procConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHit)
 	}
@@ -51,12 +51,10 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 		},
 	}).AttachStatBuff(stats.BlockPercent, blockPercent)
 
-	// Shieldsworn: a Holy Strike that lands with a shield deals the shield's damage and spends no charge.
+	// Shieldsworn: a Holy Strike that lands with a shield deals the shield's damage and uses no charge.
 	// The game casts that hit as 456544, a spell of its own at spell level 30 with no base points of its
-	// own and the coefficient every rank's shield states, so the amount is the active rank's. Unlike a
-	// block's damage, which never crits, it is a direct spell hit that crits at the spell crit chance
-	// for 1.5 times (EV-0189). Its row lacks Not a Proc, so a listener on spell damage hears it only
-	// when it can proc from procs: Revelation rolls on it at that spell level's share (EV-0161).
+	// own, so the amount is the active rank's. Strike crits in EV-0189.
+	// Proc rolls in EV-0161.
 	if paladin.Talents.Shieldsworn {
 		if paladin.shieldswornStrike == nil {
 			strike := spellData.ShieldswornTriggered.ByID(shieldswornStrikeID)
@@ -86,7 +84,7 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 		holyShieldAura.AttachMultiplicativePseudoStatBuff(&paladin.PseudoStats.BlockValueMultiplier, paladin.holyShieldBlockValueMultiplier)
 	}
 
-	// The row requires a shield, which the cast requirement checks.
+	// The spell requires a shield, which the cast requirement checks.
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty
 	config.ClassSpellMask = SpellMaskHolyShield

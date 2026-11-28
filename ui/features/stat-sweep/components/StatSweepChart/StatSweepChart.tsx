@@ -46,7 +46,6 @@ type SweepDataset = ChartDataset<'line', SweepDatum[]> & { id: string; role: 'up
 
 // Each run draws the band's upper edge, its lower edge, then the metric's line. The upper edge fills down to the next dataset, so the band depends on this order.
 // The band is one standard deviation of a single fight's value either side of the average, the spread the sim card's ± reports.
-// Without the band a run draws its line alone.
 const isLine = (dataset: object) => (dataset as SweepDataset).role === 'line';
 // The x range reaches this share of its span past the outermost value, so the end points draw whole inside the plot.
 const X_RANGE_PAD = 0.03;

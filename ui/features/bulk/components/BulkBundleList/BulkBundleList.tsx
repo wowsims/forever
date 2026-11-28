@@ -22,10 +22,7 @@ export interface BulkBundleListProps {
 
 const t = (key: string, bundle: string) => i18n.t(`bulk_tab.builds.bundles.${key}`, { bundle });
 
-// The Current bundle heads the list with no pencil and no ×. A disabled row is unchecked and its box stays in the tab
-// order. A disabled row's reason, and a named row's parts after it, show below the row, clear of the row's own buttons, on
-// the label's hover, and on the box's focus when the row is disabled. Both describe the box and the row's buttons for
-// keyboard and screen reader users.
+// A disabled row's reason, and a named row's parts after it, show below the row, clear of the row's own buttons.
 export const BulkBundleList = ({ current, rows, onCheckedChange, onEdit, onDelete, testIds }: BulkBundleListProps) => {
 	const idPrefix = useId();
 	const [confirming, setConfirming] = useState<string | null>(null);

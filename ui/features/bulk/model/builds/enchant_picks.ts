@@ -53,8 +53,7 @@ export const bulkEnchantPickRuns = (entries: readonly BulkEnchantPickEntry[], ch
 		.filter(item => item.checked && !item.duplicate)
 		.map(({ name, preset }) => ({ name, preset }));
 
-// Stored apart from `BulkEnchantPreset.checked`, the Gear mode's pick, so no `settings` bump. Names go in list order, and
-// one no longer pickable goes.
+// Stored apart from `BulkEnchantPreset.checked`, the Gear mode's pick, so no `settings` bump.
 export const setBulkEnchantPickChecked = (player: Player<any>, name: string, checked: boolean, pickable: readonly string[]) => {
 	const stored = bulkState(player).buildEnchantPresets;
 	const buildEnchantPresets = checkedRefsAfter(stored.map(refOf), refOf(name), checked, pickable.map(refOf)).map(ref => ref.name);

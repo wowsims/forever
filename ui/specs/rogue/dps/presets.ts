@@ -12,8 +12,6 @@ import MutiGear from './gear_sets/muti.gear.json';
 import SinisterGear from './gear_sets/sinister.gear.json';
 
 // Preset options for this spec.
-// Eventually we will import these values for the raid sim too, so its good to
-// keep them in a separate file.
 
 export const TALENTS_MUTILATE_ASN = {
 	name: 'Asn Muti',

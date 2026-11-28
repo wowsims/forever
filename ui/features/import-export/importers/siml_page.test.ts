@@ -1,5 +1,5 @@
-// What a SIML import leaves on a real page: what the text writes, and the page's own value for everything it leaves
-// out. The sim's reading is tested in Go (sim/siml/api_test.go); here it is the JSON `wowsimcli siml serve` gives.
+// What a SIML import leaves on a real page. The sim's reading is tested in Go (sim/siml/api_test.go); here it is
+// the JSON `wowsimcli siml serve` gives.
 import { APLRotation } from '@generated/proto/apl';
 import { Cooldowns, Faction, Profession, Race, Spec } from '@generated/proto/common';
 import { IndividualSimSettings, SimlParseResult } from '@generated/proto/ui';

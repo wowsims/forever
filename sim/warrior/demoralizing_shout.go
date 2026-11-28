@@ -10,14 +10,12 @@ var demoralizingShoutRank = spellData.DemoralizingShout.Highest()
 
 func (warrior *Warrior) registerDemoralizingShout() {
 	warrior.DemoralizingShoutAuras = warrior.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-		// Nothing in the warrior tree prices this shout's aura: Forever has no
-		// Improved Demoralizing Shout, and Booming Voice widens the radius and
-		// lowers the cost only, so the aura is the game files' attack power
-		// reduction for 45 seconds.
+		// Nothing in the warrior tree prices this shout's aura: Forever has no Improved Demoralizing Shout,
+		// and Booming Voice widens the radius and lowers the cost only.
 		return buffs.NewSpellDataDemoralizingShoutAura(target, true, 0)
 	})
 
-	// The row's threat effect, 47 a target at level 60, is what the logs read (EV-0220).
+	// Shout threat in EV-0220.
 	config := spelldata.SpellConfig(&warrior.Unit, demoralizingShoutRank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty
 	config.ThreatMultiplier = 1

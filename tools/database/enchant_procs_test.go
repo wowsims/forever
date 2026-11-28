@@ -95,8 +95,7 @@ func TestEnchantProcRouting(t *testing.T) {
 }
 
 // An equip slot whose row states a proc trigger beside an equip aura kind stays a proc, the way an
-// item's does: a trigger is added to Retricutioner's 435901 in the game files for the test, and the
-// slot leaves the equip aura branch.
+// item's does.
 func TestEnchantEquipSlotWithATriggerStaysAProc(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -114,9 +113,9 @@ func TestEnchantEquipSlotWithATriggerStaysAProc(t *testing.T) {
 	}
 }
 
-// A PPM override answers "states no rate" on the spell the slot is routed through - the combat spell
-// of an Effect 1 slot, the equip aura of an Effect 3 one - and leaves every other refusal in place.
-// On an equip aura that hears only spells the rate is refused in turn: it would never roll.
+// A PPM override answers "states no rate" on the spell the slot is routed through and leaves every
+// other refusal in place. On an equip aura that hears only spells the rate is refused in turn: it
+// would never roll.
 func TestEnchantProcRoutingTakesAPPMOverride(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -167,8 +166,8 @@ func TestEnchantProcRoutingTakesAPPMOverride(t *testing.T) {
 	}
 }
 
-// Insight's effect entry resolves no flat stats, so the slot applies its buff 1299796 as auras, whose
-// row multiplies Spirit.
+// Insight's effect entry resolves no flat stats, so the slot applies its buff 1299796, which
+// multiplies Spirit, as auras.
 func TestEnchantPercentStatBuffIsTheAppliedSpell(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -189,8 +188,7 @@ func TestEnchantPercentStatBuffIsTheAppliedSpell(t *testing.T) {
 }
 
 // Recovery's equip aura 1248761 carries no description; its grant 1248760 reads "trigger Recovery when
-// you are Parried or Dodged". The row carries that outcome, a ProcCategoryRecovery and its ProcChance
-// of 100, and the routing casts the E_HEAL_PCT heal 1248759 it applies.
+// you are Parried or Dodged", and the routing casts the E_HEAL_PCT heal 1248759 it applies.
 func TestRecoveryHealsOnTheWearersAttackDodgedOrParried(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()

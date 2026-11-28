@@ -526,7 +526,7 @@ func TestWolfsheadAddsShiftingPowerEnergyAndEnrageRage(t *testing.T) {
 	if !cat.Enrage.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("enrage did not cast")
 	}
-	// The row's 10 instant rage, raised by half.
+	// The spell's 10 instant rage, raised by half.
 	if got := cat.CurrentRage(); got != 15 {
 		t.Errorf("rage after enrage with wolfshead = %v, want 15", got)
 	}
@@ -547,8 +547,7 @@ func TestHowlingIdolShortensShiftingPower(t *testing.T) {
 }
 
 // Symbols of Unending Life's 3-piece bonus gives back the energy of its spell 26976 when Rip or
-// Ferocious Bite is missed, dodged or parried, on top of the finisher's own miss refund. A finisher
-// that lands and a combo builder that misses get none.
+// Ferocious Bite is missed, dodged or parried, on top of the finisher's own miss refund.
 func TestSymbolsOfUnendingLifeRefundsAvoidedFinishers(t *testing.T) {
 	gain := spelldata.MustFind(26976).EnergizeEffect().BaseValue()
 	if gain <= 0 {
@@ -578,8 +577,7 @@ func TestSymbolsOfUnendingLifeRefundsAvoidedFinishers(t *testing.T) {
 		target.PseudoStats.BaseDodgeChance = 0
 	}
 
-	// The energy the cat holds a moment after the cast, once a proc's batch window has passed. It
-	// starts below its cap with the room for the refund, and with five combo points.
+	// The energy the cat holds a moment after the cast, once a proc's batch window has passed.
 	energyAfter := func(t *testing.T, worn map[proto.ItemSlot]int32, ability, outcome string, prepare setup) float64 {
 		t.Helper()
 		sim, cat := newCatWearing(t, "", nil, worn)
@@ -719,8 +717,8 @@ func TestPoisedLowersTheFirstCatAbilityOnly(t *testing.T) {
 	}
 }
 
-// A missed, dodged or parried Claw spends Poised as a landed one does, and pays the lowered cost less the
-// row's miss refund.
+// A missed, dodged or parried Claw uses Poised as a landed one does, and pays the lowered cost less the
+// spell's miss refund.
 func TestAvoidedClawSpendsPoised(t *testing.T) {
 	for _, c := range []struct {
 		avoid string

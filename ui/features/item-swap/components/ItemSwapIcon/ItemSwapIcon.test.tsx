@@ -47,7 +47,7 @@ const equippedItem = (itemId: number, ilvl = 63) =>
 		ilvl,
 		asActionId: () => ({ itemId }),
 		// The selector modal reads a swap item through the same decorators the gear picker uses, so the
-		// double has to answer them or `createItemSwapGearData` throws before it returns anything.
+		// double has to answer them or `createItemSwapGearData` throws.
 		withDynamicStats() {
 			return this;
 		},

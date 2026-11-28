@@ -273,8 +273,7 @@ func (consumable *Consumable) GetStatModifiers() *stats.Stats {
 		if effect.ID != 0 {
 			if spellEffects, ok := dbcInstance.SpellEffects[effect.SpellID]; ok {
 				// A seated Drink or Food restores only while the user sits, so it lists only the buffs it
-				// triggers: Blessed Sunfruit Juice 18140's 735 mana a tick lists nothing, its 18141 lists
-				// 10 Spirit.
+				// triggers.
 				seated := spelldata.Find(int32(effect.SpellID)).WhileSeated()
 				for _, spellEffect := range spellEffects {
 					if !seated || spellEffect.EffectAura == dbcenums.A_PERIODIC_TRIGGER_SPELL {
@@ -296,10 +295,9 @@ func (consumable *Consumable) GetStatModifiers() *stats.Stats {
 								stats.AddInplace(&stat)
 							}
 						}
-					// A trigger keeps the triggered spell's own amounts: Blessed Sunfruit 18124 states
-					// 18125's Strength that way. The eating and drinking it triggers last only while
-					// seated (Nutritious Drink 1249920's Drink 430), so they list nothing. A periodic
-					// trigger without a value every 10 s is ParseStatEffect's own.
+					// A trigger keeps the triggered spell's own amounts. The eating and drinking it
+					// triggers last only while seated, so they list nothing. A periodic trigger without a
+					// value every 10 s is ParseStatEffect's own.
 					case spellEffect.EffectType == dbcenums.E_TRIGGER_SPELL && !spelldata.Find(int32(spellEffect.EffectTriggerSpell)).WhileSeated():
 						for _, triggered := range dbcInstance.SpellEffects[spellEffect.EffectTriggerSpell] {
 							if stat, ok := triggered.ParseStatEffect(triggered.Coefficient != 0, 0); ok {

@@ -7,7 +7,7 @@ import (
 
 var rendRank = spellData.Rend.Highest()
 
-// The Attack Power share per tick (0.02) reads the attack power at each tick (EV-0019, EV-0048, EV-0203).
+// Attack power share in EV-0019, EV-0048, EV-0203.
 // TODO: Rank 7 carries the same share unmeasured. Verify it once logs at its level exist.
 func (warrior *Warrior) registerRend() {
 	tick := rendRank.PeriodicEffect()

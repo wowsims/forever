@@ -49,9 +49,8 @@ export function playerBrokenTalentNames<SpecType extends Spec>(playerSpec: Playe
 }
 
 /**
- * The string as the class's trees read it. A string saved before a tree was reworked can put five points where a talent
- * now takes three, or name a talent the tree no longer has; the sim indexes the talent's ranks by that digit, so it has
- * to be in range before it is sent. A string already within its trees comes back as it is, trailing zeros and all.
+ * The string as the class's trees read it. The sim indexes the talent's ranks by each digit, so it has to be in range
+ * before it is sent. A string already within its trees comes back as it is, trailing zeros and all.
  */
 export function normalizedTalentsString(classID: Class, talentString: string): string {
 	const talentsConfig = classTalentsConfig[classID];

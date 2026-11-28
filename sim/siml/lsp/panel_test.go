@@ -253,7 +253,7 @@ func TestPathThatDoesNotExistIsRefused(t *testing.T) {
 	}
 }
 
-// An aura the spec knows only as an internal cooldown trigger comes marked, so the pickers offer it in the ICD kinds
+// An aura the spec knows only as an ICD trigger comes marked, so the pickers offer it in the ICD kinds
 // alone.
 func TestRegisteredMarksICDOnlyAuras(t *testing.T) {
 	c := started(t)

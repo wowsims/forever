@@ -104,8 +104,7 @@ export const runConcurrentStatWeights = async (
 	let simsDone = 0;
 
 	// The backend leaves RequestLow unset for hit, expertise and weapon skill, which it simulates
-	// above the baseline only (sim/core/statweight.go). Skip the low sim when it is absent rather than
-	// counting iterations for a request that does not exist.
+	// above the baseline only (sim/core/statweight.go).
 	for (const statReqData of manualResponse.statSimRequests) {
 		if (statReqData.requestLow) {
 			iterationsTotal += statReqData.requestLow.simOptions!.iterations;
@@ -137,9 +136,9 @@ export const runConcurrentStatWeights = async (
 		};
 	};
 
-	// Runs the sims as one queue of splits across the workers. Each hands its splits to `take` as it ends, so no whole result
-	// outlives its sim, and as each `take` writes its own slot the values do not depend on which sim ends first. The splits
-	// stay uncombined: the weights read the first player's values alone, which the splits hold in full.
+	// Each sim hands its splits to `take` as it ends, so no whole result outlives its sim, and as each `take` writes its own
+	// slot the values do not depend on which sim ends first. The splits stay uncombined: the weights read the first player's
+	// values alone, which the splits hold in full.
 	const runSims = (sims: Array<{ request: RaidSimRequest; take: (splits: RaidSimResult[]) => void }>) =>
 		runConcurrentSimQueue(
 			sims.map(({ request, take }) => ({

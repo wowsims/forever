@@ -75,7 +75,7 @@ func (paladin *Paladin) applyImprovedSeals() {
 		return
 	}
 
-	// The row names the Righteousness and Fury hits and the damaging Judgements only. The Seal of Command
+	// The spell names the Righteousness and Fury hits and the damaging Judgements only. The Seal of Command
 	// proc takes the talent through its weapon percent, see registerSealOfCommand.
 	paladin.AddStaticMod(core.SpellModConfig{
 		ClassMask: SpellMaskSealOfRighteousnessProc | SpellMaskSealOfFuryProc |
@@ -132,7 +132,7 @@ func (paladin *Paladin) applyInfusionOfLight() {
 		},
 	})
 
-	// The row hears every spell crit and states no class flags; the tooltip names Holy Shock and
+	// The spell hears every spell crit and states no class flags; the tooltip names Holy Shock and
 	// Flash of Light.
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.InfusionOfLight.Rank(paladin.Talents.InfusionOfLight), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		infusion.Activate(sim)
@@ -153,7 +153,7 @@ func (paladin *Paladin) applyIllumination() {
 	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: spellData.Illumination.Highest().ID})
 	refund := spellData.Illumination.EffectAt(3).FractionAt(paladin.Talents.Illumination)
 
-	// The row hears every heal crit and states no class flags; the tooltip names the healing spells.
+	// The spell hears every heal crit and states no class flags; the tooltip names the healing spells.
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.Illumination.Rank(paladin.Talents.Illumination), func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 		paladin.AddMana(sim, float64(spell.Cost.BaseCost)*refund, manaMetrics)
 	})
@@ -188,8 +188,8 @@ func (paladin *Paladin) applyDivinePrecision() {
 // that enter your Consecration.
 //
 // The bonus is the Holy damage from caster mod on the mark Consecration lays on those enemies, which
-// states 0 points: the server sets them from the talent's rank, and registerConsecrationMark reads them
-// from here. A flat multiplier on every Holy hit, after the crit.
+// states 0 points: the server sets them from the talent's rank. A flat multiplier on every Holy hit,
+// after the crit.
 func (paladin *Paladin) applyConsecratedGround() {
 	if paladin.Talents.ConsecratedGround == 0 {
 		return
@@ -200,9 +200,8 @@ func (paladin *Paladin) applyConsecratedGround() {
 
 // Holy Power - Increases the critical strike healing bonus of your Holy spells by 10/20/30/40/50%.
 //
-// The row is A_MOD_CRITICAL_HEALING_AMOUNT on the Holy school. That aura multiplies the whole
-// critical heal, the 150% included, so 5/5 makes a heal crit 225%. A SPELLMOD_CRIT_DAMAGE_BONUS
-// modifier such as the druid's Vengeance scales only the 50% bonus. Every paladin heal is Holy.
+// The effect is A_MOD_CRITICAL_HEALING_AMOUNT on the Holy school. That aura multiplies the whole
+// critical heal, the 150% included, so 5/5 makes a heal crit 225%. Every paladin heal is Holy.
 func (paladin *Paladin) applyHolyPower() {
 	if paladin.Talents.HolyPower == 0 {
 		return

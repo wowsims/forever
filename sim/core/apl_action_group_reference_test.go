@@ -6,8 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// A group referenced from a prepull action, a priority list entry, a sequence in the priority list and a sequence
-// in another group resolves at every reference, each to a copy of its own.
+// A group resolves at every reference, each to a copy of its own.
 func TestGroupReferencedFromPrepullAndSequencesResolvesEverywhere(t *testing.T) {
 	const spellID = 910107
 	refTo := func(name string) *proto.APLAction {

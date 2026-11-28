@@ -8,9 +8,8 @@ import { isCustomised, shownStatsReader, type StatFilterScope, type StatFilterSl
 /**
  * One panel's stat filter, shaped as the stat filter popover's props. The host re-renders only when this slot's shown
  * stats or its customised flag change, and `shown` keeps its identity while it holds the same stats, so a write to
- * another filter (a favourite, the minimum item level) rebuilds nothing. The writers read the filters at write time,
- * so a write to another field since the last render survives. `groupsStorageKey` is the panel's own key for the
- * popover's open groups.
+ * another filter rebuilds nothing. The writers read the filters at write time, so a write to another field since the
+ * last render survives.
  */
 export const useStatFilter = (slot: StatFilterSlot, scope: StatFilterScope) => {
 	const host = useSimHost();

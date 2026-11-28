@@ -421,8 +421,8 @@ func TestDamageLogNamesOnlyWhatEachHitRead(t *testing.T) {
 	}
 }
 
-// A cleave or an area hit reads attack power once for all its targets, and the batched ones deal them
-// after computing them all.
+// A cleave or an area hit reads attack power once for all its targets, and a batched hit deals its
+// damage after computing every target's.
 func TestDamageLogNamesAReadOnEveryResultItWentInto(t *testing.T) {
 	request := fakeRageSimRequest()
 	request.Encounter.Targets = append(request.Encounter.Targets, &proto.Target{Name: "second target", Level: 63, MobType: proto.MobType_MobTypeHumanoid, SwingSpeed: 2})

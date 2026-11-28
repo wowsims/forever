@@ -23,16 +23,15 @@ const (
 )
 
 // The speed a slow effect leaves its target at: a negative percent makes each attack or cast take that
-// much longer. A slow of 0 leaves the test nothing to check, and fails it.
+// much longer.
 func slowedSpeed(t *testing.T, e *spelldata.Effect) float64 {
 	t.Helper()
 	needAmount(t, "the slow", e.Average())
 	return 1 / (1 - e.Average()/100)
 }
 
-// A weapon proc whose row states no rate of its own, whether by the 101 that fires on its own
-// condition or by naming procs per minute it does not carry, is refused for the missing rate until
-// the item's rate answers it. The tests below give each slow row a 100% chance of their own.
+// A weapon proc whose spell states no rate of its own is refused for the missing rate until the item's rate
+// answers it.
 func TestSlowProcRowsStateNoRate(t *testing.T) {
 	for _, row := range []*spelldata.Spell{
 		{ID: 991410, Name: "Test Always Slow", ProcChance: 101, ProcChanceSource: spelldata.ProcChanceAlways},
@@ -106,10 +105,8 @@ func expectSpeeds(t *testing.T, when string, target *core.Unit, melee float64, c
 	}
 }
 
-// Frostguard 12797's Chilled 16927 states A_MOD_MELEE_HASTE_3 on the target, "increasing the time
-// between attacks". A hit slows the target's attacks by the row's share; a second hit halfway through
-// runs the slow for the row's duration from then rather than slowing it twice, and it lifts when that
-// runs out.
+// Frostguard's Chilled 16927: a hit slows the target's attacks by the spell's share; a second hit halfway
+// through runs the slow for the spell's duration from then rather than slowing it twice.
 func TestFrostguardSlowsTheTargetsMeleeAttacks(t *testing.T) {
 	editRow(t, frostguardChilled, alwaysProcs)
 	row := spelldata.MustFind(frostguardChilled)
@@ -133,9 +130,8 @@ func TestFrostguardSlowsTheTargetsMeleeAttacks(t *testing.T) {
 	expectSpeeds(t, "past the second proc's duration", target, 1, 1)
 }
 
-// Thunder Clap 11581's slow and Frostguard's share the attack speed slot: with Thunder Clap up the
-// target attacks at Thunder Clap's speed, Frostguard's proc leaves it at the stronger of the two
-// rather than multiplying them, and Thunder Clap's returns when Frostguard's runs out.
+// Thunder Clap 11581's slow and Frostguard's share the attack speed slot: Frostguard's proc leaves the
+// target at the stronger of the two rather than multiplying them.
 func TestFrostguardsSlowSharesThunderClapsSlot(t *testing.T) {
 	editRow(t, frostguardChilled, alwaysProcs)
 	row := spelldata.MustFind(frostguardChilled)
@@ -153,9 +149,8 @@ func TestFrostguardsSlowSharesThunderClapsSlot(t *testing.T) {
 	expectSpeeds(t, "past the proc's duration", target, thunderClap, 1)
 }
 
-// The Lobotomizer 19324's Brain Damage 1290950 deals its damage and states A_MOD_CASTING_SPEED_NOT_STACK
-// on the target, "increases the casting time of all spells". A landed hit slows the target's casts
-// by the row's share for the row's duration and deals the damage.
+// The Lobotomizer's Brain Damage 1290950: a landed hit slows the target's casts by the spell's share for
+// the spell's duration and deals the damage.
 func TestLobotomizerDamagesAndSlowsTheTargetsCasts(t *testing.T) {
 	editRow(t, lobotomizerBrainDamage, alwaysProcs)
 	row := spelldata.MustFind(lobotomizerBrainDamage)
@@ -191,11 +186,9 @@ func TestLobotomizersSlowSharesSlowsSlot(t *testing.T) {
 	expectSpeeds(t, "after the proc", target, 1, min(1/1.5, brainDamage))
 }
 
-// Annihilator 12798's Armor Shatter 16928 states A_MOD_ARMOR_NO_MODS on armor, on the enemy, stacking.
-// Each proc takes the row's armor off the target up to its stack count and leaves the wearer's armor
-// untouched; a further proc keeps the full stacks and runs the row's duration from itself; the armor
-// comes back when that runs out. The row's PPM is set aside for a chance of 100%, and a copy stacks to
-// three.
+// Annihilator's Armor Shatter 16928: each proc takes the spell's armor off the target up to its stack count
+// and leaves the wearer's armor untouched; a further proc keeps the full stacks and runs the spell's
+// duration from itself.
 func TestAnnihilatorShattersTheTargetsArmor(t *testing.T) {
 	const armorShatter int32 = 16928
 	editRow(t, armorShatter, func(s *spelldata.Spell) {
@@ -237,8 +230,8 @@ func TestAnnihilatorShattersTheTargetsArmor(t *testing.T) {
 	expectArmor("past the refreshed duration", targetArmor)
 }
 
-// A sim whose one player wields the real weapon, whose proc lands the row on every main-hand swing,
-// under the raid's debuffs given. The raid's driver finds the wielder by the weapon's id.
+// A sim whose one player wields the real weapon, under the raid's debuffs given. The raid's driver finds
+// the wielder by the weapon's id.
 func newRaidWielderSim(t *testing.T, weaponID, debuff int32, debuffs *proto.Debuffs) (*core.Simulation, *testCaster, *core.Unit) {
 	t.Helper()
 	editRow(t, debuff, func(s *spelldata.Spell) {
@@ -246,7 +239,7 @@ func newRaidWielderSim(t *testing.T, weaponID, debuff int32, debuffs *proto.Debu
 		s.RPPM = 0
 	})
 	if !core.HasItemEffect(weaponID) {
-		// The item's own procs per minute would replace the row's chance the edit gives it.
+		// The item's own procs per minute would replace the spell's chance the edit gives it.
 		registerSpellDataDebuffProc(SpellDataProc{Name: "Test Wielder", ItemID: weaponID, TriggerSpellID: debuff,
 			BuffSpellID: debuff, IsWeaponProc: true, Rate: func(*core.Character, *core.ProcTrigger) {}})
 	}
@@ -296,9 +289,8 @@ func auraLabels(auras []*core.Aura) []string {
 	return labels
 }
 
-// With the player wielding the weapon, the raid's copy of the weapon's debuff is the player's own: after a
-// stack from the raid's roll and one from the wielder's proc, the target carries one aura at two
-// stacks. Bashguuder's proc stacks the raid's Rivenspike, since both land 17315.
+// With the player wielding the weapon, the raid's copy of the weapon's debuff is the player's own.
+// Bashguuder's proc stacks the raid's Rivenspike, since both land 17315.
 func TestWielderStacksTheRaidsWeaponDebuff(t *testing.T) {
 	for _, tc := range []struct {
 		name               string
@@ -341,7 +333,7 @@ func TestWielderStacksTheRaidsWeaponDebuff(t *testing.T) {
 	}
 }
 
-// Vibroblade's Puncture Armor 1293005 is another row than the 17315 Bashguuder's proc lands, so the
+// Vibroblade's Puncture Armor 1293005 is another spell than the 17315 Bashguuder's proc lands, so the
 // raid's copy stays the raid's and the wielder's procs land their own beside it.
 func TestBashguuderBidsBesideTheRaidsVibroblade(t *testing.T) {
 	sim, caster, target := newRaidWielderSim(t, 13204, 17315, &proto.Debuffs{PunctureArmor: 3})
@@ -363,10 +355,8 @@ func TestBashguuderBidsBesideTheRaidsVibroblade(t *testing.T) {
 	}
 }
 
-// Puncture Armor bids in Faerie Fire's slot, Bashguuder and Rivenspike's 17315 as the raid row's
-// player copy and Vibroblade's 1293005 through the proc debuff table: under the raid's Faerie Fire
-// the wielder's procs land and the target keeps Faerie Fire's armor alone, and with Faerie Fire gone
-// Puncture Armor's stacks count. Under Sunder Armor both count.
+// Puncture Armor bids in Faerie Fire's slot: under the raid's Faerie Fire the target keeps Faerie Fire's
+// armor alone, and with Faerie Fire gone Puncture Armor's stacks count. Under Sunder Armor both count.
 func TestPunctureArmorSharesFaerieFiresSlot(t *testing.T) {
 	for _, weapon := range []struct {
 		name                    string
@@ -457,9 +447,8 @@ func TestPunctureArmorSharesFaerieFiresSlot(t *testing.T) {
 	}
 }
 
-// Depleted Eye of Influence 275630's Eye of Influence 1297082 states A_MOD_ATTACK_POWER and
-// A_MOD_RANGED_ATTACK_POWER on the enemy, off the harmful spells its wearer casts. Its trigger 1297085
-// states no rate, so the test hands it a 100% chance.
+// Eye of Influence 1297082 states A_MOD_ATTACK_POWER and A_MOD_RANGED_ATTACK_POWER on the enemy, off the
+// harmful spells its wearer casts. Its trigger states no rate, so the test hands it a 100% chance.
 func TestEyeOfInfluenceLowersTheTargetsAttackPower(t *testing.T) {
 	const itemID, trigger, debuff int32 = 991408, 1297085, 1297082
 	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: itemID, Name: "Test Eye",
@@ -492,7 +481,7 @@ func TestEyeOfInfluenceLowersTheTargetsAttackPower(t *testing.T) {
 	}
 }
 
-// A row whose aura lands on an enemy is never registered as a buff on the wearer.
+// A spell whose aura lands on an enemy is never registered as a buff on the wearer.
 func TestAnEnemyAuraIsNeverAWearerBuff(t *testing.T) {
 	withTestItems(991407)
 	registerSpellDataProc(SpellDataProc{Name: "Test Annihilator", ItemID: 991407, TriggerSpellID: 16928,
@@ -502,11 +491,7 @@ func TestAnEnemyAuraIsNeverAWearerBuff(t *testing.T) {
 	}
 }
 
-// Two weapon procs whose rows apply a debuff alone on the melee hit table: Mutilator 12469's
-// Lacerations 10370, which raises the physical damage its target takes and registers as an aura proc,
-// and Bashguuder 13204's Puncture Armor 17315, a debuff proc. Each casts its row as a main-hand
-// strike that deals no damage: the debuff goes on with a strike that lands, and a strike that misses
-// leaves the target as it was (EV-0145).
+// Debuff strikes in EV-0145.
 func TestMeleeDebuffWeaponProcRollsItsOwnHit(t *testing.T) {
 	const punctureArmor int32 = 17315
 	for _, tc := range []struct {

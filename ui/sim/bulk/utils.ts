@@ -22,8 +22,8 @@ export const getBulkItemSlotFromSlot = (slot: ItemSlot, canDualWield: boolean): 
 };
 
 export const getBulkPlayerCanDualWield = (player: Player<any>): boolean => {
-	// A class with no melee weapon capabilities (hunters) gets no dual-wield grouping either -
-	// the backend rejects its melee candidates through the same weapon table.
+	// A class with no melee weapon capabilities (hunters) gets no dual-wield grouping: the backend
+	// rejects its melee candidates through the same weapon table.
 	return isSpecDualWieldCapable(player.getSpec()) && getClassWeaponTypes(player.getClass()).length > 0;
 };
 

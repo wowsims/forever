@@ -11,8 +11,7 @@ func (druid *Druid) registerRipSpell() {
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ExtraCastCondition = druid.requiresComboPoints(rank)
 	config.Dot = spelldata.DotConfig(rank, tick)
-	// Combo points are captured when the dot is applied. Attack power is read on the tick, and scales
-	// per combo point with the fifth counted as the fourth.
+	// Attack power is read on the tick, and scales per combo point with the fifth counted as the fourth.
 	comboPoints := map[int32]float64{}
 	config.Dot.OnSnapshot = func(_ *core.Simulation, target *core.Unit, dot *core.Dot) {
 		cp := float64(druid.ComboPoints(target))

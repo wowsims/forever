@@ -57,7 +57,7 @@ export function applyEmptyAplRotation<SpecType extends Spec>(player: Player<Spec
 }
 
 // `host` rather than its parts: this runs from the persistence load queued on the first
-// `waitForInit()`, by which time the constructor has set `reforger` — capturing it up front
+// `waitForInit()`, by which time the constructor has set `reforger`; capturing it up front
 // would silently skip the reforge defaults.
 export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHost<SpecType>) {
 	const { player, sim, individualConfig: config } = host;
@@ -139,8 +139,7 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 	});
 }
 
-// What the spec's defaults.siml sets that has no field of its own in `defaults`: the cooldowns, bonus stats, EP
-// ratios, reference stats and reforge settings. A section the file does not hold keeps what the defaults above set.
+// What the spec's defaults.siml sets that has no field of its own in `defaults`.
 function applyFileDefaults<SpecType extends Spec>({ player, reforger, individualConfig: config }: DefaultsHost<SpecType>) {
 	const settings = config.defaults.settings;
 	if (!settings) {

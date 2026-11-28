@@ -83,9 +83,8 @@ func (paladin *Paladin) applyConviction() {
 // Vindication - Gives your damaging melee attacks a chance to reduce the target's Attack Power by
 // 68/136/204 for 30 sec.
 //
-// The game files state no rate: the ProcChance column reads 100. In game it is 5 procs a minute on
-// the weapon's speed (EV-0062). The row's proc mask also hears melee specials, which roll the same
-// chance (EV-0156). The debuff is a magic spell of its own that can miss.
+// No rate in game files. In game it is 5 procs a minute (EV-0062). Melee specials roll the
+// same chance (EV-0156); the spell's proc mask also hears them.
 const vindicationPPM = 5
 
 func (paladin *Paladin) applyVindication() {
@@ -95,7 +94,7 @@ func (paladin *Paladin) applyVindication() {
 
 	rank := spellData.VindicationTriggered.Highest()
 
-	// The raid's Vindication row, priced at the paladin's ranks, so it bids against the raid's
+	// The raid's Vindication spell, priced at the paladin's ranks, so it bids against the raid's
 	// attack power reductions rather than stacking with them.
 	targetAuras := paladin.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 		return buffs.NewSpellDataVindicationAura(target, true, paladin.Talents.Vindication)
@@ -124,11 +123,9 @@ func (paladin *Paladin) applyVindication() {
 // the Mana cost of the judged seal.
 //
 // Judgement fires no on-cast callbacks, so the trigger hears the judgement the seal unleashes: one
-// per Judgement, and it refunds whether or not that judgement lands. Swift Judgement unleashes the
-// same judgements and refunds too.
+// per Judgement, and it refunds whether or not that judgement lands.
 //
-// The refund is a share of the seal's base cost, and the seal's percent cost cut goes on top of it
-// instead of coming off: Benediction 5/5 makes a 90 mana seal cost 81 and refund 60% of 99 (EV-0063).
+// Refund and the seal's percent cost cut in EV-0063.
 func (paladin *Paladin) applySanctifiedJudgement() {
 	if paladin.Talents.SanctifiedJudgement == 0 {
 		return
@@ -200,8 +197,7 @@ func (paladin *Paladin) applyPursuitOfJustice() {
 // Sacred Arbiter - Increases the damage of your Holy Strike ability by 20% and causes it to refresh
 // all Judgement effects on the target.
 //
-// The trigger follows the tooltip. In game a Holy Strike under the talent writes no refresh line in
-// the combat log (EV-0117).
+// The trigger follows the tooltip. In game a Holy Strike under the talent writes no refresh line (EV-0117).
 // TODO: Ingame test needed: whether Holy Strike under Sacred Arbiter extends the judgement debuffs without a refresh line.
 func (paladin *Paladin) applySacredArbiter() {
 	if !paladin.Talents.SacredArbiter {
@@ -229,9 +225,9 @@ func (paladin *Paladin) applySacredArbiter() {
 // Two-Handed Weapon Specialization - Increases the Physical and Holy damage you deal by 2/4/6%, and
 // reduces all threat you generate by 7/14/20% while a two-handed melee weapon is equipped.
 //
-// The row's aura reaches beyond its weapon, so the parse gives all Physical and Holy damage the
-// percent while a two-hander is equipped, magic-defense and ranged-defense Holy spells included.
-// Healing takes none.
+// The spell's aura reaches beyond its weapon, so the parse gives all Physical and Holy damage the
+// percent while a two-hander is equipped, magic-defense and ranged-defense Holy spells included
+// (EV-0022). Healing takes none.
 func (paladin *Paladin) applyTwoHandedWeaponSpecialization() {
 	if paladin.Talents.TwoHandedWeaponSpecialization == 0 {
 		return
@@ -273,11 +269,10 @@ func (paladin *Paladin) applyVengeance() {
 		},
 	})
 
-	// The stack a crit adds comes after every proc of that same hit: those procs run a batch window
-	// after the hit, queued in its instant, and the stack queues behind them from its own deferred
-	// handler. A critical swing's Seal of Righteousness or Seal of Fury hit is priced on the stacks
-	// from before the crit (EV-0224); Seal of Command, a spent Echo and Judgement of Light's heal
-	// follow the same order unmeasured.
+	// The stack a crit adds comes after every proc of that same hit: the stack queues behind them from
+	// its own deferred handler. A critical swing's Seal of Righteousness or Seal of Fury hit is priced
+	// on the stacks from before the crit (EV-0224); Seal of Command, a used Echo and Judgement of
+	// Light's heal follow the same order unmeasured.
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.Vengeance.Rank(paladin.Talents.Vengeance), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		sim.RunAfterCurrentEvent(func(sim *core.Simulation) {
 			vengeance.Activate(sim)
@@ -285,7 +280,7 @@ func (paladin *Paladin) applyVengeance() {
 		})
 	})
 	trigger.Name = "Vengeance - Trigger" + paladin.Label
-	// The row's harmful-spell bit hears every spell, item spells too, and the sim registers an on-use
+	// The spell's harmful-spell bit hears every spell, item spells too, and the sim registers an on-use
 	// item's or an explosive's spell under ProcMaskEmpty, so the listener hears any hit.
 	trigger.ProcMask = core.ProcMaskUnknown
 	paladin.MakeProcTriggerAura(trigger)
@@ -305,10 +300,7 @@ func (paladin *Paladin) applyChampionOfTheLight() {
 // times. Landing an attack with a different Seal consumes all stacks, giving the stored Seal its
 // normal chance to activate once per stack.
 //
-// Each copy is the Echo of its seal, one aura per seal, each read from its own row. A stored seal's
-// effect lands a batch window after the hit that consumes it, as a live seal's does. In game the
-// talent needs a weapon equipped, so swapping the main-hand weapon takes it off for a moment, and
-// every Echo goes with it (EV-0065).
+// Swapping the main-hand weapon takes every Echo off (EV-0065).
 func (paladin *Paladin) applyUnsealedWrath() {
 	if !paladin.Talents.UnsealedWrath {
 		return
@@ -369,12 +361,12 @@ func (paladin *Paladin) applyUnsealedWrath() {
 		}
 	})
 	trigger.Name = "Unsealed Wrath" + paladin.Label
-	// A copy is stored and spent on a hit that lands. The row's proc cooldown is shorter than any
-	// swing timer, so it turns away only a swing dealt in the instant of another, which is an extra
-	// attack such as Hand of Justice's: that one neither stores nor spends a copy.
+	// The spell's proc cooldown is shorter than any swing timer, so it turns away only a swing dealt in
+	// the instant of another, which is an extra attack such as Hand of Justice's: that one neither
+	// stores nor uses a copy.
 	trigger.Outcome = core.OutcomeLanded
 	trigger.TriggerImmediately = true
-	// A Windfury Totem hit stores no copy, though the row hears melee swings (EV-0136).
+	// A Windfury Totem hit stores no copy (EV-0136).
 	trigger.HearsCountedSwings = false
 	paladin.MakeProcTriggerAura(trigger)
 }

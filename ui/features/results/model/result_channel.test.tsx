@@ -55,9 +55,9 @@ describe('ResultChannel', () => {
 		expect(notifications).toBe(1);
 	});
 
-	// The reason `getSnapshot` returns a stored field rather than building a value: React reads a new
-	// snapshot identity as a change, so an unstable one re-renders without end. This is also the
-	// `ResultComponent.lastSimResult` replay — a consumer that mounts after the run still sees it.
+	// The reason `getSnapshot` returns a stored field: React reads a new snapshot identity as a change.
+	// This is also the `ResultComponent.lastSimResult` replay: a consumer that mounts after the run
+	// still sees it.
 	it('feeds useSyncExternalStore one render per emit, replaying a run that already finished', () => {
 		const channel = new ResultChannel();
 		const first = resultData('first');

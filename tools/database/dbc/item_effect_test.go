@@ -39,8 +39,7 @@ func TestAddAreaStatsKeepsOneEntryPerArea(t *testing.T) {
 }
 
 // An equip spell raising only a weapon skill or a stat against a creature type the item's own stats state
-// leaves the item; this step keeps the same spell on an item whose stats state no such bonus, and a spell
-// doing more. One that states the bonus at another value than the stats stops the build.
+// leaves the item; one that states the bonus at another value than the stats stops the build.
 func TestEquipSpellRestatingAnItemStatLeavesTheItem(t *testing.T) {
 	const fistLine, undeadMask, demonAndUndeadMask = 162, 32, 36
 	const fistSpell, fistAndArmorSpell, undeadAttackPowerSpell, undeadSpellDamageSpell, demonAndUndeadSpell = 1, 2, 3, 4, 5
@@ -119,8 +118,7 @@ func TestEquipSpellRestatingAnItemStatLeavesTheItem(t *testing.T) {
 }
 
 // An equip spell raising only weapon skills the item's stats do not state leaves the item and becomes its
-// weapon skill at the spell's base points. A spell doing more, one on a line that is no weapon skill, one the
-// stats already state and one that is not an equip spell stay, and the item gains no skill.
+// weapon skill at the spell's base points.
 func TestEquipSpellRaisingOnlyWeaponSkillsFoldsIntoTheItem(t *testing.T) {
 	const fistLine, daggerLine, defenseLine, feralLine = 162, 173, 95, 3014
 	const fistSpell, fistAndDaggerSpell, fistAndArmorSpell, defenseSpell, feralSpell = 1, 2, 3, 4, 5
@@ -176,7 +174,7 @@ func TestEquipSpellRaisingOnlyWeaponSkillsFoldsIntoTheItem(t *testing.T) {
 }
 
 // An equip spell that grants only stats against creature types leaves the item's effects for its mob type
-// stats, at the amounts its row states. An equip spell with no stats and no such bonus stays an effect.
+// stats, at the amounts the spell states. An equip spell with no stats and no such bonus stays an effect.
 func TestEquipSpellGrantingOnlyVersusStatsFoldsIntoMobTypeStats(t *testing.T) {
 	once.Do(func() {})
 	previous := dbcInstance

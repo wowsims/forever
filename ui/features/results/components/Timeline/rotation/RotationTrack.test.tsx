@@ -18,8 +18,8 @@ import { RotationTrack } from './RotationTrack';
 
 vi.mock('@sim/state/subscriptions', async () => mockSubscriptions());
 
-// The row icon is `useActionId` plus `useWowheadDataset`; both are covered where they live, and
-// letting them run here would put a Wowhead fetch behind every row.
+// The row icon is `useActionId` plus `useWowheadDataset`; letting them run here would put a
+// Wowhead fetch behind every row.
 vi.mock('./RotationRowIcon', () => ({ RotationRowIcon: () => <a data-testid="rotation-row-icon" /> }));
 
 // The player's rotation, unchanged since the run in the cases that click a cast.
@@ -126,7 +126,7 @@ describe('RotationTrack', () => {
 		expect(height()).toBe(61 * 32);
 
 		// Read in the render the click causes, not after the next frame: emptying the container even
-		// for one paint is what let the browser clamp scrollTop and jump the view.
+		// for one paint lets the browser clamp scrollTop and jump the view.
 		fireEvent.click(container.querySelector('[data-row-key="cast:20"] [data-testid="rotation-row-hide"]')!);
 		expect(container.querySelectorAll('[data-testid="rotation-row"]').length).toBeGreaterThan(0);
 		expect(height()).toBe(60 * 32);

@@ -81,7 +81,7 @@ func (rogue *Rogue) registerGhostlyStrike() {
 	config.ClassSpellMask = RogueSpellGhostlyStrike
 	config.DamageMultiplier = core.TernaryFloat64(rogue.HasDagger(core.MainHand), ghostlyStrikeRank.EffectN(4).Percent(), ghostlyStrikeRank.EffectN(1).Percent())
 
-	// The dodge buff is the row's own aura: its duration and the dodge its second effect adds.
+	// The dodge buff is the spell's own aura: its duration and the dodge its second effect adds.
 	dodgeBuff := rogue.RegisterAura(spelldata.AuraConfig(ghostlyStrikeRank))
 	spelldata.ParseEffects(&rogue.Character, dodgeBuff, ghostlyStrikeRank, spelldata.Effects(2))
 	config.RelatedSelfBuff = dodgeBuff
@@ -110,7 +110,7 @@ func (rogue *Rogue) registerGhostlyStrike() {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
-		// The row's E_NORMALIZED_WEAPON_DMG effect normalizes the weapon damage, as on Hemorrhage.
+		// The spell's E_NORMALIZED_WEAPON_DMG effect normalizes the weapon damage, as on Hemorrhage.
 		baseDamage := spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
 
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)

@@ -76,9 +76,9 @@ func TestShadowPriest(t *testing.T) {
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{config}))
 }
 
-// The priest's own Prayer of Fortitude bids in the raid buff's category. Alone, the cast adds the
-// row's stamina for the row's mana; Arcane Intellect lifts the priest's mana pool above the cost. With the raid buff up, the cast is turned away, and the priest's
-// copy, put up anyway as another priest's cast would, adds nothing.
+// The priest's own Prayer of Fortitude bids in the raid buff's category. Arcane Intellect lifts the
+// priest's mana pool above the cast's cost. With the raid buff up, the cast is turned away, and the
+// priest's copy, put up anyway as another priest's cast would, adds nothing.
 func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	rank := spellData.PrayerOfFortitude.Highest()
 	rowStamina := rank.EffectN(1).BaseValue()
@@ -145,9 +145,7 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	})
 }
 
-// Spirit Tap comes with a killing blow or the death of an enemy with the priest's Vampiric Embrace on it, and not
-// with an unafflicted death the raid gets no kill for. An afflicted death always grants it, once; any other killing
-// blow rolls the rank's chance.
+// Spirit Tap comes with a killing blow or the death of an enemy with the priest's Vampiric Embrace on it.
 func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 	newSim := func(t *testing.T, talents string, points int32) (*core.Simulation, *Priest, *core.Aura) {
 		t.Helper()
@@ -190,7 +188,7 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 	}
 
 	t.Run("each death grants once at the full rank", func(t *testing.T) {
-		// Spirit Tap 5/5, where the row's chance is certain, and Vampiric Embrace in the Shadow tree.
+		// Spirit Tap 5/5, where the talent's chance is certain, and Vampiric Embrace in the Shadow tree.
 		sim, priest, buff := newSim(t, "--00500000001", 5)
 		target := sim.Encounter.AllTargets[0]
 		grants := 0
@@ -261,7 +259,7 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 	})
 }
 
-// Vampiric Embrace heals each party member the row's share of the priest's Shadow damage, and the priest that
+// Vampiric Embrace heals each party member the spell's share of the priest's Shadow damage, and the priest that
 // share raised by the second effect's percent.
 func TestVampiricEmbraceHealsThePriestMoreThanTheParty(t *testing.T) {
 	priestPlayer := func(name, talents string) *proto.Player {
@@ -320,8 +318,7 @@ func TestVampiricEmbraceHealsThePriestMoreThanTheParty(t *testing.T) {
 	}
 }
 
-// Early Demise reads the health of each Shadow Word: Death's own target: the crit bonus is off for a cast
-// while the target is above its threshold and on once the target is below it.
+// Early Demise reads the health of each Shadow Word: Death's own target.
 func TestEarlyDemiseFollowsTheCastsTarget(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	sim := core.NewSim(&proto.RaidSimRequest{
@@ -369,8 +366,7 @@ func TestEarlyDemiseFollowsTheCastsTarget(t *testing.T) {
 	}
 }
 
-// Starshards' ticks roll their partial resist against the target's whole average resist, where other
-// channels' ticks roll against a tenth of it (EV-0142).
+// Tick partial resists in EV-0142.
 func TestStarshardsTicksMeetTheTargetsFullResistance(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Duration = 3600
@@ -430,8 +426,7 @@ func TestStarshardsTicksMeetTheTargetsFullResistance(t *testing.T) {
 	}
 }
 
-// Penance's heal bolts crit with Revelation's charge up and leave it: every heal of the channel crits and
-// the charge outlasts the channel (EV-0149).
+// Charge use in EV-0149.
 func TestPenanceHealsCritAndLeaveRevelationsCharge(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Duration = 3600

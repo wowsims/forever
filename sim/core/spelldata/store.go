@@ -22,9 +22,9 @@ import (
 // variables are initialised before any init runs, so the data is complete when install indexes it,
 // and no file-name ordering is relied on.
 //
-// Two of the row's fields are named for the id they hold rather than for the accessor that resolves
-// it, because a Go field and a method cannot share a name: Effect.TriggerID feeds Trigger(), and
-// Spell.RefIDs feeds Refs(). The emitter writes those two names.
+// Two of the row's fields are named for the id they hold, because a Go field and a method cannot
+// share a name: Effect.TriggerID feeds Trigger(), and Spell.RefIDs feeds Refs(). The emitter writes
+// those two names.
 var spells = []Spell{}
 
 // Talent curve values by spell id, as [effect position][rank - 1]. The effect is at the position
@@ -36,8 +36,7 @@ var curves = map[int32][][]float64{}
 var all []*Spell
 
 // The spells a server-side handler casts off a given spell, which no effect of it states. The
-// game files' own columns are left as they state them, and Drivers and Triggered read these beside
-// them.
+// game files' own columns are left as they state them.
 var handTriggers = map[int32][]int32{}
 
 // Which spells reach a given spell: every effect that triggers it, every handler that casts it, and
@@ -94,9 +93,8 @@ func addDriver(triggered int32, driver int32) {
 	drivers[triggered] = append(ids, driver)
 }
 
-// The row for an id, or Nil when the store does not carry it. Nil reads as zeroes rather than
-// crashing, so a caller can ask about a spell this build does not have. The row is the store's own,
-// not a copy: callers must not write through it.
+// The row for an id, or Nil when the store does not carry it. The row is the store's own, not a
+// copy: callers must not write through it.
 func Find(id int32) *Spell {
 	i := sort.Search(len(spells), func(i int) bool { return spells[i].ID >= id })
 	if i < len(spells) && spells[i].ID == id {
@@ -120,8 +118,8 @@ func All() []*Spell {
 	return all
 }
 
-// Every row with this exact name, by linear scan over the whole store. For tests and debugging - a
-// sim should name the spell by id.
+// Every row with this exact name, by linear scan over the whole store. A sim should name the spell
+// by id.
 func ByName(name string) []*Spell {
 	var out []*Spell
 	for i := range spells {

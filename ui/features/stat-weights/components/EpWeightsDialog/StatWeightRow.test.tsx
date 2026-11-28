@@ -17,8 +17,7 @@ import { StatWeightRow, StatWeightRowView, type StatWeightRowViewProps } from '.
 
 const AGILITY = UnitStat.fromStat(Stat.StatAgility);
 
-// The settings are the real class on a real store, so the toggle goes through the same store write
-// and subscription the dialog uses. The player only answers what the row reads.
+// The settings are the real class on a real store; the player only answers what the row reads.
 const setup = (editResult: (result: StatWeightsResult) => void = () => {}, stat: UnitStat = AGILITY) => {
 	const store = createSimStore();
 	const storage = new Map<string, string>();

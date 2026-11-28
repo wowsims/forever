@@ -41,7 +41,7 @@ const anyOffered = (list: ReadonlyArray<RenderableStatOptions>, player: Player<a
 	list.some(option => !option.config.keptBy || inputPicked(option.config, player));
 
 // Whether any option is offered, worked out again only when the raid slice, the player's slice or the list changes. An
-// option's value is read from those two slices, so a write to any other slice returns the cached flag.
+// option's value is read from those two slices.
 const useAnyOffered = (list: ReadonlyArray<RenderableStatOptions>, player: Player<any>) => {
 	const [offered] = useState(() => memoLast<boolean>());
 	return useStore(player.sim.store, state => offered([state.raid, state.players[player.storeKey], list], () => anyOffered(list, player)));
@@ -68,8 +68,7 @@ const BuffSections = ({ gearPlanner }: { gearPlanner: boolean }) => {
 		};
 	}, [config, player, buffFilter.shown, debuffFilter.shown]);
 
-	// A kept option counts as offered only while it is picked, so each flag is re-read when the raid or the player
-	// changes and the tab re-renders only when one flips.
+	// A kept option counts as offered only while it is picked.
 	const offersBuffs = useAnyOffered(options.buffs, player);
 	const offersPartyBuffs = useAnyOffered(options.partyBuffs, player);
 	const offersDebuffs = useAnyOffered(options.debuffs, player);

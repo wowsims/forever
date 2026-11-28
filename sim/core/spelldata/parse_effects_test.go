@@ -21,8 +21,7 @@ var (
 	parseOtherMask  = core.ClassFlags{Family: 4, Mask: [4]uint32{0: 0x80}}
 )
 
-// One row per shape the table has to answer for: the two modifier auras, a hit and dot modifier
-// pair, a stacking buff, a charge buff and the passive a stance looks like.
+// One row per shape the table has to answer for.
 func parseRows() []Spell {
 	return []Spell{
 		{
@@ -81,8 +80,7 @@ func parseRows() []Spell {
 	}
 }
 
-// A character with its pseudo-stats and dependencies in place, which is what a stat buff and a
-// multiplier need under them.
+// A character with its pseudo-stats and dependencies in place.
 func parseCharacter(player *proto.Player) *core.Character {
 	player.Name = "Parse Tester"
 	player.Race = proto.Race_RaceOrc
@@ -249,8 +247,7 @@ func TestParseKeepsTheHitAndDotModifiersApart(t *testing.T) {
 	}
 }
 
-// Elemental Focus's Clearcasting parses to a percent cost mod: with its cost row taking the whole
-// cost, the spells it names are free while it is up and cost what they did once it drops.
+// Elemental Focus's Clearcasting parses to a percent cost mod.
 func TestGeneratedFreeCastRowGivesTheCostBack(t *testing.T) {
 	withGeneratedStore(t)
 	sim := &core.Simulation{}
@@ -446,7 +443,7 @@ func TestParseEffectsFollowsTheAuraAndItsStacks(t *testing.T) {
 	}
 }
 
-// A row that states charges rather than cumulative stacks is worth its value once, however many
+// A spell that states charges rather than cumulative stacks is worth its value once, however many
 // charges the aura carries.
 func TestParseEffectsChargesAreNotStacks(t *testing.T) {
 	withRows(t, parseRows())
@@ -1012,7 +1009,7 @@ func TestParseEffectsScalesByTheCharactersLevel(t *testing.T) {
 }
 
 // A multiplier of zero or less cannot be taken back off: expiry divides by it. The row is reported
-// the way an unmapped one is rather than leaving the field at zero or at an infinity.
+// the way an unmapped one is.
 func TestParseSkipsANonPositiveMultiplier(t *testing.T) {
 	withRows(t, parseRows())
 	character := parseWarrior()
@@ -1128,7 +1125,7 @@ func TestParseStaticFlatDamageTakenBySchool(t *testing.T) {
 }
 
 // Target resistance by a mask of some schools lands on the per-school piercing of each school it names,
-// its size whichever sign the row states, and leaves SpellPiercing and the other schools alone.
+// its size whichever sign the spell states, and leaves SpellPiercing and the other schools alone.
 func TestParseStaticSchoolSpellPiercing(t *testing.T) {
 	withRows(t, parseRows())
 
@@ -1168,8 +1165,7 @@ func TestParseSkipsEquipScalingOnAPet(t *testing.T) {
 	}
 }
 
-// A power regen percentage on the energy bar multiplies the energy regen while the aura is up. A unit
-// with no energy bar, the static path and a power type the sim keeps no regen multiplier for skip it.
+// A power regen percentage on the energy bar multiplies the energy regen while the aura is up.
 func TestParseEnergyRegenPercentage(t *testing.T) {
 	withRows(t, parseRows())
 	sim := &core.Simulation{}

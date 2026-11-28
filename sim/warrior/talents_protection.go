@@ -71,17 +71,12 @@ func (warrior *Warrior) registerShieldSpecialization() {
 	warrior.registerRageOnAvoid(talent, talent.EffectN(2).Trigger(), core.OutcomeBlock, nil)
 }
 
-// A chance to gain rage when an incoming attack is blocked, dodged or parried. The rate is the
-// effect ladder the tooltip's $m names, and the 100 in the proc chance column is noise; the
-// energize the triggered spell states is on the game files' 0-1000 rage bar.
-//
-// No proc mask states an outcome, so the caller names it; for the block the row's hint decodes to
-// the same OutcomeBlock. That the hit carries no damage is the row's, off its outcome hint.
+// A chance to gain rage when an incoming attack is blocked, dodged or parried. No proc mask states
+// an outcome, so the caller names it.
 func (warrior *Warrior) registerRageOnAvoid(driver *spelldata.Spell, energize *spelldata.Spell, outcome core.HitOutcome, extra core.ProcExtraCondition) {
 	rage := energize.EnergizeEffect().Tenths()
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: energize.ID})
-	// In game this rage makes 5 threat a rage in Battle and Defensive Stance alike, and Defiance does not
-	// scale it (EV-0045).
+	// Threat per rage in EV-0045.
 	// TODO: Ingame test needed -- whether a threat buff scales it.
 	rageMetrics.UnscaledThreat = true
 
@@ -185,8 +180,8 @@ func (warrior *Warrior) registerShieldSlam() {
 		return
 	}
 
-	// A main-hand special, though the row requires the shield: the main-hand weapon skill sets its miss
-	// and parry, and core's canProcFrom decides which weapon procs hear it.
+	// A main-hand special, though the spell requires the shield: the main-hand weapon skill sets its miss
+	// and parry.
 	config := spelldata.SpellConfig(&warrior.Unit, shieldSlamRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
 	// The hit adds twice the block value to the roll, and the target's armor applies to the whole of it.
@@ -217,7 +212,7 @@ func (warrior *Warrior) registerMasterOfDefense() {
 
 	talent := spellData.MasterOfDefense.Rank(warrior.Talents.MasterOfDefense)
 
-	// A shield has to be equipped, which the row does not state.
+	// A shield has to be equipped, which the game files do not state.
 	warrior.registerRageOnAvoid(talent, talent.EffectN(1).Trigger(), core.OutcomeDodge|core.OutcomeParry,
 		func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
 			return warrior.PseudoStats.CanBlock
@@ -253,9 +248,6 @@ func (warrior *Warrior) registerImprovedShieldBash() {
 		return target.GetOrRegisterAura(spelldata.AuraConfig(silence, spelldata.Label("Shield Bash - Silence")))
 	})
 
-	// The rate is the effect ladder the tooltip's $m1 names, and the 100 in the proc chance column
-	// is noise. The one ability it fires on is a shape no proc mask states, so the row's listener
-	// is narrowed to Shield Bash by hand.
 	trigger := spelldata.ProcTrigger(&warrior.Character, talent,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			silenceAuras.Get(result.Target).Activate(sim)
@@ -273,8 +265,8 @@ func (warrior *Warrior) registerBastion() {
 		return
 	}
 
-	// The row raises the physical school and states the shield, but the parse never scopes to a
-	// shield, so it is the caller's condition, re-read on an off-hand swap.
+	// The parse never scopes to the shield the spell states, so it is the caller's condition, re-read on
+	// an off-hand swap.
 	parsed := spelldata.ParseStatic(&warrior.Character, spellData.Bastion.Rank(warrior.Talents.Bastion),
 		spelldata.Conditional(func() bool { return warrior.PseudoStats.CanBlock }))
 

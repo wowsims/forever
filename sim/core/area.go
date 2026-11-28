@@ -34,10 +34,9 @@ func (bonus AreaBonus) Factor(encounter *Encounter) float64 {
 	return 1
 }
 
-// The factor a source's effect takes in the encounter, kept for the stats sheet under the source as
-// RegisterVersus keeps a versus factor, whether or not the encounter is in the areas. The areas are fixed
-// for the run, so the effect takes the factor when it is built. A factor of 1 or in no area changes
-// nothing and is not kept.
+// The factor a source's effect takes in the encounter, kept for the stats sheet under the source whether
+// or not the encounter is in the areas. The areas are fixed for the run, so the effect takes the factor
+// when it is built. A factor of 1 or one with no area changes nothing and is not kept.
 func (character *Character) RegisterArea(source ActionID, kind proto.VersusEffectKind, bonus AreaBonus) float64 {
 	if len(bonus.Areas) == 0 || bonus.Multiplier == 1 {
 		return 1
@@ -47,8 +46,8 @@ func (character *Character) RegisterArea(source ActionID, kind proto.VersusEffec
 	return bonus.Factor(&character.Env.Encounter)
 }
 
-// Whether the encounter is in any of the areas, where a source's heal is a flat amount, kept for the stats
-// sheet under the source in every encounter as RegisterArea keeps a factor.
+// Whether the encounter is in any of the areas, where a source's heal is a flat amount. The amount is kept
+// for the stats sheet under the source in every encounter.
 func (character *Character) RegisterAreaAmount(source ActionID, areas AreaTargets, amount float64) bool {
 	character.versusEffects = append(character.versusEffects,
 		&proto.VersusEffect{Source: source.ToProto(), Kind: proto.VersusEffectKind_VersusEffectKindFlatHeal, AreaTypes: areas.Areas, Amount: amount})

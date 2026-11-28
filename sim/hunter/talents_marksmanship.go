@@ -70,8 +70,7 @@ func (hunter *Hunter) registerEfficiency() {
 	spelldata.ParseStatic(&hunter.Character, spellData.Efficiency.Rank(hunter.Talents.Efficiency))
 }
 
-// The two effects are auras the parse table has no row for, each stating a share of Intellect - 20%
-// a rank - as attack power and as ranged attack power.
+// The two effects are auras the parse table has no row for.
 func (hunter *Hunter) registerCarefulAim() {
 	if hunter.Talents.CarefulAim == 0 {
 		return
@@ -84,13 +83,12 @@ func (hunter *Hunter) registerCarefulAim() {
 
 var rapidKillingBuff = spellData.RapidKillingTriggered.Highest()
 
-// Effect 1 shortens Rapid Fire's cooldown. Effect 2 is the damage bonus 415407 gives the next Shot,
-// 10/20% by rank, where the buff row states a flat 20, so the row is scaled by the ranks taken. The
-// talent row hears the killing blow, and a credited kill grants the buff. The tooltip also grants it
-// when the enemy dies with the hunter's Serpent Sting on it, which the row's proc flags do not state;
-// a stung enemy grants it once, whether or not the raid gets the kill.
+// Effect 2 is the damage bonus 415407 gives the next Shot, where the buff spell states a flat 20, so
+// the amount is scaled by the ranks taken. A credited kill grants the buff, and the tooltip also grants
+// it when the enemy dies with the hunter's Serpent Sting on it, which the buff's proc flags do not
+// state; a stung enemy grants it once, whether or not the raid gets the kill.
 //
-// The Shots its damage mod names spend its one charge at the cast's result, a miss included.
+// The Shots its damage mod names use its one charge at the cast's result, a miss included.
 func (hunter *Hunter) registerRapidKilling() {
 	if hunter.Talents.RapidKilling == 0 {
 		return
@@ -154,10 +152,10 @@ func (hunter *Hunter) registerImprovedArcaneShot() {
 	spelldata.ParseStatic(&hunter.Character, spellData.ImprovedArcaneShot.Rank(hunter.Talents.ImprovedArcaneShot))
 }
 
-// Effect 2 is a dummy restating the bonus. The row states a stack of one, which would keep the
+// Effect 2 is a dummy restating the bonus. The spell states a stack of one, which would keep the
 // parse off a pseudo-stat multiplier. With a pet out the server takes the 20% back off both units,
 // so the hunter nets 1 and the pet, which never had it, is divided by 1.2: a level 30 Cat at 1.3 s
-// and 152 attack power reads 36-48 against the model's 43.7-57.8, where the hidden pet row's flat
+// and 152 attack power reads 36-48 against the model's 43.7-57.8, where the hidden pet spell's flat
 // -20 (415372) would read 35-46.
 func (hunter *Hunter) registerLoneWolf() {
 	if !hunter.Talents.LoneWolf {
@@ -187,7 +185,7 @@ func (hunter *Hunter) registerRapidRecuperation() {
 		return
 	}
 
-	// The buff row states a flat 50; the talent's effects set the share, see gainRapidRecuperation.
+	// The buff spell states a flat 50; the talent's effects set the share, see gainRapidRecuperation.
 	rank := spellData.RapidRecuperation.Rank(hunter.Talents.RapidRecuperation)
 	hit := rank.EffectN(1).Percent()
 	hunter.rapidRecuperationSpend = rank.EffectN(2).Percent()
@@ -201,9 +199,8 @@ func (hunter *Hunter) registerRapidRecuperation() {
 	})
 	hunter.rapidRecuperationAura = buff
 
-	// The proc shape with no roll: 1223987 fires on a ranged ability and names Serpent Sting only
-	// in its tooltip, so the listener is narrowed to it by hand. The sting's application deals no
-	// damage of its own, which the listener has to accept.
+	// 1223987 fires on a ranged ability and names Serpent Sting only in its tooltip, so the listener
+	// is narrowed to it by hand. The sting's application deals no damage of its own.
 	trigger := spelldata.ProcTrigger(&hunter.Character, rank,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			hunter.gainRapidRecuperation(sim, hit)
@@ -215,9 +212,8 @@ func (hunter *Hunter) registerRapidRecuperation() {
 	hunter.MakeProcTriggerAura(trigger)
 }
 
-// Puts Rapid Recuperation up at the share its source grants: effect 1 for a Serpent Sting hit, 25/50%
-// by rank, and effect 2 for spending Rapid Killing, 50/100% by rank. A gain at another share replaces
-// the one up.
+// Puts Rapid Recuperation up at the share its source grants: effect 1 for a Serpent Sting hit and
+// effect 2 for using Rapid Killing.
 func (hunter *Hunter) gainRapidRecuperation(sim *core.Simulation, share float64) {
 	if hunter.rapidRecuperationAura == nil {
 		return

@@ -243,11 +243,8 @@ func FromProtoArray(values []float64) Stats {
 }
 
 // Runs FromProtoArray() on the stats array embedded in the UnitStats message, but additionally imports any
-// PseudoStats that we want to model as proper Stats in the back-end. This allows us to include only essential
-// basic properties in database stats arrays, while still letting the back-end Stat enum include derived
-// properties when it is computationally convenient to do so (such as for automatically applying stat
-// dependencies). Make sure to update this function if you add any back-end Stat entries that are modeled as
-// PseudoStats in the front-end.
+// PseudoStats that we want to model as proper Stats in the back-end. Make sure to update this function if you
+// add any back-end Stat entries that are modeled as PseudoStats in the front-end.
 func FromUnitStatsProto(unitStatsMessage *proto.UnitStats) Stats {
 	return FromProtoArray(unitStatsMessage.Stats).Add(FromPseudoStatsProto(unitStatsMessage.PseudoStats))
 }
@@ -554,7 +551,7 @@ type PseudoStats struct {
 	MHWeaponSkill      float64                                         // Bonus skill for whatever weapon the main hand holds, on top of its WeaponSkills entry.
 	OHWeaponSkill      float64                                         // Bonus skill for whatever weapon the off hand holds, on top of its WeaponSkills entry.
 	FeralCombatSkill   float64
-	FeralCombatEnabled bool // While set the unit swings its form's paw: FeralCombatSkill replaces the weapon's skill, and a weapon proc's strike off that swing rolls none (R-0040).
+	FeralCombatEnabled bool // While set the unit swings its form's paw: FeralCombatSkill replaces the weapon's skill. A weapon proc's strike off that swing rolls no weapon proc (R-0040).
 
 	ThreatMultiplier       float64            // Modulates the threat generated. Affected by things like salv.
 	SchoolThreatMultiplier [SchoolLen]float64 // The threat of one spell school, on top of ThreatMultiplier.

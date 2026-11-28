@@ -34,8 +34,7 @@ func (hunter *Hunter) registerBeastMasteryTalents() {
 	hunter.registerBestialWrath()
 }
 
-// A dummy the tooltip reads as damage done by the hunter and the pet, the hunter's share only
-// while the pet is up.
+// A dummy the tooltip reads as damage done by the hunter and the pet.
 func (hunter *Hunter) registerFocusedFire() {
 	if hunter.Talents.FocusedFire == 0 || hunter.Pet == nil {
 		return
@@ -69,8 +68,7 @@ func (hunter *Hunter) registerUnleashedFury() {
 }
 
 // Effect 1 adds to the crit chance of Tamed Pet Passive (19591), which states 0. Its class flags
-// match the Summon Hawk dive too, which the store carries; the tooltip names the hawks, which take
-// it whole (EV-0074).
+// match the Summon Hawk dive too, which the store carries. Hawk crit in EV-0074.
 func (hunter *Hunter) registerFerocity() {
 	if hunter.Talents.Ferocity == 0 {
 		return
@@ -111,8 +109,7 @@ func (hunter *Hunter) registerFrenzy() {
 
 var bestialWrathRank = spellData.BestialWrath.Highest()
 
-// Effect 2, the pet's damage, is the one the sim measures: effect 1 is its size and the rest its
-// immunities.
+// Effect 2, the pet's damage, is the one the sim measures.
 func (hunter *Hunter) registerBestialWrath() {
 	if !hunter.Talents.BestialWrath || hunter.Pet == nil {
 		return
@@ -125,8 +122,7 @@ func (hunter *Hunter) registerBestialWrath() {
 	})
 }
 
-// A buff on the pet with the row's effect 2 parsed onto it, and the hunter's spell that puts it up
-// while the pet is.
+// A buff on the pet and the hunter's spell that puts it up.
 func (hunter *Hunter) registerPetBuff(rank *spelldata.Spell) (*core.Aura, *core.Spell) {
 	pet := hunter.Pet
 	aura := pet.RegisterAura(spelldata.AuraConfig(rank))
@@ -157,8 +153,7 @@ func (hunter *Hunter) registerBestialSwiftness() {
 
 var intimidationRank = spellData.Intimidation.Highest()
 
-// The pet's next attack crits, effect 2, and spends the row's one charge. Effect 1 is the stun that
-// attack carries.
+// The pet's next attack crits, effect 2, and uses the spell's one charge.
 func (hunter *Hunter) registerIntimidation() {
 	if !hunter.Talents.Intimidation || hunter.Pet == nil {
 		return

@@ -1,12 +1,7 @@
 package database
 
 // Pins what the generator emits for each shape a row can take, from synthetic
-// rows that cover every branch of the templates, and builds the result against
-// sim/core/buffs so that a generated Meta or constructor call that does not
-// compile against sim/core/buffs/meta.go is noticed here.
-//
-// Needs no game files database. Set UPDATE_BUFF_FIXTURES=1 to rewrite the fixtures
-// after a deliberate change.
+// rows, and builds the result against sim/core/buffs. Needs no game files database.
 
 import (
 	"os"
@@ -24,8 +19,7 @@ import (
 
 // One row per shape the templates have a branch for. The proto field of each row
 // is a real one whose compiled type matches the row's declared type, so the
-// rendered apply blocks type-check against the sim. Each row states its spell
-// and goes through the same parse a resolved row does.
+// rendered apply blocks type-check against the sim.
 func syntheticBuffRows() []ResolvedBuff {
 	aura := func(a dbcenums.EffectAuraType, misc int32, points float64) spelldata.Effect {
 		return spelldata.Effect{Type: dbcenums.E_APPLY_AURA, Aura: a, Misc: misc, BasePoints: points}
@@ -244,8 +238,7 @@ func renderSyntheticBuffFiles(t *testing.T) map[string][]byte {
 	return files
 }
 
-// A cast is a totem when it summons into a totem slot; any other summon, or a slot named by
-// another effect, is not.
+// A cast is a totem when it summons into a totem slot.
 func TestTotemIsASummonIntoATotemSlot(t *testing.T) {
 	for _, tc := range []struct {
 		name    string
@@ -291,8 +284,7 @@ func TestRenderedBuffFilesMatchTheFixtures(t *testing.T) {
 // Builds sim/core/buffs with the rendered files overlaid onto it, which is the
 // only check that a generated constructor still names an identifier the support
 // API declares. The apply functions are renamed because the real generated files
-// already declare them, and the drivers the rows call are stubbed here the way
-// sim/core/buffs/drivers.go would declare them.
+// already declare them.
 func TestRenderedBuffFilesCompile(t *testing.T) {
 	goTool := findGoTool(t)
 	root, err := repoRoot()

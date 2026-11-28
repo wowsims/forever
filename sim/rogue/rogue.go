@@ -76,7 +76,7 @@ type Rogue struct {
 
 	ruthlessnessMetrics               *core.ResourceMetrics
 	ruthlessnessChance                float64
-	relentlessStrikesChance           float64 // Per combo point spent.
+	relentlessStrikesChance           float64 // Per combo point used.
 	relentlessStrikesMetrics          *core.ResourceMetrics
 	puncturingWoundsComboPointMetrics *core.ResourceMetrics
 

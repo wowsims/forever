@@ -18,8 +18,7 @@ func (shaman *Shaman) registerRestorationTalents() {
 	shaman.applyImprovedReincarnation()
 
 	// Tier 3
-	// Ancestral Healing (16176) raises the healed target's armor through Ancestral Fortitude
-	// (16177), 8/17/25% by rank.
+	// Ancestral Healing (16176) raises the healed target's armor through Ancestral Fortitude (16177).
 	//
 	// TODO: To be implemented as a buff on the receiver, the way Inspiration is in core/buffs.
 	shaman.applyHealingFocus()
@@ -132,7 +131,7 @@ func (shaman *Shaman) applyNaturesSwiftness() {
 		return
 	}
 
-	// The row's mod makes the spells it reaches instant, and the next one cast spends the charge.
+	// The spell's mod makes the spells it reaches instant, and the next one cast uses the charge.
 	consumes := naturesSwiftnessRank.EffectN(1).ClassFlags
 
 	config := spelldata.AuraConfig(naturesSwiftnessRank)

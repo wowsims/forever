@@ -57,7 +57,7 @@ func (warlock *Warlock) applyImprovedCorruption() {
 
 // --- Tier 2 ---
 
-// Grim Reach raises the range of the Affliction spells by 10/20%, read from its row.
+// Grim Reach raises the range of the Affliction spells by 10/20%, read from the talent.
 func (warlock *Warlock) applyGrimReach() {
 	if warlock.Talents.GrimReach == 0 {
 		return
@@ -66,9 +66,9 @@ func (warlock *Warlock) applyGrimReach() {
 	spelldata.ParseStatic(&warlock.Character, spellData.GrimReach.Rank(warlock.Talents.GrimReach))
 }
 
-// Killing a target with this warlock's Drain Soul on it grants Soul Harvest (1242853). The talent row states
-// no proc, so the trigger is the kill Drain Soul's PROC_FLAG_KILL hears: the raid's kill roll decides it. The
-// buff row states the 2/2 value; the talent's dummies price it at each rank.
+// Soul Harvest's talent states no proc, so the trigger is the kill Drain Soul's PROC_FLAG_KILL hears:
+// the raid's kill roll decides it. The buff spell states the 2/2 value; the talent's dummies price it at each
+// rank.
 func (warlock *Warlock) applySoulHarvest() {
 	if warlock.Talents.SoulHarvest == 0 {
 		return
@@ -126,11 +126,11 @@ func (warlock *Warlock) registerAmplifyCurse() {
 	rankedSpell := spellData.AmplifyCurse.ByID(18288)
 	warlock.AmplifyCurseMultiplier = 1 + rankedSpell.EffectN(1).Percent()
 
-	// The curses the tooltip names spend it. Effect 1 names Curse of Weakness and effect 2 Curse of Exhaustion;
+	// The curses the tooltip names use it. Effect 1 names Curse of Weakness and effect 2 Curse of Exhaustion;
 	// Bane of Agony is in neither class mask in the game files, so it is matched by its own spell mask.
 	ampWeakness, ampExhaustion := rankedSpell.EffectN(1).ClassFlags, rankedSpell.EffectN(2).ClassFlags
 
-	// A curse spends it when it lands; one that misses or is fully resisted leaves it up (EV-0200).
+	// Charge use in EV-0200.
 	auraConfig := spelldata.AuraConfig(rankedSpell)
 	auraConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if !result.Landed() {
@@ -166,7 +166,7 @@ func (warlock *Warlock) applyPandemic() {
 
 // --- Tier 4 ---
 
-// The class flags also name Lash of Pain, which the Succubus casts, so the row is parsed on the Succubus too.
+// The class flags also name Lash of Pain, which the Succubus casts, so the spell is parsed on the Succubus too.
 func (warlock *Warlock) applyMalevolence() {
 	if warlock.Talents.Malevolence == 0 {
 		return
@@ -183,7 +183,7 @@ func (warlock *Warlock) applyNightfall() {
 	}
 
 	shadowTrance := spellData.NightfallTriggered.ByID(17941)
-	// Effect 1 names the spells it makes instant, which are the ones that spend it.
+	// Effect 1 names the spells it makes instant, which are the ones that use it.
 	instant := shadowTrance.EffectN(1).ClassFlags
 
 	auraConfig := spelldata.AuraConfig(shadowTrance)
@@ -201,7 +201,7 @@ func (warlock *Warlock) applyNightfall() {
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warlock.NightfallProcAura.Activate(sim)
 		})
-	// The talent row names no spells, so the triggering ones are gathered from their own rows.
+	// The talent names no spells, so the triggering ones are gathered from their own spells.
 	trigger.ClassFlags = combineClassFlags(
 		spellData.Corruption.Highest().ClassFlags,
 		spellData.DrainSoul.Highest().ClassFlags,
@@ -236,8 +236,8 @@ func (warlock *Warlock) soulSiphonPerEffect() float64 {
 
 // The multiplier a Soul Siphon spell's tick takes. Row 17804 is a single A_DUMMY stating the per-effect
 // share only, with no class flags and no cap, so the spells and effects are the tooltip's: Drain Life,
-// Drain Soul and Wrack, each of which calls this, gain the share per Corruption, Siphon Life and Bane of
-// Agony of this warlock's on the target. The tooltip's cap of three shares is those three effects.
+// Drain Soul and Wrack gain the share per Corruption, Siphon Life and Bane of Agony of this warlock's on
+// the target. The tooltip's cap of three shares is those three effects.
 func (warlock *Warlock) soulSiphonMultiplier(target *core.Unit, multiplierPerEffect float64) float64 {
 	if multiplierPerEffect == 0 {
 		return 1
@@ -245,17 +245,15 @@ func (warlock *Warlock) soulSiphonMultiplier(target *core.Unit, multiplierPerEff
 	return 1 + multiplierPerEffect*warlock.AfflictionCount(target)
 }
 
-// Builds a Soul Siphon channel: Drain Life, Drain Soul and Wrack share the tick, hit roll and expected
-// damage, and differ in the tick effect and what each adds on top. afterTick, when given, runs on each
-// tick's result once it is dealt (Drain Life's heal).
+// Builds a Soul Siphon channel. afterTick, when given, runs on each tick's result once it is dealt.
 func (warlock *Warlock) soulSiphonChannelConfig(rankedSpell *spelldata.Spell, tick *spelldata.Effect,
 	afterTick func(sim *core.Simulation, result *core.SpellResult)) core.SpellConfig {
 	soulSiphonMult := warlock.soulSiphonPerEffect()
 
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 
-	// The tick reads the Soul Siphon multiplier when it lands, with no snapshot at the channel's start (EV-0205).
-	// TODO: Confirm in game whether spell haste shortens the ticks; the rows carry no haste attribute, so
+	// Multiplier timing in EV-0205.
+	// TODO: Confirm in game whether spell haste shortens the ticks; the spells carry no haste attribute, so
 	// neither AffectedByCastSpeed nor HasteReducesDuration is set.
 	config.Dot = spelldata.DotConfig(rankedSpell, tick)
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {

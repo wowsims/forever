@@ -13,9 +13,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Prints DPS, threat and survival EP for the default bear: Level 60 gear, the APL preset, the UI's
-// consumables and healing model, and the Level 60 boss. DPS and threat EP have agility as 1. Survival EP is
-// TMI with stamina as 1, the way the EP dialog scales it with the bear's tank reference stat.
+// Prints DPS, threat and survival EP for the default bear. DPS and threat EP have agility as 1. Survival EP
+// is TMI with stamina as 1, the way the EP dialog scales it with the bear's tank reference stat.
 // Pass the UI's iteration count; stat weights then split it above and below the baseline.
 func TestDefaultEp(t *testing.T) {
 	if os.Getenv("EP_SWEEP") == "" {

@@ -31,8 +31,7 @@ func rowEffect(t *testing.T, spellID int32, aura dbcenums.EffectAuraType) *spell
 	return nil
 }
 
-// The amount the row's first effect applying aura states at the sim's character level. A test that
-// reads one checks an amount, so a row stating none fails it.
+// The amount the spell's first effect applying aura states at the sim's character level.
 func rowAmount(t *testing.T, spellID int32, aura dbcenums.EffectAuraType) float64 {
 	t.Helper()
 	amount := rowEffect(t, spellID, aura).Average()
@@ -42,7 +41,7 @@ func rowAmount(t *testing.T, spellID int32, aura dbcenums.EffectAuraType) float6
 	return amount
 }
 
-// The amount the row's armor effect states at the sim's character level. The game files state armor
+// The amount the spell's armor effect states at the sim's character level. The game files state armor
 // either as a resistance on the physical school or as an armor aura that no armor modifier scales.
 func armorAmount(t *testing.T, spellID int32) float64 {
 	t.Helper()
@@ -59,8 +58,7 @@ func armorAmount(t *testing.T, spellID int32) float64 {
 	return 0
 }
 
-// How long the row states its aura lasts. A test that reads one checks a duration, so a row stating
-// none fails it.
+// How long the spell states its aura lasts.
 func rowDuration(t *testing.T, spellID int32) time.Duration {
 	t.Helper()
 	duration := spelldata.MustFind(spellID).Duration()
@@ -70,8 +68,8 @@ func rowDuration(t *testing.T, spellID int32) time.Duration {
 	return duration
 }
 
-// A stat amount at the sim's character level: the base plus the per-level gain past the BaseLevel, up to
-// the MaxLevel (0 for none), in float32 the way the game files state the gain, floored to a whole number.
+// A stat amount at the sim's character level, with the per-level gain in float32 the way the game
+// files state it.
 func levelScaledFloor(e *spelldata.Effect) float64 {
 	level := int32(core.CharacterLevel)
 	if e.MaxLevel > 0 {
@@ -87,9 +85,8 @@ func thunderClapSlowPercent(t *testing.T) float64 {
 	return rowAmount(t, 11581, dbcenums.A_MOD_MELEE_HASTE_3)
 }
 
-// The raid config registers its debuffs on every enemy and each is permanent,
-// so the fight starts with all of them activated; the reset that does it in the
-// sim needs a whole environment, which this stands in for.
+// The raid config's debuffs are each permanent, so the fight starts with all of them activated; the
+// reset that does it in the sim needs a whole environment, which this stands in for.
 func applyGeneratedTestDebuffs(target *core.Unit, debuffs *proto.Debuffs) *core.Simulation {
 	sim := &core.Simulation{}
 	core.ApplyDebuffEffects(target, debuffs, &proto.Raid{})
@@ -142,8 +139,7 @@ func TestGeneratedCurseOfTheElementsHitsEverySchoolAndResistance(t *testing.T) {
 	}
 }
 
-// Expose Armor at the five combo points the raid config's debuff is cast with, from the armor per
-// point the row states.
+// Expose Armor at the five combo points the raid config's debuff is cast with.
 func exposeArmorAtFivePoints(t *testing.T) float64 {
 	t.Helper()
 	perPoint := float64(rowEffect(t, 11198, dbcenums.A_MOD_ARMOR_NO_MODS).PointsPerResource)
@@ -153,8 +149,7 @@ func exposeArmorAtFivePoints(t *testing.T) float64 {
 	return 5 * perPoint
 }
 
-// Expose Armor states its armor per combo point, and the raid config's debuff
-// is the five-point finisher.
+// The raid config's debuff is the five-point finisher.
 func TestGeneratedExposeArmorIsTheFivePointFinisher(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 
@@ -258,10 +253,8 @@ func TestGeneratedExposeArmorOutbidsAWeakerSunder(t *testing.T) {
 	}
 }
 
-// With both in the raid config, Expose Armor is worth its full five points from
-// the first moment and the raid's Sunder Armor lands beside it worth nothing. The
-// sunder's stacks build while Expose Armor holds the category, and apply once
-// Expose Armor ends.
+// With both in the raid config, the sunder's stacks build while Expose Armor holds the category, and
+// apply once Expose Armor ends.
 func TestGeneratedRaidsSunderStacksUnderExposeArmor(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 
@@ -285,8 +278,7 @@ func TestGeneratedRaidsSunderStacksUnderExposeArmor(t *testing.T) {
 }
 
 // Every debuff in a shared category is on the target, but only the one holding the stat's slot in it
-// applies its reduction, the strongest; taking that one off hands the reduction to the next. values
-// maps each debuff's label to its reduction.
+// applies its reduction, the strongest; taking that one off hands the reduction to the next.
 func checkOneReductionApplies(t *testing.T, debuffs *proto.Debuffs, category string, stat stats.Stat, values map[string]float64,
 	prepare ...func(*core.Simulation, *core.Unit)) {
 	t.Helper()
@@ -328,8 +320,7 @@ func checkOneReductionApplies(t *testing.T, debuffs *proto.Debuffs, category str
 	}
 }
 
-// Curse of Recklessness and Faerie Fire share one armor reduction slot: both are on the target, and
-// it takes one reduction, not both.
+// Curse of Recklessness and Faerie Fire share one armor reduction slot.
 func TestGeneratedCurseOfRecklessnessAndFaerieFireDoNotStack(t *testing.T) {
 	checkOneReductionApplies(t, &proto.Debuffs{CurseOfRecklessness: true, FaerieFire: true},
 		buffs.CurseOfRecklessnessCategory, stats.ArmorNoMods, map[string]float64{
@@ -338,9 +329,7 @@ func TestGeneratedCurseOfRecklessnessAndFaerieFireDoNotStack(t *testing.T) {
 		})
 }
 
-// Armor Shatter and Puncture Armor share Faerie Fire's armor reduction slot (EV-0147): each weapon's
-// debuff at full stacks is on the target beside Faerie Fire, and the target takes the stronger of the
-// two once.
+// Armor reduction slot in EV-0147.
 func TestGeneratedSwingProcDebuffsShareFaerieFiresSlot(t *testing.T) {
 	for _, debuff := range swingProcDebuffs {
 		t.Run(debuff.name, func(t *testing.T) {
@@ -383,8 +372,7 @@ func TestGeneratedThunderClapBidsAgainstTheHandWrittenSlows(t *testing.T) {
 	sim := applyGeneratedTestDebuffs(target, &proto.Debuffs{ThunderClap: true})
 	clap := target.GetAura("Thunder Clap (External)")
 
-	// A hand-written slow states the multiplier the target's speed is divided
-	// by; this one divides by 0.3 more than the clap, so it outbids it.
+	// A hand-written slow states the multiplier the target's speed is divided by.
 	slower := target.GetOrRegisterAura(core.Aura{
 		Label:    "Hand-written Slow",
 		ActionID: core.ActionID{SpellID: 27648},
@@ -471,8 +459,7 @@ func TestGeneratedThunderfuryKeepsItsResistanceBesideThunderClap(t *testing.T) {
 	}
 }
 
-// Demoralizing Roar and Demoralizing Shout are the same category, so the attack
-// power comes off the target once however many of them the raid brings.
+// Demoralizing Roar and Demoralizing Shout are the same category.
 func TestGeneratedDemoralizingDebuffsApplyOnce(t *testing.T) {
 	checkOneReductionApplies(t, &proto.Debuffs{DemoralizingRoar: true, DemoralizingShout: true},
 		buffs.DemoralizingShoutCategory, stats.AttackPower, map[string]float64{
@@ -518,9 +505,8 @@ func TestGeneratedJudgementsCarryTheDriversProcTriggers(t *testing.T) {
 	}
 }
 
-// The raid's Judgement of the Crusader raises the Holy damage the target takes by the amount its row
-// states, and the improved state adds what Libram of Fervor's equip spell 28852 adds to every effect
-// of the judgement.
+// The raid's Judgement of the Crusader in its improved state adds what Libram of Fervor's equip spell
+// 28852 adds to every effect of the judgement.
 func TestJudgementOfTheCrusaderTakesLibramOfFervorOnItsImprovedState(t *testing.T) {
 	judgement := rowAmount(t, 20303, dbcenums.A_MOD_DAMAGE_TAKEN)
 	libram := libramOfFervorJudgementBonus(t)
@@ -569,8 +555,6 @@ func libramOfFervorJudgementBonus(t *testing.T) float64 {
 }
 
 // Every flat attack-power reduction bids in one category, so the target loses the strongest once.
-// Demoralizing Screech states its amount with a per-level gain past its BaseLevel, up to its
-// MaxLevel, and the stat it lands as is floored to a whole number.
 func TestGeneratedAttackPowerReductionsApplyTheStrongestOnce(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 	applyGeneratedTestDebuffs(target, &proto.Debuffs{
@@ -596,8 +580,7 @@ func demoralizingScreech(t *testing.T) float64 {
 	return screech
 }
 
-// Without the shout, Demoralizing Screech and Hex of Weakness share the attack power slot: both are
-// on the target, the stronger applies, and the other's applies once that one ends.
+// Without the shout, Demoralizing Screech and Hex of Weakness share the attack power slot.
 func TestGeneratedDemoralizingScreechAndHexOfWeaknessDoNotStack(t *testing.T) {
 	checkOneReductionApplies(t, &proto.Debuffs{HexOfWeakness: true, DemoralizingScreech: true},
 		buffs.DemoralizingScreechCategory, stats.AttackPower, map[string]float64{
@@ -606,9 +589,8 @@ func TestGeneratedDemoralizingScreechAndHexOfWeaknessDoNotStack(t *testing.T) {
 		})
 }
 
-// Hex of Weakness states attack power and healing taken, and each bids alone: the stronger of it and
-// Demoralizing Shout holds the attack power, and the healing taken, which the shout does not state,
-// stays the hex's.
+// Hex of Weakness states attack power and healing taken, and each bids alone: the healing taken,
+// which the shout does not state, stays the hex's.
 func TestGeneratedHexOfWeaknessKeepsItsHealingReductionUnderDemoralizingShout(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 	sim := applyGeneratedTestDebuffs(target, &proto.Debuffs{DemoralizingShout: true, HexOfWeakness: true})
@@ -635,9 +617,8 @@ func TestGeneratedHexOfWeaknessKeepsItsHealingReductionUnderDemoralizingShout(t 
 	}
 }
 
-// Vindication states attack power and ranged attack power: the stronger of it and Demoralizing Shout
-// holds the attack power, and the ranged attack power, which the shout does not state, stays
-// Vindication's.
+// Vindication states attack power and ranged attack power: the ranged attack power, which the shout
+// does not state, stays Vindication's.
 func TestGeneratedVindicationKeepsItsRangedAttackPowerUnderDemoralizingShout(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 	applyGeneratedTestDebuffs(target, &proto.Debuffs{DemoralizingShout: true, Vindication: true})
@@ -647,7 +628,7 @@ func TestGeneratedVindicationKeepsItsRangedAttackPowerUnderDemoralizingShout(t *
 	if vindication == nil || shout == nil || !vindication.IsActive() || !shout.IsActive() {
 		t.Fatalf("the target has %v, want Vindication and the shout both on it", targetAuraLabels(target))
 	}
-	// The talent prices Vindication, so its amount is the generated reader's and not a row's.
+	// The talent prices Vindication, so its amount is the generated reader's and not a spell's.
 	full := buffs.VindicationValue(0)
 	if full >= 0 {
 		t.Fatalf("the raid's Vindication is worth %v, want an attack power reduction", full)
@@ -672,7 +653,7 @@ func TestGeneratedCurseOfWeaknessStacksWithDemoralizingShout(t *testing.T) {
 	}
 }
 
-// The game files state Dust Cloud as a stacking row, so the raid's copy takes its stacks from a
+// The game files state Dust Cloud as a stacking spell, so the raid's copy takes its stacks from a
 // driver: without one, the amount would follow zero stacks and apply nothing.
 func TestGeneratedDustCloudTakesItsStackFromTheDriver(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
@@ -694,8 +675,7 @@ func TestGeneratedDustCloudTakesItsStackFromTheDriver(t *testing.T) {
 	}
 }
 
-// Dust Cloud shares the armor reduction slot of Faerie Fire and Curse of Recklessness: both are on the
-// target, and it takes one reduction, not both.
+// Dust Cloud shares the armor reduction slot of Faerie Fire and Curse of Recklessness.
 func TestGeneratedDustCloudAndFaerieFireDoNotStack(t *testing.T) {
 	checkOneReductionApplies(t, &proto.Debuffs{FaerieFire: true, DustCloud: true},
 		buffs.DustCloudCategory, stats.ArmorNoMods, map[string]float64{
@@ -704,8 +684,7 @@ func TestGeneratedDustCloudAndFaerieFireDoNotStack(t *testing.T) {
 		})
 }
 
-// Scorpid Sting and Insect Swarm share one slot: both are on the target, and its hit chance drops by
-// one reduction, not both.
+// Scorpid Sting and Insect Swarm share one slot.
 func TestGeneratedScorpidStingAndInsectSwarmDoNotStack(t *testing.T) {
 	checkOneReductionApplies(t, &proto.Debuffs{ScorpidSting: true, InsectSwarm: true},
 		buffs.ScorpidStingCategory, stats.PhysicalHitPercent, map[string]float64{
@@ -714,7 +693,7 @@ func TestGeneratedScorpidStingAndInsectSwarmDoNotStack(t *testing.T) {
 		})
 }
 
-// The raid's Armor Shatter is worth the row's armor once per stack, up to the stacks the row allows.
+// The raid's Armor Shatter is worth the spell's armor once per stack, up to the stacks it allows.
 func TestGeneratedArmorShatterPricesEveryStack(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 	base := target.GetStats()[stats.ArmorNoMods]
@@ -777,15 +756,13 @@ func swingProcDebuffRaid(debuff swingProcDebuff, db *proto.SimDatabase) *proto.R
 	}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, debuff.debuffs)
 }
 
-// The landed hits a minute a main-hand wielder makes beside its swings and the share of its proc's
-// strikes the target dodges, as the driver models them (EV-0147, EV-0152).
+// Wielder hits in EV-0147. Strike dodges in EV-0152.
 const wielderOtherHitsPerMinute = 48
 const wielderStrikeDodgeChance = 0.065
 
 // The raid's copy of a weapon proc debuff is one main-hand wielder's proc, rolled on its swings and its
-// other landed hits: over a long fight it lands, a fresh debuff or a refresh, at the weapon's chance a
-// hit times its landed hits a minute, on the spell the state names. A row on the melee hit table is a
-// strike: the target dodges its share of them, and one that lands off a swing rolls once more.
+// other landed hits. A spell on the melee hit table is a strike: the target dodges its share of them,
+// and one that lands off a swing rolls once more.
 func TestGeneratedSwingProcDebuffsLandAtTheWeaponsRate(t *testing.T) {
 	const iterations, seconds = 10000, 300
 	for _, debuff := range swingProcDebuffs {
@@ -832,9 +809,8 @@ func stepChecking(sim *core.Simulation, until time.Duration, check func()) {
 	}
 }
 
-// The raid's Puncture Armor adds one stack a landing, up to the row's max, and falls off when no
-// swing lands it for its duration. While the raid's debuffs are disabled no swing lands it, and once
-// they land again the swings start over.
+// The raid's Puncture Armor adds one stack a landing, up to the spell's max, and falls off when no
+// swing lands it for its duration. While the raid's debuffs are disabled no swing lands it.
 func TestGeneratedPunctureArmorStacksAndFallsOff(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 7},

@@ -32,8 +32,7 @@ func paidSpellConfig(id int32, castTime time.Duration) SpellConfig {
 	return config
 }
 
-// The warrior gets a mana bar of 10000 with 10 mana per second of spirit regen, none of which goes on
-// while casting; register adds the spell under test.
+// The warrior gets a mana bar with spirit regen, none of which goes on while casting.
 func newManaTickTest(register func(char *Character) *Spell) *channelTest {
 	return newChannelTest(func(ct *channelTest, char *Character) *Spell {
 		char.manaBar.unit = &char.Unit
@@ -197,7 +196,7 @@ func TestManaRegenAccruesEveryTick(t *testing.T) {
 	ct.wantManaAt(t, checks...)
 }
 
-// A spend at 1.25 s opens the five-second rule there: the regen up to the spend counts in full, none
+// Using mana at 1.25 s opens the five-second rule there: the regen up to the use counts in full, none
 // accrues up to 6.25 s, and the full regen resumes at 6.25 s.
 func TestFiveSecondRuleCountsFromTheSpend(t *testing.T) {
 	ct := newManaTickTest(func(char *Character) *Spell { return char.RegisterSpell(paidSpellConfig(910302, 0)) })

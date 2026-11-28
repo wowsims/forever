@@ -25,8 +25,7 @@ var revelationBuffs = map[proto.Class]int32{
 	proto.Class_ClassPaladin: 1323419,
 }
 
-// Spells the class's buff row does not name whose cast spends the charge all the same and crits on
-// its direct hit. Each has a periodic part, which the buff leaves alone (EV-0149).
+// Charge spenders in EV-0149.
 var revelationDirectHits = map[proto.Class]core.ClassFlags{
 	proto.Class_ClassMage:    {Family: 3, Mask: [4]uint32{0x400001, 0x1000}}, // Fireball, Pyroblast, Frostfire Bolt
 	proto.Class_ClassWarlock: {Family: 5, Mask: [4]uint32{0x4}},              // Immolate
@@ -34,23 +33,20 @@ var revelationDirectHits = map[proto.Class]core.ClassFlags{
 	proto.Class_ClassShaman:  {Family: 11, Mask: [4]uint32{0x10000000}},      // Flame Shock
 }
 
-// Heals that roll nothing for Revelation: Judgement of Light's at each rank, which whoever strikes the
-// judged target casts, where Seal of Light's heal rolls and the rows show no cause (EV-0149), and
-// Vampiric Embrace's party heal 15290.
+// Heals that never roll Revelation's chance: Judgement of Light's at each rank (EV-0149), and Vampiric
+// Embrace's party heal 15290.
 var revelationSkippedHeals = []int32{20267, 20341, 20342, 20343, 15290}
 
-// Penance's heal bolt, which its channel casts each tick: it crits with the charge up and leaves it
-// (EV-0149).
+// Charge use in EV-0149.
 var revelationPenanceHeal = core.ClassFlags{Family: 6, Mask: [4]uint32{0, 0x10000}}
 
-// The share of Revelation's chance a spell keeps for its level: all of it down to 12 levels under
-// the wearer, none from 32 levels under, and a straight line between (EV-0149).
+// Level share in EV-0149.
 func revelationLevelShare(wearerLevel int32, spellLevel int32) float64 {
 	return max(0, min(1, float64(spellLevel+32-wearerLevel)/20))
 }
 
-// The buff's row with the given class flags added to the spells its crit modifier names, which are
-// the spells its charge is spent by.
+// The buff spell with the given class flags added to the spells its crit modifier names, which are
+// the spells its charge is used by.
 func revelationSpentBy(row *spelldata.Spell, flags core.ClassFlags) *spelldata.Spell {
 	widened := *row
 	widened.Effects = slices.Clone(row.Effects)
@@ -70,7 +66,7 @@ func init() {
 	// EffectID: 803, Proc SpellID: 13897
 	// Permanently enchant a melee weapon to often strike for 40 additional fire damage.
 	// https://www.wowhead.com/forever/spell=13898
-	// The game files state no rate; the enchant's effect entry carries its procs per minute (EV-0130).
+	// PPM measurement in EV-0130.
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{
 		Name:           "Enchant Weapon - Fiery Weapon",
 		EnchantID:      803,
@@ -83,7 +79,7 @@ func init() {
 	// EffectID: 1898, Proc SpellID: 20004
 	// Permanently enchant a melee weapon to often steal life from the enemy and give it to the wielder.
 	// https://www.wowhead.com/forever/spell=20032
-	// The game files state no rate; the enchant's effect entry carries its procs per minute (EV-0228).
+	// PPM measurement in EV-0228.
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{
 		Name:           "Enchant Weapon - Lifestealing",
 		EnchantID:      1898,
@@ -115,7 +111,6 @@ func init() {
 
 	// Mongoose
 	// EffectID: 2673, Proc SpellID: 28093
-	// PPM: 1, ICD: 0
 	// Permanently enchant a Melee Weapon to occasionally increase Agility by 120 and attack speed slightly (2%).
 	core.NewEnchantEffect(2673, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -190,7 +185,6 @@ func init() {
 
 	// Deathfrost
 	// EffectID: 3273, Proc SpellID: 46579, Damage SpellID: 46579, Debuff SpellID: 46629
-	// Proc Chance: 50%, ICD: 25s
 	// Permanently enchant a weapon so your damaging spells and melee weapon hits occasionally inflict an additional 150 Frost damage
 	// and reduce the target's melee, ranged, and casting speed by 15% for 8 sec.  Requires a level 60 or higher item.
 	core.NewEnchantEffect(3273, func(agent core.Agent) {
@@ -231,15 +225,11 @@ func init() {
 			},
 		})
 
-		// Enchant 3273 carries two effects: a combat spell (Effect 1) that rolls on melee hits, and an
-		// Equip aura 46662 (Effect 3) that rolls on spell damage, direct and periodic (ProcTypeMask
-		// 2424832), without Can Proc From Procs. Both cast 46579. The 25 s lockout is 46662's proc
-		// recovery; the combat half has none in the DBC, so the two halves share one here rather than
-		// doubling the rate the old single trigger had.
-		//
-		// The roll and the lockout are taken in ExtraCondition, which runs synchronously in the
-		// callback. The handler runs a batch window later, and hits landing on the same timestamp
-		// (both hands, extra attacks, multiple targets) would all pass a lockout consumed there.
+		// Enchant 3273 has two halves that both cast 46579, a combat spell and the Equip aura 46662. The
+		// 25 s lockout is 46662's proc recovery; the combat half has none in the game files, so the two
+		// halves share one.
+		// The roll and the lockout are taken in ExtraCondition: the handler runs a batch window later,
+		// and hits landing on the same timestamp would all pass a lockout consumed there.
 		lockout := core.Cooldown{
 			Timer:    character.NewTimer(),
 			Duration: time.Second * 25,
@@ -289,8 +279,8 @@ func init() {
 	// Enchant Weapon - Insight
 	// https://www.wowhead.com/forever/spell=1248757
 	// A chance to grant Insight when you cast a spell, increasing Spirit by 100% for 10s.
-	// The registration is generated; a cast rolls once, on its first heal or hit, however many targets it
-	// reaches (EV-0229).
+	// The registration is generated.
+	// Rolls per cast in EV-0229.
 	shared.EnchantProcTriggerExtras[8216] = func(character *core.Character, trigger *core.ProcTrigger) {
 		firstHit, resetFirstHit := core.OncePerCast()
 		character.RegisterResetEffect(func(_ *core.Simulation) { resetFirstHit() })
@@ -302,11 +292,8 @@ func init() {
 	// Enchant Weapon - Revelation
 	// EffectID: 8217, Proc SpellID: 1248806
 	// The proc spell names no buff: each class with spells to crit has a Revelation of its own, and the
-	// wearer gets its class's, with that row's class flags and charge. The game files state no rate,
-	// only that a direct spell or heal landing without a crit rolls it, and that the chance falls as
-	// the wearer's crit chance rises; the enchant's effect entry carries the chance. Only a hit that
-	// deals damage or heals rolls it: a landing for nothing, such as a channel's start or an aura's
-	// application, does not. The spell a channel casts each tick (Blizzard's) rolls it too.
+	// wearer gets its class's, with that spell's class flags and charge. No rate in game files; the
+	// enchant's effect entry carries the chance.
 	core.NewEnchantEffect(8217, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		buffID, ok := revelationBuffs[character.Class]
@@ -319,10 +306,9 @@ func init() {
 		spelldata.ParseEffects(character, buff, row)
 		character.ItemSwap.RegisterWeaponEnchantBuff(buff, 8217)
 
-		// A completed cast the buff reaches spends the charge; an attack crits and keeps it, and a
-		// channel leaves it to its ticks (EV-0028, EV-0149).
+		// Charge use in EV-0028, EV-0149.
 		// TODO: Holy Shock's and Light's Vigil's heals crit on every cast here, and mostly not in the logs (EV-0149).
-		// TODO: A charge gained during Volley or Penance's heal is spent as the channel ends (R-0048).
+		// TODO: A charge gained during Volley or Penance's heal is used as the channel ends (R-0048).
 		isAttack := func(spell *core.Spell) bool {
 			return spell.DefenseType == core.DefenseTypeMelee || spell.DefenseType == core.DefenseTypeRanged
 		}
@@ -344,8 +330,7 @@ func init() {
 			buff.RemoveStack(sim)
 		}
 
-		// A channel whose ticks cast a spell of their own spends the charge on its first crit tick, a
-		// spell batch window after it lands (EV-0149).
+		// Channel crit ticks in EV-0149.
 		firstTickHit, _ := core.OncePerCast()
 		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
 			Name:               "Revelation Charge - Channel Tick",
@@ -363,8 +348,7 @@ func init() {
 			Handler: spendCharge,
 		})
 
-		// A channel whose ticks are its own periodic damage spends the charge on its first tick; other
-		// spells' periodic ticks leave it (EV-0149).
+		// Periodic channel ticks in EV-0149.
 		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
 			Name:       "Revelation Charge - Periodic Channel Tick",
 			Callback:   core.CallbackOnPeriodicDamageDealt | core.CallbackOnPeriodicHealDealt,
@@ -377,8 +361,7 @@ func init() {
 			Handler: spendCharge,
 		})
 
-		// The direct hit of a spell in revelationDirectHits crits for the one cast that spends the
-		// charge, and its ticks never do.
+		// The direct hit of a spell in revelationDirectHits crits for the one cast that uses the charge.
 		if critsDirectHits {
 			crit := row.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CRITICAL_CHANCE)).BaseValue()
 			var critting *core.Spell
@@ -408,15 +391,13 @@ func init() {
 		trigger.Name = "Enchant Weapon - Revelation"
 		trigger.Outcome = core.OutcomeLanded
 		trigger.RequireDamageDealt = true
-		// The row's listener hears direct spells and heals. A melee or ranged attack rolls nothing, even
-		// one the buff's class flags name, and neither do Judgement of Light's and Vampiric Embrace's
-		// heals. A spell far under the wearer's level rolls a share of the chance, and a spell with no
-		// SpellLevels row rolls nothing (EV-0149). A spell the store has no row for, such as an item's
-		// spell registered under its item id, reads level 0 and keeps none.
+		// Level share in EV-0149.
+		// A spell the store has no row for, such as an item's spell registered under its item id, reads
+		// level 0 and keeps no share of the chance.
 		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
 		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
-		// A hit event rolls once, on its first result, and not when that result crits. A spell and its
-		// copy roll apart (EV-0149).
+		// Hit event rolls in EV-0149. The roll is keyed by spell, not by spell id, because the sim registers
+		// Lightning Overload's copy under its bolt's id.
 		shares := map[*core.Spell]float64{}
 		var lastSpell *core.Spell
 		var lastAt time.Duration
@@ -466,8 +447,8 @@ func init() {
 	for _, enchantID := range movementSpeedEnchants {
 		core.NewEnchantEffect(enchantID, func(agent core.Agent) {
 			character := agent.GetCharacter()
-			// The game files state the run speed as A_MOD_INCREASE_SPEED, as Strider Kick and Dash do,
-			// and only the highest of those counts, so it bids in the active category with them.
+			// The game files state the run speed as A_MOD_INCREASE_SPEED, and only the highest of those
+			// counts, so it bids in the active category.
 			aura := core.MakePermanent(character.GetOrRegisterAura(core.Aura{
 				Label:    "Minor Run Speed",
 				ActionID: core.ActionID{SpellID: 13889},

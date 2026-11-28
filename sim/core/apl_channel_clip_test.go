@@ -17,10 +17,7 @@ func notAuraActive(id *proto.ActionID) *proto.APLValue {
 }
 
 // A channel whose interrupt condition turns true keeps running when the rotation's next action would
-// start the same channel again, unless its channel action allows the recast. The guard finds that action
-// behind a condition on the channel's own aura, which reads as down with the channel ended, inside a
-// group, as the current step of a sequence or of the strict sequence the channel runs in, and as a
-// multidot of the spell.
+// start the same channel again, unless its channel action allows the recast.
 func TestChannelClipHoldsWhenTheNextActionRecastsIt(t *testing.T) {
 	const channelID = 910109
 	spellID := ActionID{SpellID: channelID}.ToProto()

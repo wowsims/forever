@@ -10,7 +10,7 @@ import (
 )
 
 // A copy of Linken's Boomerang 11905's on-use, 15712, flying at 20 yards a second: thrown from 20 yards
-// it hits 1 s after its cast completes, not when the cast does.
+// it hits 1 s after its cast completes.
 func TestMissileDamageLandsAfterItsTravelTime(t *testing.T) {
 	const itemID int32 = 991120
 	editRow(t, 15712, func(s *spelldata.Spell) { s.Speed = 20 })
@@ -63,8 +63,8 @@ func TestDamageWithoutAMissileSpeedLandsAtCast(t *testing.T) {
 	}
 }
 
-// A copy of Fiery Blaze 6297, whose area reaches every enemy, flying at 20 yards a second: from 20
-// yards all three targets take their damage 1 s after its cast completes.
+// A copy of Fiery Blaze 6297 flying at 20 yards a second: from 20 yards all three targets take their
+// damage 1 s after its cast completes.
 func TestAreaMissileDamageLandsOnEveryTargetAfterItsTravelTime(t *testing.T) {
 	const itemID int32 = 991122
 	editRow(t, 6297, func(s *spelldata.Spell) { s.Speed = 20 })

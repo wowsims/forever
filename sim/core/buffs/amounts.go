@@ -7,8 +7,8 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The readers a Meta and the judgement ranks turn a store row into a buff's numbers with. An amount
-// is the caster's at core.CharacterLevel, in the game files' units.
+// The readers that turn a store row into a buff's numbers. An amount is the caster's at
+// core.CharacterLevel, in the game files' units.
 
 func amount(e *spelldata.Effect) float64 {
 	return e.Average()

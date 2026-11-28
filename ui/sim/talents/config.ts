@@ -1,6 +1,6 @@
 // Shape of a class's talent trees, plus the builder that validates a generated
 // tree JSON. Pure data, kept out of the talents picker so ui/sim's import path
-// stays free of a view module; the picker re-imports these from here.
+// stays free of a view module.
 
 export type TalentsConfig<TalentsProto> = Array<TalentTreeConfig<TalentsProto>>;
 

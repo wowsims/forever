@@ -8,7 +8,7 @@ import (
 
 var hurricaneRank = spellData.Hurricane.Highest()
 
-// The damage each second is its own row, which the channel casts on every tick.
+// The damage each second is its own spell, which the channel casts on every tick.
 var hurricaneTickRank = spellData.HurricaneTriggered.Highest()
 var hurricaneTickDamage = hurricaneTickRank.DamageEffect()
 
@@ -17,7 +17,7 @@ func (druid *Druid) registerHurricaneSpell() {
 
 	tickConfig := spelldata.SpellConfig(&druid.Unit, hurricaneTickRank,
 		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered())
-	// A tick takes no Spell Piercing bonus, though most binary hits do (EV-0142).
+	// Spell Piercing in EV-0142.
 	tickConfig.Flags |= core.SpellFlagNoPartialResist
 	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		outcome := spell.OutcomeMagicHitAndCrit

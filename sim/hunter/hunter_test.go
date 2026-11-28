@@ -94,9 +94,9 @@ var DefaultOptions = &proto.Player_Hunter{
 	},
 }
 
-// Every pet family, fully trained, on one race, talent set and rotation: the pet's own suite, so
-// that each family's abilities run without multiplying the hunter's. The talents are Beast Mastery,
-// the pet's tree, and the rotation sends two hawks for each Arcane Shot, the two spells sharing a cooldown.
+// Every pet family, fully trained: the pet's own suite, so that each family's abilities run without
+// multiplying the hunter's. The rotation sends two hawks for each Arcane Shot, the two spells sharing a
+// cooldown.
 func TestHunterPets(t *testing.T) {
 	turretRotation := core.GetAplRotation("../../ui/specs/hunter/dps/apls", "default")
 	turretRotation.Label = "turret"
@@ -121,8 +121,8 @@ func TestHunterPets(t *testing.T) {
 	}))
 }
 
-// Auto Shot needs the bow, gun or crossbow its row names: a thrown weapon in the ranged slot fires
-// none and starts no windup, the weave set's bow fires them.
+// Auto Shot needs the bow, gun or crossbow its spell names: a thrown weapon in the ranged slot fires
+// none and starts no windup.
 func TestAutoShotNeedsABowGunOrCrossbow(t *testing.T) {
 	const thrown = 20814 // Master's Throwing Dagger
 	if item := core.GetItemByID(thrown); item == nil || item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeThrown {
@@ -171,9 +171,7 @@ func TestAutoShotNeedsABowGunOrCrossbow(t *testing.T) {
 	}
 }
 
-// Sniper Shot's buff carries Auto Shot's reach past the 41 yards Hawk Eye gives it, for three Shots: a
-// hunter at 45 yards fires no Auto Shot until Sniper Shot lands, then lands at most three per Sniper
-// Shot.
+// Sniper Shot's buff carries Auto Shot's reach past the 41 yards Hawk Eye gives it, for three Shots.
 func TestSniperShotExtendsAutoShotRange(t *testing.T) {
 	shots := func(castSniperShot bool) (sniperShots, autoShots, landed int32) {
 		rotation := &proto.APLRotation{Type: proto.APLRotation_TypeAPL}
@@ -380,8 +378,8 @@ func TestLaceratingStrikesReplacesTheBleedOnTheNextBite(t *testing.T) {
 	}
 }
 
-// Strider Kick's 30% speed lasts the row's 3 seconds, and a walk that outlasts it ends where it was
-// going: a walk out to range started 2.5 seconds after the kick runs its first half second at 130%.
+// Strider Kick's 30% speed lasts the spell's 3 seconds, and a walk that outlasts it ends where it was
+// going.
 func TestStriderKickSpeedRunsOutMidWalk(t *testing.T) {
 	player := &proto.Player{
 		Name:               "Kick",
@@ -436,7 +434,7 @@ func TestStriderKickSpeedRunsOutMidWalk(t *testing.T) {
 // The run speed, in yards a second, of a hunter with nothing but Enchant Boots - Minor Speed raising it.
 var minorSpeedRun = 7 * (1 + spelldata.MustFind(13889).EffectN(1).Percent())
 
-// Enchant Boots - Minor Speed, the boots enchant Forever offers, runs the hunter faster by its row's share.
+// Enchant Boots - Minor Speed, the boots enchant Forever offers, runs the hunter faster by its share.
 func TestMinorSpeedBootsRunFaster(t *testing.T) {
 	gear := core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave").GearSet
 	gear = googleProto.Clone(gear).(*proto.EquipmentSpec)
@@ -462,8 +460,7 @@ func TestMinorSpeedBootsRunFaster(t *testing.T) {
 	}
 }
 
-// Survivalist's Discipline shortens the traps' shared cooldown by 20% a rank: a placed Explosive Trap
-// holds Immolation Trap back 30, 24 or 18 seconds.
+// Survivalist's Discipline shortens the traps' shared cooldown by 20% a rank.
 func TestSurvivalistsDisciplineShortensTheTrapCooldown(t *testing.T) {
 	for points, want := range []time.Duration{30 * time.Second, 24 * time.Second, 18 * time.Second} {
 		player := &proto.Player{
@@ -793,8 +790,8 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	ExtraIds: []int32{10646, 10310},
 }
 
-// A Shot the range modifier names spends a Sniper Shot charge at its cast, a miss included; Serpent Sting,
-// which it does not name, spends none.
+// A Shot the range modifier names uses a Sniper Shot charge at its cast, a miss included; Serpent Sting,
+// which it does not name, uses none.
 func TestSniperShotChargeGoesAtTheShotsCast(t *testing.T) {
 	sim, hunter := newTalentSim(DefaultMMTalents, proto.HunterOptions_PetNone)
 	target := hunter.CurrentTarget
@@ -820,9 +817,8 @@ func TestSniperShotChargeGoesAtTheShotsCast(t *testing.T) {
 }
 
 // Multi-Shot reads ranged attack power once, on its first target, and each target's hit takes its own
-// ranged attack power against its mob type: a Beast beside a Humanoid takes none of the Humanoid's, and
-// a Humanoid beside the Beast the read was made on takes its own. With the same seed, the Humanoid second
-// takes the same damage after a Beast as after another Humanoid, which pins the damage each point adds.
+// ranged attack power against its mob type. With the same seed, a Humanoid second takes the same damage
+// after a Beast as after another Humanoid, which pins the damage each point adds.
 func TestMultiShotTakesEachTargetsOwnVersusRangedAttackPower(t *testing.T) {
 	humanoid, beast := proto.MobType_MobTypeHumanoid, proto.MobType_MobTypeBeast
 	damage := func(mobTypes []proto.MobType, humanoidRangedAttackPower float64) []float64 {

@@ -13,8 +13,7 @@ import (
 
 // Protojson as the site writes it, JSON.stringify of the protojson of a message (SPEC.md §5.4, §12.3): JSON names
 // in declaration order, default values left out, the skipped fields left out, enum values by name, 64-bit integers
-// as strings, numbers in ECMAScript's form, and strings escaped as JSON.stringify escapes them. Raw JSON,
-// spec_rotation_json and the printer's read-back check all write it.
+// as strings, numbers in ECMAScript's form, and strings escaped as JSON.stringify escapes them.
 
 // The JSON of m.
 func (ix *schemaIndex) jsonText(m protoreflect.Message) string {

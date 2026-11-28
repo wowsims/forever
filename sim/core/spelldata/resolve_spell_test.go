@@ -12,8 +12,7 @@ import (
 // The category two of the rows below share, as SpellCategories.Category states it.
 const testCategory int16 = 971
 
-// Rows in the shapes the resolvers have to answer for: the four power bars, the three cooldown
-// shapes, and the attributes and targets the flags come from.
+// Rows in the shapes the resolvers have to answer for.
 func resolverRows() []Spell {
 	return []Spell{
 		{
@@ -112,7 +111,7 @@ func testUnit() *core.Unit {
 	return &core.Unit{}
 }
 
-// A row flagged Fixed Travel Time states its flight time in seconds as its Speed, so its missile has no
+// A spell flagged Fixed Travel Time states its flight time in seconds as its Speed, so its missile has no
 // speed and flies that long at any distance, unless its MinDuration is longer.
 func TestAFixedTravelTimeRowFliesForItsSpeedInSeconds(t *testing.T) {
 	var fixed [17]uint32
@@ -265,7 +264,7 @@ func TestSpellConfigEnergyAndFocusCosts(t *testing.T) {
 	}
 }
 
-// A spell the row states no cost for leaves every cost option empty.
+// A spell that states no cost leaves every cost option empty.
 func TestSpellConfigWithoutAPowerRow(t *testing.T) {
 	withRows(t, resolverRows())
 	config := SpellConfig(testUnit(), Find(300))
@@ -349,7 +348,7 @@ func TestSpellConfigBothCooldowns(t *testing.T) {
 	}
 }
 
-// Only the game files' global cooldown category spends the GCD.
+// Only the game files' global cooldown category uses the GCD.
 func TestSpellConfigGCDGate(t *testing.T) {
 	withRows(t, resolverRows())
 
@@ -361,8 +360,8 @@ func TestSpellConfigGCDGate(t *testing.T) {
 	}
 }
 
-// A cast that spends a resource without a GCD or a cast time reads as a cast rather than as the empty
-// one core takes for a proc, whether the row states the cost flat or as a share of the bar.
+// A cast that uses a resource without a GCD or a cast time reads as a cast rather than as the empty
+// one core takes for a proc, whether the spell states the cost flat or as a share of the bar.
 func TestSpellConfigMarksACostedOffGCDCastNonEmpty(t *testing.T) {
 	withRows(t, resolverRows())
 
@@ -377,7 +376,7 @@ func TestSpellConfigMarksACostedOffGCDCastNonEmpty(t *testing.T) {
 	}
 }
 
-// Haste shortens a cast and its GCD by school, not by the hit table the row files the spell under:
+// Haste shortens a cast and its GCD by school, not by the hit table the spell is filed under:
 // the game files' shouts are physical spells with the magic defense type.
 func TestSpellConfigIgnoreHasteFollowsTheSchool(t *testing.T) {
 	withRows(t, resolverRows())
@@ -420,10 +419,9 @@ func TestSpellConfigFlagsFromTheRow(t *testing.T) {
 	}
 }
 
-// A magic damage row on the magic hit table is binary when it carries, beside the damage, an aura other
-// than a dummy on an enemy, an interrupt, or a dummy, script, energize or area trigger effect on any
-// target. A dummy aura on the enemy, an aura on the caster, E_NONE, a row with no damage, a physical row
-// and a row on another hit table are not.
+// A magic damage spell on the magic hit table is binary when it carries, beside the damage, an aura
+// other than a dummy on an enemy, an interrupt, or a dummy, script, energize or area trigger effect
+// on any target.
 func TestSpellConfigBinaryFromTheRow(t *testing.T) {
 	enemy := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_TARGET_ENEMY, 0}
 	caster := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER, 0}
@@ -463,9 +461,8 @@ func TestSpellConfigBinaryFromTheRow(t *testing.T) {
 	}
 }
 
-// A row with Suppress Weapon Procs, Suppress Caster Procs or Suppress Target Procs resolves to the matching
-// flag when one of its effects acts itself. A row of dummies and casts of other spells keeps none of them,
-// since the sim spell built from it deals the damage of the spell it triggers, as Execute's dummy does.
+// A spell with Suppress Weapon Procs, Suppress Caster Procs or Suppress Target Procs resolves to the matching
+// flag when one of its effects acts itself. A spell of dummies and casts of other spells keeps none of them.
 func TestSpellConfigSuppressProcFlagsFromTheRow(t *testing.T) {
 	enemy := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_TARGET_ENEMY, 0}
 	damage := Effect{Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100, Target: enemy}
@@ -602,7 +599,7 @@ func TestSpellConfigNoThreatRow(t *testing.T) {
 	}
 }
 
-// Area damage drops the row's range to the target: around the caster it reaches its radius, as a
+// Area damage drops the spell's range to the target: around the caster it reaches its radius, as a
 // cast and not as a proc, and around the point the triggering spell chose it reaches anywhere.
 func TestSpellConfigAreaAroundACasterOrPointReachesItsRadiusOrAnywhere(t *testing.T) {
 	for _, tc := range []struct {
@@ -627,10 +624,8 @@ func TestSpellConfigAreaAroundACasterOrPointReachesItsRadiusOrAnywhere(t *testin
 	}
 }
 
-// The rows' own areas: a cast centred on the caster or a cone from it reaches its radius, from
-// whichever radius slot the row states it in, even where the row states a range, and through the row
-// its periodic trigger aura fires. A proc of one has no range, and a DEST_DEST area, a cone on a row
-// with a range of its own and a spell with no area keep what they had.
+// The spells' own areas: a cast centred on the caster or a cone from it reaches its radius. A proc of
+// one has no range.
 func TestSpellConfigReachOfTheGameFilesAreas(t *testing.T) {
 	withGeneratedStore(t)
 
@@ -658,7 +653,7 @@ func TestSpellConfigReachOfTheGameFilesAreas(t *testing.T) {
 	}
 
 	t.Run("a cone on a row with a range of its own", func(t *testing.T) {
-		forkedLightning := Find(11828) // a 45 yd cone on a row stating 30 yd
+		forkedLightning := Find(11828) // a 45 yd cone on a spell stating 30 yd
 		if forkedLightning == Nil {
 			t.Skip("spell 11828 is not in the store; this case runs again once the live game files hold it")
 		}
@@ -702,8 +697,7 @@ func TestSpellConfigProcFlagsAndTag(t *testing.T) {
 	}
 }
 
-// Melee and Magic put a spell in the rotation, and Proc takes the sub-spell they resolve back out of
-// it: the flags the warrior's own proc sub-spells carry today.
+// Melee and Magic put a spell in the rotation, and Proc takes the sub-spell they resolve back out of it.
 func TestSpellConfigProcLeavesTheRotation(t *testing.T) {
 	withRows(t, resolverRows())
 	config := SpellConfig(testUnit(), Find(100), Melee(core.ProcMaskMeleeMHSpecial), Proc())
@@ -714,9 +708,8 @@ func TestSpellConfigProcLeavesTheRotation(t *testing.T) {
 	}
 }
 
-// SpellEquippedItems and the not-in-combat attribute go into the cast requirement: Spearing Strike
-// 1310222's two-handers in the main hand, Shield Bash 1672's shield, Charge 11578's out of combat.
-// Armor that is not a shield asks nothing of a cast.
+// SpellEquippedItems and the not-in-combat attribute go into the cast requirement. Armor that is not
+// a shield asks nothing of a cast.
 func TestSpellConfigCastRequirementFromEquipment(t *testing.T) {
 	twoHanders := int32(dbcenums.ITEM_SUBCLASS_BIT_WEAPON_2H_AXE | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_MACE_2H |
 		dbcenums.ITEM_SUBCLASS_BIT_WEAPON_POLEARM | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SWORD_2H | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_STAFF)

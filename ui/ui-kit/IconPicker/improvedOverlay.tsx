@@ -17,7 +17,7 @@ export interface ImprovedOverlayProps extends ImprovedState {
 }
 
 /**
- * The counter text and improved badges an icon of `states` carries, for an `IconPicker` and a multi icon trigger alike.
+ * The counter text and improved badges an icon of `states` carries.
  * `badges` is undefined when there are none, so a swatch without them stays bare.
  */
 export const improvedOverlay = ({ states, value, improvedIcon, improvedIcon2, testIdPrefix, disabled, events }: ImprovedOverlayProps) => {

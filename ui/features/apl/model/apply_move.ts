@@ -194,10 +194,7 @@ const plan = (rotation: APLRotation, { from, to }: AplMove, offersKind?: OffersK
 };
 
 /**
- * Whether `move` names two lists of this rotation that can exchange the item: the id still names
- * the item at its index, the lists are of one kind, the target is not inside the item, and a row
- * crossing into the pre-pull list or out of it has a kind the other list offers and carries no
- * condition (into pre-pull) or time other than the pull (out of it). A `source` from
+ * Whether `move` names two lists of this rotation that can exchange the item. A `source` from
  * `resolveMoveSource` is used while its list is still the one its owner holds.
  */
 export const canApplyMove = (rotation: APLRotation, move: AplMove, offersKind?: OffersKind, source?: MoveSource): boolean =>
@@ -208,8 +205,7 @@ export const resolveMoveSource = (rotation: APLRotation, from: AplMove['from']):
 
 /**
  * Applies a drop to the live rotation. Each changed list is replaced by a fresh array on its owner,
- * every item keeps its identity, and a move `canApplyMove` refuses writes nothing. Called inside
- * `player.modifyAplRotation`, so a move notifies once.
+ * and every item keeps its identity.
  */
 export const applyMove = (rotation: APLRotation, move: AplMove, offersKind?: OffersKind): APLRotation => {
 	plan(rotation, move, offersKind)?.();

@@ -14,9 +14,7 @@ func (hunter *Hunter) registerRaptorStrike() {
 	// The APL queues it through the tag 1 spell below; the next swing casts it.
 	config.Flags &^= core.SpellFlagAPL
 
-	// Predator's Edge reaches Raptor Strike's crit damage bonus twice, compounded: the bonus is
-	// (1 + rank share)² of the base, 2.69x at 5/5. Its spell mod adds the share once; this adds the
-	// rest (EV-0134).
+	// Crit damage in EV-0134. Predator's Edge's spell mod adds the share once; this adds the rest.
 	if rank := hunter.Talents.PredatorsEdge; rank > 0 {
 		share := spellData.PredatorsEdge.Rank(rank).EffectN(1).Percent()
 		config.CritMultiplierAdditive += share * (1 + share)
@@ -29,8 +27,7 @@ func (hunter *Hunter) registerRaptorStrike() {
 
 	hunter.RaptorStrike = hunter.RegisterSpell(config)
 
-	// Raptor Strike goes off on the next main-hand swing, as Heroic Strike does: the APL casts the
-	// tag 1 spell, which queues it, and the next swing casts it in the swing's place.
+	// Raptor Strike goes off on the next main-hand swing, as Heroic Strike does.
 	hunter.raptorStrikeQueue = hunter.RegisterAura(core.Aura{
 		Label:    "Raptor Strike Queue",
 		ActionID: hunter.RaptorStrike.ActionID.WithTag(1),
@@ -64,7 +61,7 @@ func (hunter *Hunter) registerRaptorStrike() {
 }
 
 // The swing a main-hand auto becomes: the queued Raptor Strike when it can still be cast, the plain
-// swing otherwise. A swing that cannot cast it drops the queue.
+// swing otherwise.
 func (hunter *Hunter) TryRaptorStrike(sim *core.Simulation, mhSwingSpell *core.Spell) *core.Spell {
 	if mhSwingSpell.ActionID.Tag != int32(proto.ItemSlot_ItemSlotMainHand) || !hunter.raptorStrikeQueue.IsActive() {
 		return mhSwingSpell

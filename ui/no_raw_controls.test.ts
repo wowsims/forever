@@ -26,8 +26,8 @@ function walk(dir: string, out: string[]): void {
 	}
 }
 
-// A whole-line comment (`//`, `*`, `/*`) is blanked before scanning, so a mention of `<a>`/`<button`
-// in prose never counts as a hit; every real hit here is an element in JSX.
+// A whole-line comment is blanked before scanning, so a mention of `<a>`/`<button` in prose
+// never counts as a hit.
 function blankCommentLines(text: string): string {
 	return text
 		.split('\n')

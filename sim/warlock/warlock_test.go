@@ -21,8 +21,7 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// Each suite runs a build preset from ui/specs/warlock/dps/builds, the file the UI's build of that name reads:
-// its talents, demons, consumables and rotation, on the gear set of the same name, its own race and the one named.
+// Each suite runs a build preset from ui/specs/warlock/dps/builds, the file the UI's build of that name reads.
 func TestDemonologyFireBrand(t *testing.T) {
 	runBuildSuite(t, "Fire Brand", "demo_fire_brand", proto.Race_RaceHuman)
 }
@@ -112,7 +111,7 @@ func stepFor(sim *core.Simulation, d time.Duration) {
 	}
 }
 
-// Soul Fire takes the Soul Shard its row states, and none while Decimation's buff (440873) is up.
+// Soul Fire takes the Soul Shard its spell states, and none while Decimation's buff (440873) is up.
 func TestSoulFireShardAndDecimation(t *testing.T) {
 	sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{SoulShards: 1}, core.MakeSingleTargetEncounter(0))
 	target := sim.Encounter.AllTargetUnits[0]
@@ -180,8 +179,8 @@ func TestDemonHitIsTheWarlocksSpellHit(t *testing.T) {
 	}
 }
 
-// In execute, Decimation's buff (440873) comes with the cast of a Shadow Bolt or Searing Pain whose hit lands,
-// before a Shadow Bolt reaches the target; a miss grants nothing, and the bolt's impact grants nothing either.
+// In execute, Decimation's buff (440873) comes with the cast of a Shadow Bolt or Searing Pain whose hit lands;
+// a miss grants nothing, and the bolt's impact grants nothing either.
 func TestDecimationGrantedOnLandedCast(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Duration = 3600
@@ -227,9 +226,8 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 }
 
 // Bane of Agony's base ramps in thirds while each tick reads the spell power of the moment, with its share
-// unramped, and Amplify Curse (talent 9) raises the whole tick for the whole of the Bane it landed with, spent or
-// not. Each tick leaves its base and share in the dot's snapshot base, which the last tick clears as the dot ends,
-// so the test reads the first 11.
+// unramped, and Amplify Curse (talent 9) raises the whole tick for the whole of the Bane it landed with, used or
+// not. The last tick clears the dot's snapshot base as the dot ends, so the test reads the first 11.
 func TestBaneOfAgonyTicksFollowSpellPower(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Duration = 600
@@ -283,7 +281,7 @@ func TestBaneOfAgonyTicksFollowSpellPower(t *testing.T) {
 	}
 }
 
-// A Bane of Agony that lands spends Amplify Curse, and one that misses leaves it up. The tooltip names the Bane, but
+// A Bane of Agony that lands uses Amplify Curse, and one that misses leaves it up. The tooltip names the Bane, but
 // neither of Amplify Curse's class masks in the game files does.
 func TestBaneOfAgonySpendsAmplifyCurseWhenItLands(t *testing.T) {
 	sim, warlock := newWarlockSim("000000001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
@@ -312,9 +310,8 @@ func TestBaneOfAgonySpendsAmplifyCurseWhenItLands(t *testing.T) {
 	}
 }
 
-// A Bane of Agony recast at an instant its tick is due, before the tick's action runs, deals that tick as the old
-// Bane ends at the ramp of its time since the old Bane landed: at its first tick, the first third's share, the same
-// as the new Bane's first tick.
+// A Bane of Agony recast at an instant its tick is due deals that tick as the old Bane ends at the ramp of its time
+// since the old Bane landed: at its first tick, the same as the new Bane's first tick.
 func TestBaneOfAgonyRecastAtADueTickKeepsItsRamp(t *testing.T) {
 	sim, warlock := newWarlockSim("", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
 	target := sim.Encounter.AllTargetUnits[0]
@@ -344,10 +341,8 @@ func TestBaneOfAgonyRecastAtADueTickKeepsItsRamp(t *testing.T) {
 	}
 }
 
-// The Imp's Blood Pact is up on the party's players while the Imp is out, counts in the stats with the Imp out at
-// the start, and drops when the Imp is dismissed or sacrificed. A Blood Pact ticked in the party buffs adds nothing
-// while the Imp's is up and takes over once it drops. With two Imps in the party one Blood Pact counts, and it
-// stays up while either Imp is out.
+// The Imp's Blood Pact is up on the party's players while the Imp is out, and drops when the Imp is dismissed or
+// sacrificed.
 func TestBloodPactLastsWhileTheImpIsOut(t *testing.T) {
 	bloodPact := buffs.BloodPactValue(0)
 	encounter := core.MakeSingleTargetEncounter(0)
@@ -697,7 +692,7 @@ func TestTrainerRanksBesideBookRanks(t *testing.T) {
 	}
 }
 
-// A dot whose row marks Periodic Can Crit expects its tick with the crit share in it, as the tick
+// A dot whose spell marks Periodic Can Crit expects its tick with the crit share in it, as the tick
 // itself rolls it: more spell crit raises what Corruption's tick is expected to deal.
 func TestExpectedDotTickCountsItsCrits(t *testing.T) {
 	sim, warlock := newWarlockSim("", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
@@ -1255,8 +1250,7 @@ func TestSoulSiphonCountsCorruptionSiphonLifeAndAgony(t *testing.T) {
 }
 
 // Hellfire Effect and the Rain of Fire wave are cast by their channels, so Judgement of Wisdom on the target
-// hears their hits only when the hit's row is flagged Not a Proc or the judgement's row can proc from procs.
-// Searing Pain shows the judgement hears the warlock's own casts.
+// hears their hits only when the hit's spell is flagged Not a Proc or the judgement's spell can proc from procs.
 func TestChannelEffectsReturnJudgementOfWisdomManaAsTheirRowsAllow(t *testing.T) {
 	raid := core.SinglePlayerRaidProto(warlockPlayer("Warlock", "", &proto.WarlockOptions{}), &proto.PartyBuffs{}, &proto.RaidBuffs{},
 		&proto.Debuffs{JudgementOfWisdom: true})
@@ -1340,8 +1334,7 @@ func TestRainOfFireCastReturnsJudgementOfWisdomManaFromEachEnemy(t *testing.T) {
 	}
 }
 
-// A Rain of Fire cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the channel
-// starts, and its waves roll none (EV-0115).
+// Rolls per enemy in EV-0115.
 func TestRainOfFireCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	player := warlockPlayer("Warlock", "", &proto.WarlockOptions{})
@@ -1398,7 +1391,7 @@ func TestRainOfFireCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 }
 
 // Touch of the Grave needs a hit that deals damage, and the Rain of Fire and Hellfire casts deal none, so
-// neither drains. Searing Pain shows that the drain hears the warlock's spells.
+// neither drains.
 func TestChannelCastsDrainNoTouchOfTheGrave(t *testing.T) {
 	player := warlockPlayer("Warlock", "", &proto.WarlockOptions{})
 	player.Race = proto.Race_RaceUndead
@@ -1437,8 +1430,7 @@ func TestChannelCastsDrainNoTouchOfTheGrave(t *testing.T) {
 	}
 }
 
-// Hellfire's burn on the caster takes the caster's Fire damage done modifiers and crits at the caster's spell
-// crit chance for the channel's crit damage, which Ruin raises (EV-0229).
+// Burn modifiers and crits in EV-0229.
 func TestHellfireBurnTakesFireModifiersAndCrits(t *testing.T) {
 	burnRatios := func(talents string) (modified float64, crit float64) {
 		sim, warlock := newWarlockSim(talents, &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))

@@ -139,8 +139,6 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 
 	autoRotation: aplFor,
 
-	// The talents pick the APL, as for the Auto rotation, except that Unsealed Wrath twisting Seal of Fury
-	// runs its own APL. The options set the APL's variables and the spells of its aura and judgement groups.
 	// With no assigned judgement, Has assigned judgement is false and the APL never reaches Cast assigned
 	// judgement.
 	simpleRotation: (player: Player<Spec.SpecRetributionPaladin>, simple: SpecRotation<Spec.SpecRetributionPaladin>, cooldowns: Cooldowns): APLRotation => {

@@ -97,8 +97,7 @@ func TestIDFieldsAreClassified(t *testing.T) {
 }
 
 // Every field of a message a section reads only part of, which is IndividualSimSettings, Player, each spec
-// message, the rotation and the simple rotation, is held by a section, set by a top-level line, or skipped. A new
-// field then cannot go unwritten: whoever adds it chooses its section, and with it its import category.
+// message, the rotation and the simple rotation, is held by a section, set by a top-level line, or skipped.
 func TestSectionsMapEveryField(t *testing.T) {
 	_, f := testSchema(t)
 	b := &builder{forms: f}
@@ -166,8 +165,8 @@ func TestSectionsMapEveryField(t *testing.T) {
 
 // Within one section, every entry name, slot word included, names one field, for every spec: settings flattens
 // the spec's options and class options into Player's fields, and simple writes each spec's Rotation.
-// The messages SPEC.md §6 writes by hand, as a row, a prepull row, a group header or a var line, hold only the fields
-// that syntax writes. A field it does not write would be lost from every print, which no read-back check sees.
+// The messages SPEC.md §6 writes by hand hold only the fields that syntax writes. A field it does not write would be
+// lost from every print, which no read-back check sees.
 func TestHandWrittenMessagesHoldOnlyWhatTheirSyntaxWrites(t *testing.T) {
 	_, f := testSchema(t)
 	for _, m := range []struct {

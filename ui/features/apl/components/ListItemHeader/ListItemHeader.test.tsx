@@ -60,8 +60,8 @@ describe('ListItemHeader', () => {
 	describe('validations', () => {
 		const validation = (logLevel: LogLevel, validation: string) => ({ logLevel, validation });
 
-		// The sim formats rotation-supplied names into its messages ("Group reference '%s' not found"),
-		// and rotations are shared and imported, so a message is attacker-controlled text.
+		// The sim formats rotation-supplied names into its messages, and rotations are shared and
+		// imported, so a message is attacker-controlled text.
 		it('renders a message as text, so markup in a rotation-supplied name cannot execute', async () => {
 			source.listeners.clear();
 			const hostile = `Group reference '<img src=x onerror=alert(1)>' not found`;

@@ -13,8 +13,7 @@ import (
 )
 
 // The generated rows whose first amount is not the number the game files state, at every talent point
-// they price: mana over a tick period read as MP5, a percentage read as a multiplier or a pseudo-stat,
-// a talent's share of the amount, and a finisher's per-combo-point amount at full combo points.
+// they price.
 func TestGeneratedRowsReadInTheSimsUnits(t *testing.T) {
 	mp5 := func(s *spelldata.Spell) func(*testing.T, int32) float64 {
 		return func(t *testing.T, _ int32) float64 {
@@ -97,7 +96,7 @@ func talentScaled(amount float64, mod *spelldata.Effect) float64 {
 	}
 }
 
-// The row's first effect that applies this aura, whatever the effect's type: a party aura states the
+// The spell's first effect that applies this aura, whatever the effect's type: a party aura states the
 // same aura as one on the caster alone.
 func firstAura(t *testing.T, s *spelldata.Spell, aura dbcenums.EffectAuraType) *spelldata.Effect {
 	t.Helper()
@@ -111,8 +110,7 @@ func firstAura(t *testing.T, s *spelldata.Spell, aura dbcenums.EffectAuraType) *
 }
 
 // The game files state a permanent aura as -1 and one with no duration of its own, a totem's, as 0:
-// both never expire. A row with no duration that names its cast lasts as long as the cast, and a
-// driven buff waits the longer of the cast's own and its category's cooldown.
+// both never expire.
 func TestMetaReadsTheDurationAndCooldown(t *testing.T) {
 	durations := []struct {
 		name string
@@ -150,7 +148,7 @@ func TestMetaReadsTheDurationAndCooldown(t *testing.T) {
 }
 
 // A raid aura that is a damage shield and a healing-taken row of 0, as Retribution Aura is. Its value
-// is the damage the shield deals, whatever else the row states: the parse would attach the 0 as a
+// is the damage the shield deals, whatever else the spell states: the parse would attach the 0 as a
 // multiplier of 1.
 func TestMetaValueOfADamageShieldIsItsDamage(t *testing.T) {
 	aura := &spelldata.Spell{Effects: []spelldata.Effect{
@@ -179,8 +177,8 @@ func TestVindicationRankReadsLikeItsTooltip(t *testing.T) {
 	}
 }
 
-// Each state puts up the external copy of its own row, worth what that row states and bidding in the
-// row's category. Off puts up nothing, and a state past the last reads as the last.
+// Each state puts up the external copy of its own spell, worth what that spell states and bidding in
+// its category. Off puts up nothing, and a state past the last reads as the last.
 func TestRankSelectStatesGrantTheirOwnRows(t *testing.T) {
 	stated := func(aura dbcenums.EffectAuraType) func(*testing.T, *spelldata.Spell) float64 {
 		return func(t *testing.T, s *spelldata.Spell) float64 { return rowAmount(t, firstAura(t, s, aura)) }
@@ -251,7 +249,7 @@ func TestRankSelectStatesGrantTheirOwnRows(t *testing.T) {
 	}
 }
 
-// A priest's prayer reads its own row and duration, and bids against the raid's copy of its stat, so
+// A priest's prayer reads its own spell and duration, and bids against the raid's copy of its stat, so
 // the two count once.
 func TestPrayerCountsOnceWithTheRaidsCopy(t *testing.T) {
 	cases := []struct {
@@ -289,8 +287,8 @@ func TestPrayerCountsOnceWithTheRaidsCopy(t *testing.T) {
 	}
 }
 
-// A totem state stands on a true pet where its row lets a pet carry one, and a state whose row says
-// only a player can carry it stays off the pet. The row copy clears that attribute.
+// A totem state stands on a true pet where its spell lets a pet carry one, and a state whose spell says
+// only a player can carry it stays off the pet.
 func TestRankSelectTotemStateOnATruePet(t *testing.T) {
 	petCarries := func(state *Meta) bool {
 		owner := core.NewCharacter(&core.Party{Raid: &core.Raid{}}, 0, &proto.Player{

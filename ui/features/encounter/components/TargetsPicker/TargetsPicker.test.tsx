@@ -253,8 +253,7 @@ describe('TargetsPicker', () => {
 		expect(encounter.targets[0].creatureFamily).toBe(CreatureFamily.CreatureFamilyUnknown);
 	});
 
-	// Encounters register a preset per raid size and difficulty, all sharing one npc id — which is
-	// this picker's value, and all the sim resolves an AI from.
+	// Encounters register a preset per raid size and difficulty, all sharing one npc id, which is this picker's value.
 	describe('AI options', () => {
 		const preset = (path: string, id: number) => PresetTarget.create({ path, target: TargetProto.create({ id }) });
 		const aiOptions = async () => {

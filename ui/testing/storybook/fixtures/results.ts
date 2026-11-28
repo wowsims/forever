@@ -49,9 +49,8 @@ export interface SimRunOptions {
 let runs = 0;
 
 /**
- * One warrior against one level 63 target: 100 iterations of 180 seconds, whose only action is the
- * main-hand auto attack. That action's id is an `OtherAction`, which needs no item database to name,
- * and there are no combat logs.
+ * One warrior against one level 63 target, whose only action is the main-hand auto attack. That
+ * action's id is an `OtherAction`, which needs no item database to name, and there are no combat logs.
  */
 export const makeSimRun = ({ dpsScale = 1 }: SimRunOptions = {}): { request: RaidSimRequest; result: RaidSimResult } => {
 	const damage = 5_855_400 * dpsScale;

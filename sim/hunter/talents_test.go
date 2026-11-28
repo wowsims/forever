@@ -91,7 +91,7 @@ func TestBestialSwiftnessSpeedsThePetUnderDash(t *testing.T) {
 	assertSpeed(t, "a dashing Bestial Swiftness pet", pet.GetMovementSpeed(), 8*(1+spellData.DashTriggered.Highest().EffectN(1).Percent()))
 }
 
-// Intimidation's 100% crit stays on the pet until an attack of its spends the charge.
+// Intimidation's 100% crit stays on the pet until an attack of its uses the charge.
 func TestIntimidationCritsThePetsNextAttack(t *testing.T) {
 	sim, hunter := newTalentSim("0000000000001", proto.HunterOptions_Wolf)
 	pet := hunter.Pet
@@ -118,7 +118,7 @@ func TestIntimidationCritsThePetsNextAttack(t *testing.T) {
 }
 
 // Rapid Killing comes with a killing blow or the death of an enemy with the hunter's Serpent Sting on
-// it, once per death, and not with an unstung death the raid gets no kill for.
+// it, once per death.
 func TestRapidKillingComesWithAKillingBlowOrAStungDeath(t *testing.T) {
 	sim, hunter := newTalentSim("-0000002", proto.HunterOptions_PetNone)
 	target := sim.Encounter.AllTargets[0]

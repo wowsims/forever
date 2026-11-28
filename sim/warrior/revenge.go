@@ -9,8 +9,7 @@ import (
 var revengeTrainerRank = spellData.Revenge.ByID(11601)
 var revengeBookRank = spellData.Revenge.ByID(25288)
 
-// The "high amount of threat" the game files state with no number: Revenge's threat is 2.25 times
-// its damage, measured on Ranks 3, 4 and 5 (EV-0048, EV-0204).
+// The "high amount of threat" the game files state with no number. Threat multiplier in EV-0048, EV-0204.
 // TODO: Confirm the multiplier on Rank 6.
 const revengeThreatMultiplier = 2.25
 

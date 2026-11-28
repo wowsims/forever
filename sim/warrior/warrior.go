@@ -23,7 +23,7 @@ type WarriorInputs struct {
 }
 
 // The game files' SpellClassOptions for the Sweeping Strikes copy, a sim-only sub-spell that takes its
-// parent's flags, the game files having no row for it.
+// parent's flags, the game files having no spell for it.
 var SpellFlagsSweepingStrikes = spellData.SweepingStrikes.Highest().ClassFlags
 
 type Warrior struct {

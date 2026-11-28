@@ -16,14 +16,13 @@ import { SIML_ROTATION_FILE, SIML_SETUP_FILE } from '../exporters/siml';
 import { located, parseSiml, specField } from '../siml_client';
 import { type ImporterDefinition, ImportProblems } from './types';
 
-// The messages each field of which is a setting of its own, which a section writes one or a few of: the setup, its
-// player and its sim settings. Any other message is one setting, such as the consumables or the encounter.
+// The messages whose every field is a setting of its own. Any other message is one setting.
 const BY_FIELD: ReadonlySet<IMessageType<any>> = new Set([IndividualSimSettings, PlayerProto, SimSettings]);
 
 /**
  * `page` with each field of `file` that its JSON writes: a message of BY_FIELD field by field, any other whole. The
- * JSON leaves out a field the file does not set, and one it sets to the default, so either keeps the page's value, as
- * it does when the text loads as a preset build. An empty section still empties a message such as the consumables.
+ * JSON leaves out a field the file does not set, and one it sets to the default, so either keeps the page's value.
+ * An empty section still empties a message such as the consumables.
  */
 const overPage = <T extends object>(type: IMessageType<T>, page: T, file: T): T => {
 	const written = type.toJson(file) as JsonObject;
@@ -39,10 +38,7 @@ const overPage = <T extends object>(type: IMessageType<T>, page: T, file: T): T 
 
 /**
  * Reads `text` as the file `path` names and loads the categories it holds: what the text writes replaces the page's
- * value, and what it leaves out keeps it (`overPage`). So a file holding a rotation leaves the gear and the talents as
- * they are, and a settings: section with no race leaves the race. A file that does not read is refused with each
- * problem at its line and column; `use` is among them, as the site reads no other files. Once `signal` is aborted,
- * nothing loads.
+ * value, and what it leaves out keeps it (`overPage`).
  */
 const importSiml = async (host: IndividualSimHost<any>, text: string, path: string, signal?: AbortSignal): Promise<void> => {
 	const parsed = await parseSiml(host.sim, path, text);
@@ -97,7 +93,7 @@ const importSiml = async (host: IndividualSimHost<any>, text: string, path: stri
 	}
 
 	// The player keeps the cooldowns in the rotation, which loading one replaces: read the page's before, and set them
-	// after it, with what the file's cooldowns: section writes over them.
+	// after it.
 	const cooldowns =
 		(player.cooldowns || categories.includes(SimSettingCategories.Rotation)) &&
 		overPage(Cooldowns, host.player.getSimpleCooldowns(), player.cooldowns ?? Cooldowns.create());
@@ -114,10 +110,9 @@ const importSiml = async (host: IndividualSimHost<any>, text: string, path: stri
 const SECTIONS: ReadonlySet<string> = new Set(sections.map(section => section.name));
 
 /**
- * The name the file was given before a browser renamed it on download, so its double extension reads: a copy
- * such as `rotation.apl (1).siml` or `rotation.apl(1).siml` drops the count, and `Rotation.APL.siml` reads lowercase.
- * A name whose double extension names no section, such as `hunter.sv.siml` or `rotation.apl - Copy.siml`, reads as
- * a full setup, as pasted text does.
+ * The name the file was given before a browser renamed it on download: a copy such as `rotation.apl (1).siml` drops
+ * the count, and `Rotation.APL.siml` reads lowercase. A name whose double extension names no section reads as a full
+ * setup, as pasted text does.
  */
 const uploadedPath = (fileName: string) => {
 	const path = fileName.toLowerCase().replace(/\s*\(\d+\)(?=\.siml$)/, '');

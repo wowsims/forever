@@ -58,7 +58,7 @@ export function dpsScale(maxDps: number): ScaleOptions<'linear'> {
 }
 
 // 'auto' shows the axis exactly while a dataset drawn against it is visible, so the threat line
-// - hidden by default in the single-player chart - brings its own scale back with it.
+// brings its own scale back with it.
 export function threatScale(maxThreat: number): ScaleOptions<'linear'> {
 	const max = Math.max(10000, Math.ceil((maxThreat || 0) / 10000) * 10000);
 	return valueScale(threatColor(), THREAT_SERIES_NAME, max, { display: 'auto' });
@@ -117,7 +117,7 @@ export function threatDataset(unit: UnitMetrics, seriesId: string, borderColor: 
 }
 
 // The largest value the resource is declared or observed to hold over the fight. The first group is
-// no scale: mana spent before the pull leaves it below the maximum.
+// no scale: mana used before the pull leaves it below the maximum.
 function largestResourceValue(logs: Array<ResourceGroupLog>): number {
 	let max = 0;
 	for (const log of logs) max = Math.max(max, log.maxValue, log.valueBefore, log.valueAfter);
@@ -144,14 +144,13 @@ export function manaDataset(unit: UnitMetrics): { dataset: TimelineDataset<Resou
 }
 
 // Every other resource the unit actually used, drawn as a faint background trace behind
-// the DPS line. Mana keeps its own labelled axis; these share one hidden 0-100% axis,
-// because a rage bar and a rune count have nothing comparable about their raw numbers and
-// one visible axis per resource would bury the chart.
+// the DPS line. These share one hidden 0-100% axis, because a rage bar and a rune count
+// have nothing comparable about their raw numbers and one visible axis per resource would
+// bury the chart.
 export function resourceDatasets(unit: UnitMetrics): Array<TimelineDataset<ResourceGroupLog>> {
 	const datasets: Array<TimelineDataset<ResourceGroupLog>> = [];
 
-	// Health is only informative where staying alive is the job; on a damage spec it is a
-	// flat line that just adds a trace to read past.
+	// Health is only informative where staying alive is the job.
 	const showHealth = !!unit.spec?.isTankSpec || !!unit.spec?.isHealingSpec;
 
 	for (const resourceType of orderedResourceTypes) {

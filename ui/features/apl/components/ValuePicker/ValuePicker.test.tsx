@@ -21,9 +21,8 @@ const source = vi.hoisted(() => {
 vi.mock('@sim/state/subscriptions', async () => (await import('@testing/sim/subscriptions')).mockSubscriptions(source.subscribe));
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
-// Statically imported for every test that is not about the cycle. The two that are reset the
-// module registry and import again, and their `await import(…)` re-evaluates the whole graph —
-// `value_kinds.ts` and `action_kinds.ts` included, which is why they carry their own timeout.
+// The two tests about the cycle reset the module registry and import again, and their
+// `await import(…)` re-evaluates the whole graph, which is why they carry their own timeout.
 const constValue = (val: string) => APLValue.create({ value: { oneofKind: 'const', const: { val } }, uuid: { value: 'u-const' } });
 
 /** `not(const)` — one value wrapping another, which is the smallest thing that needs the cycle. */
@@ -69,11 +68,8 @@ describe('ValuePicker', () => {
 		expect(document.querySelector('[data-testid="apl-picker-builder-root"]')).toBeNull();
 	});
 
-	// The cycle: ValuePicker -> FieldGroup -> AplField -> ValuePicker. It is a real ES module cycle,
-	// and it only holds because AplField dispatches inside its body. Importing ValuePicker as the
-	// FIRST module of the cycle after a registry reset is what makes that observable: with a
-	// module-level component table in AplField this throws
-	// "Cannot access 'ValuePicker' before initialization" instead of rendering.
+	// The cycle only holds because AplField dispatches inside its body: with a module-level
+	// component table in AplField this throws instead of rendering.
 	it('resolves the value -> field -> value cycle when ValuePicker is imported cold, first', async () => {
 		vi.resetModules();
 		setup(notValue());
@@ -133,9 +129,8 @@ describe('ValuePicker', () => {
 		expect(operands()).toEqual(['3']);
 	});
 
-	// The kind list leads with an explicit "none" entry whose value is `undefined`, so an empty
-	// value *matches an option* and the trigger shows that option's label rather than the picker's
-	// `defaultLabel`.
+	// The kind list leads with a "none" entry whose value is `undefined`, so an empty value
+	// matches an option.
 	it('shows the "none" option, not the default label, for a value with no kind', () => {
 		setup(undefined);
 		render(<ValuePicker player={player as never} config={configForRoot() as never} />);

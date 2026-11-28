@@ -46,10 +46,8 @@ export const finishIndividualImport = async (
 	}
 	const gear = equipmentSpec && host.sim.db.lookupEquipmentSpec(equipmentSpec);
 
-	// A talent string is positional: digit i of tree t is talents[i] of whatever tree the exporter
-	// was built against. Forever's trees are a different set, so applying a string built for other
-	// trees would spend the points on other talents rather than fail. Only strings the exporter
-	// marks as built from these trees are applied.
+	// A talent string is positional, so applying a string built for other trees would spend the points
+	// on other talents rather than fail.
 	const importedTalents = !!talentsStr && talentsStr != '--';
 	const applyTalents = importedTalents && talentsMatchTrees;
 

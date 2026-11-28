@@ -8,8 +8,7 @@ const annotations = setProjectAnnotations([preview]);
 beforeAll(annotations.beforeAll);
 
 // A story that shows an item or spell icon loads the database, which no server answers here, and a
-// failed load rejects after the story's test has ended. The database files get an empty database;
-// every other request goes through unchanged.
+// failed load rejects after the story's test has ended.
 const realFetch = globalThis.fetch;
 const emptyDatabase = UIDatabase.toJson(UIDatabase.create());
 vi.stubGlobal('fetch', (input: RequestInfo | URL, init?: RequestInit) =>

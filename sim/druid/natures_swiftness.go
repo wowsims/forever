@@ -7,9 +7,7 @@ import (
 
 var naturesSwiftnessRank = spellData.NaturesSwiftness.Highest()
 
-// The cooldown, the bar on Moonkin Form and the instant cast are the row's, and the next spell the
-// mod reaches spends the charge. Of the spells the sim registers, its class flags reach Wrath and
-// not Starfire.
+// Of the spells the sim registers, its class flags reach Wrath and not Starfire.
 func (druid *Druid) applyNaturesSwiftness() {
 	if !druid.Talents.NaturesSwiftness {
 		return

@@ -5,7 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The 1 min cooldown is the row's category cooldown, and the Soul Shard each cast takes the row's reagent.
+// The 1 min cooldown is the spell's category cooldown, and the Soul Shard each cast takes is its reagent.
 func (warlock *Warlock) registerSoulfire() {
 	rankedSpell := spellData.SoulFire.ByID(17924)
 	soulFireHit := rankedSpell.DamageEffect()
@@ -19,7 +19,7 @@ func (warlock *Warlock) registerSoulfire() {
 		spell.DealDamageAfterTravel(sim, result)
 	}
 
-	// Calculate expected damage from the row's average hit
+	// Calculate expected damage from the spell's average hit
 	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
 		return spell.CalcDamage(sim, target, soulFireHit.Average(), spell.OutcomeExpectedMagicCrit)
 	}

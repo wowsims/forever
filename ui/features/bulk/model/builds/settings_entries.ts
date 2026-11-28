@@ -43,8 +43,7 @@ export const pickableBulkSettings = (host: IndividualSimHost<any>): BulkSettings
 
 // As `Sim.applyBulkSettings` sends an entry: an absent message as an empty one, the item swap as the items it holds and
 // its prepull bonus stats, and the two fields it never sends left out. The sim reads the item swap only while it is on.
-// An entry without spec options keys without them; `withLiveSpecOptions` gives it the live ones first where those are
-// known.
+// An entry without spec options keys without them.
 export const settingsContentKey = keyedOnce((settings: SavedSettings) => {
 	const itemSwap = settings.enableItemSwap ? settings.itemSwap : undefined;
 	return JSON.stringify([

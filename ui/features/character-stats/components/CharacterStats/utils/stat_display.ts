@@ -34,14 +34,13 @@ export const statDisplayString = (player: Player<any>, deltaStats: Stats, unitSt
 		// A block takes off a whole number: the sheet floors the sum, as the sim does.
 		return String(Math.floor(points!));
 	} else if (rootStat && SCHOOL_DAMAGE_STATS.includes(rootStat)) {
-		// School damage reads as "total (+school)": the total is the school's own value plus
-		// generic spell damage, the parenthesised value is the school-only bonus.
+		// School damage reads as "total (+school)".
 		const total = points! + deltaStats.getStat(Stat.StatSpellDamage);
 		const school = `+${points!.toFixed(0)}`;
 		return total === 0 ? school : `${Math.round(total)} (${school})`;
 	} else if (unitStat.isPseudoStat() && SPEED_MULTIPLIERS.includes(unitStat.getPseudoStat())) {
-		// A speed multiplier reads as a signed percentage over 1, like the haste rows; a stage delta
-		// without the base stage is already the change.
+		// A speed multiplier reads as a signed percentage over 1; a stage delta without the base stage
+		// is already the change.
 		const change = (deltaStats.getPseudoStat(unitStat.getPseudoStat()) - (includeBase ? 1 : 0)) * 100;
 		return (change >= 0 ? '+' : '') + change.toFixed(2) + percentSuffix;
 	}

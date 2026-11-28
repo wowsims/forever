@@ -171,8 +171,7 @@ func NewWarlock(character *core.Character, options *proto.Player, warlockOptions
 	warlock.resolveSacrifice()
 
 	if raid.Debuffs != nil {
-		// The assigned curse replaces the raid's copy of it, which is turned off. Matches GetAssignedCurse:
-		// NoCurse turns off none, and any value it does not name is Elements.
+		// The assigned curse replaces the raid's copy of it, which is turned off. Matches GetAssignedCurse.
 		switch warlock.Options.CurseOptions {
 		case proto.WarlockOptions_NoCurse:
 		case proto.WarlockOptions_Recklessness:
@@ -193,7 +192,7 @@ func NewWarlock(character *core.Character, options *proto.Player, warlockOptions
 	return warlock
 }
 
-// Settles which demon is sacrificed and which is out, once, so everything after reads them as settled:
+// Settles which demon is sacrificed and which is out:
 //   - Without Demonic Sacrifice, nothing is sacrificed.
 //   - Without Demonic Pact, summoning any demon cancels the effect, so no demon is out.
 //   - With it, the demon out may be another; resummoning the sacrificed one still cancels the effect.
@@ -249,19 +248,18 @@ func deactivateOthersOnTarget(sim *core.Simulation, group []*core.Spell, landing
 	}
 }
 
-// Slots in a target's per-caster damage multipliers (core.EnableDamageDoneByCaster / AttachDDBC), one per
-// warlock debuff that raises only this warlock's damage against the target. Each needs its own slot so one
+// Slots in a target's per-caster damage multipliers, one per warlock debuff. Each needs its own slot so one
 // debuff's expiry cannot clear another's, and every caller passes DDBC_Total so the slice is sized alike.
 const (
 	DDBC_ShadowVulnerability int = iota
 	DDBC_Total
 )
 
-// Scales a result already calculated - a ramp, a per-target bonus - and keeps its threat in step with
-// the damage, which the calculation set from the damage before the scaling.
+// Scales a result already calculated and keeps its threat in step with the damage, which the calculation
+// set from the damage before the scaling.
 //
-// Landed warlock dots tick through spelldata's TickOutcome: they tested hit once, when applied,
-// so a tick rolls only the crit the row's Periodic Can Crit allows (EV-0084). Area effects that tick, Hellfire
+// Landed warlock dots tested hit once, when applied, so a tick rolls only the crit the spell's Periodic
+// Can Crit allows (EV-0084). Area effects that tick, Hellfire
 // and Rain of Fire, roll hit on every tick.
 func scaleResult(sim *core.Simulation, spell *core.Spell, result *core.SpellResult, multiplier float64) {
 	result.Damage *= multiplier
@@ -269,7 +267,6 @@ func scaleResult(sim *core.Simulation, spell *core.Spell, result *core.SpellResu
 }
 
 // Combines the class flags of several spells into one set, for filters the data doesn't name the spells for.
-// All of them must share a family, as a warlock's spells do.
 func combineClassFlags(flags ...core.ClassFlags) core.ClassFlags {
 	var combined core.ClassFlags
 	for _, f := range flags {

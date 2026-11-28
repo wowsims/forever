@@ -32,7 +32,7 @@ const spellHasRanks = (actionId: ActionId, spells: Array<AuraStats | SpellStats>
 /**
  * The menu path `actionId` is filed under. The ranks of a spell are filed under the highest rank
  * `offered`, which makes that rank the submenu's own row: picking the row picks the highest rank,
- * and the lower ranks sit behind it. `spells` decides whether `actionId` has ranks at all.
+ * and the lower ranks sit behind it.
  */
 const createSpellSubmenu = (
 	actionId: ActionId,
@@ -61,13 +61,10 @@ const CATEGORY_SUBMENUS: Array<[ActionCategory, string]> = [
 ];
 
 /**
- * Files `entries` under the menu group the sim names, else under their category's submenu, one
- * category after another, and hands back the uncategorised rest for the caller to place. A menu group
- * is a path of submenu keys joined by dots, such as `spell.cat.stealth`.
- *
- * The groups follow `groupOrder`, the unit's order by full path, with a group it does not list after
- * the listed ones; the categories follow a fixed order. Both matter because the menu places a submenu
- * where its first option appears, and the metadata arrives sorted by name.
+ * Files `entries` under the menu group the sim names, else under their category's submenu, and
+ * hands back the uncategorised rest. The groups follow `groupOrder`, the unit's order by full path;
+ * the categories follow a fixed order. Both matter because the menu places a submenu where its first
+ * option appears, and the metadata arrives sorted by name.
  */
 const categorise = <T extends AuraStats | SpellStats>(
 	entries: Array<T>,
@@ -105,10 +102,8 @@ export interface ActionIdOption {
 	submenu?: Array<string | ActionId>;
 	tooltip?: string;
 	/**
-	 * Read by the field, which drops the entries the list it is in cannot use.
-	 *
-	 * A CSS rule scoped to the enclosing list cannot hide them: the menu renders in a portal on
-	 * `document.body`, where no such rule can reach it.
+	 * Read by the field, which drops the entries the list it is in cannot use. A CSS rule scoped to
+	 * the enclosing list cannot hide them: the menu renders in a portal on `document.body`.
 	 */
 	listScope?: LIST_SCOPE;
 }

@@ -30,7 +30,7 @@ buff were up at it, and set against the paladin's melee swings taken in the same
 | down        | any         | any     | 3 / 274                       |                      |
 
 A blocked spell's blocked amount reads 55 to 77 (median 75) on the 241 partly blocked spells, the paladin's block value
-at the time, and 48 more are blocked in full. An earlier Scholomance log of another Shieldsworn paladin (2026-11-24,
+at the time, and 48 more are fully blocked. An earlier Scholomance log of another Shieldsworn paladin (2026-11-24,
 build and hotfix not recorded) read the same: 18.2% [13.0, 24.8] of spells blocked with the spell block up and Holy
 Shield down, 46.0% [39.2, 52.9] with both up, and none of 94 without the spell block.
 
@@ -44,7 +44,7 @@ What a blocked spell gives:
 | Thorium Shield Spike                                  | 2 / 241                       | 4,380 / 4,434             |
 
 Not settled: a blocked spell gives each of these less often than a blocked melee hit does. Holy Shield's damage follows
-130 of 147 partly blocked spells and none of 24 blocked in full. The sim gives Holy Shield, Reckoning and Shield
+130 of 147 partly blocked spells and none of 24 fully blocked. The sim gives Holy Shield, Reckoning and Shield
 Specialization every blocked spell, and the shield spikes none.
 
 ## Demonfork and Lifestealing

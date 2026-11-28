@@ -44,8 +44,7 @@ export class ReforgeGearCache<SpecType extends Spec = Spec> {
 	private readonly storeReadyPromise: Promise<void>;
 	private lastPrunedAt = Date.now();
 
-	// `env` supplies the page URL that a legacy cached settings link is resolved
-	// against (see parseCachedGear); domain code never reads `window` itself.
+	// `env` supplies the page URL that a legacy cached settings link is resolved against.
 	constructor(
 		playerSpec: PlayerSpec<SpecType>,
 		private readonly env: Env,
@@ -104,8 +103,8 @@ export class ReforgeGearCache<SpecType extends Spec = Spec> {
 			let lastYieldAt = performance.now();
 			const accessUpdates: Array<{ key: string; record: ReforgeGearCacheRecord }> = [];
 
-			// Read in chunks that share a transaction. A bulk run passes six figures worth of
-			// keys, and one implicit transaction per key dominates the cache-restore stage.
+			// A bulk run passes six figures worth of keys, and one implicit transaction per key
+			// dominates the cache-restore stage.
 			for (let start = 0; start < keys.length; start += REFORGE_CACHE_READ_CHUNK_SIZE) {
 				throwIfAborted(signal);
 				const chunk = keys.slice(start, start + REFORGE_CACHE_READ_CHUNK_SIZE);
@@ -226,8 +225,8 @@ export class ReforgeGearCache<SpecType extends Spec = Spec> {
 	}
 
 	// Deliberately a fresh connection per call rather than a pooled one: object stores are
-	// created lazily per spec via a version bump (see createStore), and a held-open
-	// connection from any other spec's cache blocks that upgrade.
+	// created lazily per spec via a version bump, and a held-open connection from any other
+	// spec's cache blocks that upgrade.
 	private async getDb(): Promise<IDBPDatabase<ReforgeGearCacheDb>> {
 		await this.storeReadyPromise;
 		return ReforgeGearCache.openDb();
@@ -250,8 +249,7 @@ export class ReforgeGearCache<SpecType extends Spec = Spec> {
 		const putAll = async () => {
 			const tx = db.transaction(this.storeName, 'readwrite');
 			const store = tx.objectStore(this.storeName);
-			// Queue every put and await only once - one microtask round-trip per entry adds up
-			// over a five-figure batch.
+			// Await only once: one microtask round-trip per entry adds up over a five-figure batch.
 			await Promise.all([...entries.map(entry => store.put(entry.record, entry.key)), tx.done]);
 		};
 

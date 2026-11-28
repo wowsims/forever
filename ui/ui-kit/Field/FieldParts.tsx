@@ -82,8 +82,7 @@ export const Label = ({ as, id, tooltip, tooltipPlace, className, testId, childr
 	const generatedId = useId();
 	const tooltipId = renderable ? `${field.id ?? generatedId}-tooltip` : undefined;
 	const tooltipRef = useRef<TooltipRefProps>(null);
-	// A string goes through LocaleHtml, as ContentBlock's header tooltip already does: several spec
-	// tooltips carry <b> to mark the option they are talking about, and passed raw those render as
+	// A string goes through LocaleHtml: several spec tooltips carry <b>, and passed raw those render as
 	// literal tags.
 	const tooltipNode = useMemo(() => {
 		if (!tooltipId) return null;
@@ -102,10 +101,9 @@ export const Label = ({ as, id, tooltip, tooltipPlace, className, testId, childr
 		};
 	}, [labelTooltip, tooltipId]);
 
-	// A group's caption and an icon field's label both name a control (or several) they cannot carry a
-	// `for` to, so both fall back to `field.labelId`, which the field's `aria-labelledby` and control
-	// share. An icon field's label also clicks the control it names, since it is the only thing a
-	// wowhead anchor swatch can be labelled by.
+	// A group's caption and an icon field's label both name a control they cannot carry a `for` to,
+	// so both fall back to `field.labelId`. An icon field's label also clicks the control it names,
+	// since it is the only thing a wowhead anchor swatch can be labelled by.
 	const spanned = !as && (field.role === 'group' || field.layout === 'icon');
 	const tag = as ?? (spanned ? 'span' : 'label');
 	const activates = spanned && field.layout === 'icon';

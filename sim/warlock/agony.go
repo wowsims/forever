@@ -8,10 +8,10 @@ import (
 )
 
 // Bane of Agony's base ramps in thirds of its duration by the time since it landed, also under Wrack's added
-// ticks: a tick in the first third, its end included, deals half, one in the second the base, and one in the last
-// one and a half. The spell power share and the damage multipliers are read as each tick lands, and the share does
-// not ramp. Amplify Curse, which a landed cast spends, raises the whole tick, base and share, for the whole of the Bane
-// it landed with. The share read at each tick comes from the Nov 3 patch notes; the game files do not state it.
+// ticks. The spell power share and the damage multipliers are read as each tick lands, and the share does not
+// ramp. Amplify Curse, which a landed cast uses, raises the whole tick, base and share, for the whole of
+// the Bane it landed with. The share read at each tick comes from the Nov 3 patch notes; the game files do
+// not state it.
 // TODO: Ingame test needed: confirm on live that each tick reads the spell power of the moment.
 func (warlock *Warlock) registerBaneOfAgony() {
 	rankedSpell := spellData.BaneOfAgony.ByID(11713)
@@ -34,7 +34,7 @@ func (warlock *Warlock) registerBaneOfAgony() {
 	}
 
 	// Dot.Apply snapshots on every application, whatever applied the Bane, and runs inside the cast's
-	// effects, before the landed cast spends Amplify Curse.
+	// effects, before the landed cast uses Amplify Curse.
 	config.Dot.OnSnapshot = func(_ *core.Simulation, target *core.Unit, _ *core.Dot) {
 		ampByTarget[target.UnitIndex] = ampNow()
 	}
@@ -69,9 +69,8 @@ func (warlock *Warlock) registerBaneOfAgony() {
 	}
 
 	// Calculate expected damage from the average tick, the base at a ramp of one, which is what a tick is worth
-	// over the whole duration: with the Amplify Curse bonus of the dot on the target (useSnapshot), or of a cast
-	// now, so Dot Percent Increase sees what re-applying gains. Each tick sets the snapshot again, so setting it
-	// here costs a running dot nothing.
+	// over the whole duration. Each tick sets the snapshot again, so setting it here costs a running dot
+	// nothing.
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, useSnapshot bool) *core.SpellResult {
 		dot := spell.Dot(target)
 		ampMult, ok := ampByTarget[target.UnitIndex]

@@ -50,7 +50,7 @@ export interface AplPaste {
 
 /**
  * Pasting a copied item at the end of a list. A group or a variable is referenced by name, so it goes through
- * the name dialog first, as Copy to New does, and the dialog checks the name against the list as it stands then.
+ * the name dialog first, and the dialog checks the name against the list as it stands then.
  */
 export const useAplPaste = <K extends AplClipKind>(kind: K, list: AplPasteTarget<AplClipItems[K]>): AplPaste => {
 	const [typing, setTyping] = useState(false);

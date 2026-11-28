@@ -6,8 +6,7 @@ import (
 )
 
 // Records the game build the tables were extracted from, and the highest hotfix push applied to them
-// (0 for none), as the one row of BuildInfo. The spell store generator stamps each spell data group
-// it takes from the database with both.
+// (0 for none), as the one row of BuildInfo.
 func WriteBuildInfo(conn *sqlite.Conn, version, product string, hotfixPush int32) (err error) {
 	endFn, err := sqlitex.ImmediateTransaction(conn)
 	if err != nil {

@@ -40,8 +40,7 @@ func (priest *Priest) registerHolyTalents() {
 	priest.applyPrayerOfMending()
 }
 
-// Gives you a 70% chance to avoid interruption caused by damage while casting any spell. The row names
-// the spells by their class flags.
+// Gives you a 70% chance to avoid interruption caused by damage while casting any spell.
 func (priest *Priest) applyTwilightFocus() {
 	if priest.Talents.TwilightFocus == 0 {
 		return
@@ -168,7 +167,7 @@ func (priest *Priest) applySearingLight() {
 	holyPurpose := priest.RegisterAura(holyPurposeConfig)
 	spelldata.ParseEffects(&priest.Character, holyPurpose, holyPurposeRow, spelldata.Effects(1))
 
-	// The row's listener names no spell; the tooltip limits it to Holy Fire's periodic damage.
+	// The talent's listener names no spell; the tooltip limits it to Holy Fire's periodic damage.
 	priest.MakeProcTriggerAura(core.ProcTrigger{
 		Name:           "Searing Light",
 		ClassSpellMask: PriestSpellHolyFire,
@@ -183,7 +182,7 @@ func (priest *Priest) applySearingLight() {
 // Each time you heal a target other than yourself with Flash Heal, you are healed for X% as much.
 // This healing generates no threat.
 //
-// The talent's row is off in Shadowform, and every Flash Heal row refuses that form already.
+// The talent's spell is off in Shadowform, and every Flash Heal spell refuses that form already.
 func (priest *Priest) applyHolyBinding() {
 	if !priest.Talents.HolyBinding {
 		return
@@ -192,9 +191,8 @@ func (priest *Priest) applyHolyBinding() {
 	talent := spellData.HolyBinding.Rank(1)
 	share := talent.EffectN(1).Percent()
 
-	// The heal's row states a placeholder of 1; the talent's share sets the amount. The heal lacks Not a
-	// Proc. The share already carries the caster's healing mods, so only the priest's own healing taken
-	// mods apply to it.
+	// The heal spell states a placeholder amount of 1. The heal lacks Not a Proc. The share already carries
+	// the caster's healing mods, so only the priest's own healing taken mods apply to it.
 	selfHeal := priest.RegisterSpell(spelldata.SpellConfig(&priest.Unit, spelldata.MustFind(1328570),
 		spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(),
 		spelldata.Flags(core.SpellFlagProc|core.SpellFlagIgnoreAttackerModifiers)))
@@ -202,7 +200,7 @@ func (priest *Priest) applyHolyBinding() {
 	trigger := spelldata.ProcTrigger(&priest.Character, talent, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 		selfHeal.CalcAndDealHealing(sim, &priest.Unit, result.Damage*share, selfHeal.OutcomeHealing)
 	})
-	// The row's listener names no spell; the tooltip limits it to Flash Heal on another target.
+	// The talent's listener names no spell; the tooltip limits it to Flash Heal on another target.
 	trigger.ClassSpellMask = PriestSpellFlashHeal
 	trigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
 		return result.Target != &priest.Unit

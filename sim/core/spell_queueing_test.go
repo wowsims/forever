@@ -9,8 +9,7 @@ import (
 )
 
 func TestQueuedSpellRotationPass(t *testing.T) {
-	// The GCD ends at 1.5 s and the spell is queued for it at 1.2 s. The rotation's next look, a reaction
-	// time poll, falls at 1.55 s, past the GCD end; the action below the spell becomes ready at 1.5 s.
+	// The rotation's next look, a reaction time poll, falls at 1.55 s, past the GCD end.
 	queueAt := func(config SpellConfig) (*channelTest, *timedStubAction) {
 		ct, spell := newSpellShootTest(config)
 		after := &timedStubAction{readyAt: 1500 * time.Millisecond}
@@ -887,8 +886,8 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 }
 
 // A rotation with a move keeps looking through the GCD once an event wakes it: after an event at 0.5 s under the
-// GCD of the instant cast at the pull (as an Auto Shot, a swing or a proc would), a walk whose condition turns true
-// at 0.9 s starts then rather than at the GCD's end.
+// GCD of the instant cast at the pull, a walk whose condition turns true at 0.9 s starts then rather than at the
+// GCD's end.
 func TestMoveConditionTurningTrueDuringTheGcdStartsTheWalk(t *testing.T) {
 	cb := newHardcastTest()
 	fromNinth := cb.rot.newAPLValue(&proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{

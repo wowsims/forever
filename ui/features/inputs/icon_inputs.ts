@@ -16,7 +16,7 @@ interface BooleanInputConfig<T> {
 	value?: number;
 	label?: string;
 	// Faction comes off the player's race, so only the factories whose mod object is the player can
-	// honour it; the party- and raid-scoped ones omit it rather than accept it and drop it.
+	// honour it.
 	faction?: Faction;
 	showWhen?: (player: Player<any>) => boolean;
 	enableWhen?: (player: Player<any>) => boolean;

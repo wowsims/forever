@@ -308,8 +308,7 @@ func TestSheetShowsSchoolHitFromTheTalentsStage(t *testing.T) {
 }
 
 // The melee crit cap is what the main-hand auto's white-hit roll leaves for crit, plus the suppression
-// the sheet's crit keeps in: parry and block count only from the front, the dual-wield miss only with
-// two weapons. The suppression is the level's, and a target with defense adds its reduced crit taken.
+// the sheet's crit keeps in.
 func TestSheetMeleeCritCapIsWhatTheWhiteHitTableLeaves(t *testing.T) {
 	for _, tc := range []struct {
 		name          string
@@ -386,9 +385,9 @@ func TestSheetHasNoMeleeCritCapWithoutMainHandAuto(t *testing.T) {
 	}
 }
 
-// The sheet lists the bonuses against every mob type, the target's or not: gear, a build-phase aura and
-// a racial, each as the attack table against a target of that type holds it once the sim resets. It
-// lists the gear's area stats per area type, in an area or not.
+// The sheet lists the bonuses against every mob type, the target's or not, each as the attack table
+// against a target of that type holds it once the sim resets. It lists the gear's area stats per area
+// type, in an area or not.
 func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
 	const ringID int32 = 990925
 	const ringAttackPower, ringAreaAttackPower, auraSpellDamage = 78.0, 29.0, 21.0
@@ -543,8 +542,7 @@ func TestSheetListsEachAreaFactorInEveryEncounter(t *testing.T) {
 }
 
 // Gear stats for the encounter's area are out of the sheet's totals and join the character's stats at the reset,
-// with their dependencies, max health and max mana, as the same stats on the item itself do. A swap trades them
-// with the weapon that carries them, and the next reset starts from the main set again.
+// as the same stats on the item itself do.
 func TestAreaStatsJoinTheStatsAtTheReset(t *testing.T) {
 	const areaSwordID, plainSwordID int32 = 990926, 990927
 	bonus := stats.Stats{stats.Strength: 20, stats.Stamina: 30, stats.Intellect: 40, stats.AttackPower: 29}.ToProtoMap()

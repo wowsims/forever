@@ -14,11 +14,11 @@
 // tools/db2tool/TACTKeys.txt, refreshed from wowdev/TACTKeys).
 //
 // With --cdn, the same pipeline reads the product's current build straight
-// off Blizzard's CDN (--region picks the version service, default us) — no
+// off Blizzard's CDN (--region picks the version service, default us); no
 // install required, and hotfixes come from --dbcache or tools/db2tool/caches.
 //
 // With --build (and optionally --db2dir/--dbddir), the offline mode decodes
-// pre-extracted .db2 files instead — no install required and no hotfixes
+// pre-extracted .db2 files instead; no install required and no hotfixes
 // unless --dbcache is given.
 package main
 
@@ -60,8 +60,8 @@ type options struct {
 	region        string   // version service region for --cdn
 }
 
-// parseArgs scans the args pairwise. --settings/-s and --output/-output/-o
-// are aliases, plus the offline-mode and hotfix flags.
+// Scans the args pairwise. --settings/-s and --output/-output/-o are aliases,
+// plus the offline-mode and hotfix flags.
 func parseArgs(args []string) (options, error) {
 	opts := options{
 		settingsFile: "appsettings.json",
@@ -106,9 +106,6 @@ func parseArgs(args []string) (options, error) {
 		case "--build":
 			var v string
 			if v, err = next(); err == nil {
-				// Accept either a bare build number (68571) or a full version
-				// string (5.5.4.68571), of which only the trailing component
-				// identifies the build.
 				n := v
 				if dot := strings.LastIndexByte(n, '.'); dot >= 0 {
 					n = n[dot+1:]
@@ -135,9 +132,8 @@ func parseArgs(args []string) (options, error) {
 	return opts, nil
 }
 
-// resolvePath resolves a possibly-relative settings path against the tool
-// home directory tools/db2tool — relative settings values like
-// "../../assets/db_inputs/basestats" are anchored there.
+// Resolves a possibly-relative settings path against the tool home directory
+// tools/db2tool.
 func resolvePath(toolHome, value string) string {
 	if filepath.IsAbs(value) {
 		return value
@@ -167,8 +163,7 @@ func run(args []string) error {
 	}
 
 	// The tool home is resolved from the working directory, which must be the
-	// repo root — the same invariant gen_db already has (its ./tools/... and
-	// ./assets literals). Fail loud otherwise.
+	// repo root.
 	toolHome, err := filepath.Abs(filepath.Join("tools", "db2tool"))
 	if err != nil {
 		return err
@@ -272,11 +267,8 @@ func run(args []string) error {
 
 	// Hotfixes: overlay the game files' DBCache.bin records on every decoded
 	// table. By default only a cache for this exact build applies; having none
-	// is not an error. --dbcache pins specific cache files (deterministic
-	// runs); with no override, local-CASC mode scans tools/db2tool/caches plus
-	// <BaseDir>/**/DBCache.bin, CDN mode only tools/db2tool/caches, and the
-	// offline --build mode stays hotfix-free.
-	// --carry-hotfixes adds older builds' caches, in OrderHotfixReaders' order.
+	// is not an error. --carry-hotfixes adds older builds' caches, in
+	// OrderHotfixReaders' order.
 	var carried []*wdc.HotfixReader
 	var own *wdc.HotfixReader
 	if !opts.noHotfixes {
@@ -316,8 +308,8 @@ func run(args []string) error {
 	}
 	carriedApplied := make(map[*wdc.HotfixReader]bool)
 
-	// decodeTable opens a table, decodes it against its definition for this
-	// build and overlays the hotfixes.
+	// Opens a table, decodes it against its definition for this build and
+	// overlays the hotfixes.
 	decodeTable := func(tableName string) (*wdc.Table, sqlite.TableDef, *wdc.Decoded, error) {
 		var td sqlite.TableDef
 		table, err := openTable(tableName)
@@ -450,7 +442,7 @@ func run(args []string) error {
 	return nil
 }
 
-// loadClientKeys decodes TactKeyLookup (key id → 64-bit name) and TactKey
+// Decodes TactKeyLookup (key id → 64-bit name) and TactKey
 // (key id → key) and adds every pair to keys. Both tables take the hotfix
 // overlay, which is how a key the server pushes into DBCache.bin arrives.
 func loadClientKeys(keys *tact.KeyStore, decodeTable func(string) (*wdc.Table, sqlite.TableDef, *wdc.Decoded, error)) (int, error) {
@@ -496,8 +488,8 @@ func columnIndex(td sqlite.TableDef, name string) int {
 	panic(fmt.Sprintf("table %s has no column %s", td.Name, name))
 }
 
-// byteArray flattens a decoded u8 array column, which the decoder hands back
-// as []int64 (or []uint64 for 64-bit unsigned elements).
+// Flattens a decoded u8 array column, which the decoder hands back as []int64
+// (or []uint64 for 64-bit unsigned elements).
 func byteArray(v any) []byte {
 	switch a := v.(type) {
 	case []int64:
@@ -516,9 +508,8 @@ func byteArray(v any) []byte {
 	return nil
 }
 
-// reportLockedSections names every key a table's encrypted sections still
-// need, so a run says what it could not read instead of silently dropping
-// rows.
+// Names every key a table's encrypted sections still need, so a run says what
+// it could not read instead of silently dropping rows.
 func reportLockedSections(tableName string, t *wdc.Table, keys *tact.KeyStore) {
 	locked := make(map[uint64]int32)
 	for _, s := range t.Sections {

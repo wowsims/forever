@@ -15,8 +15,7 @@ export const LANDING_CLASS_ORDER: Class[] = [
 	Class.ClassWarrior,
 ];
 
-// Each spec's theme class, as its spec.ts names it. A class card puts one on its cover to show that spec's
-// background, which theme/specs.css sets as --theme-background-image.
+// Each spec's theme class, as its spec.ts names it.
 export const SPEC_THEME_CLASS: Record<Exclude<Spec, Spec.SpecUnknown>, string> = {
 	[Spec.SpecBalanceDruid]: 'balance-druid-sim-ui',
 	[Spec.SpecFeralBearDruid]: 'feral-bear-druid-sim-ui',

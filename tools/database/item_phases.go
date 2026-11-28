@@ -18,8 +18,7 @@ const (
 )
 
 // The raids phase 1 opens and the ones whose reputation it holds back, each with the factions that reputation comes
-// from; a raid the game files hold no map for yet has map 0. Every raid not listed is Unknown, and one opens when it is
-// listed with open set.
+// from; a raid the game files hold no map for yet has map 0. Every raid not listed is Unknown.
 var raids = []struct {
 	mapID    int32
 	factions []int32

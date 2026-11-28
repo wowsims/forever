@@ -23,7 +23,7 @@ type focusBar struct {
 	focusRefundMetrics *ResourceMetrics
 }
 
-// Focus comes back at 10 a second, 1 every 0.1 s, and never shows above 100 (EV-0072).
+// Focus regen in EV-0072.
 func (unit *Unit) EnableFocusBar(focusRegenMultiplier float64) {
 	unit.SetCurrentPowerBar(FocusBar)
 

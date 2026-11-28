@@ -7,10 +7,9 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The damage spell each rank fires on a hit. No row triggers them and none is on a skill line, so no
-// ladder holds them and the store carries no row for them; the proc is built by hand. Rank 1 is
-// 21084, which fires 25741 (subtext "Rank 1.5"); 25742 ("Rank 1") belongs to the level 1 starter
-// seal 20154, which 21084 supersedes and the ladder leaves out.
+// The damage spell each rank fires on a hit; no spell triggers them and none is on a skill line, so the
+// store carries no row for them and the proc is built by hand. Rank 1 (21084) fires 25741 ("Rank 1.5"); 25742
+// ("Rank 1") is the starter seal 20154's.
 var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
 
 // Seal of Righteousness
@@ -22,34 +21,18 @@ var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4
 //
 // Unleashing this Seal's energy will cause 187 to 203 Holy damage to an enemy.
 //
-// The seal's second effect names its judgement (the row has no effect at the game files' index 1).
-// The judgement's dummy, its second effect, carries the number the per-hit damage is built from:
-// the seal's tooltip renders that number over 87 and over 25, which is the flat "value per hundred
-// times swing speed" at speeds 1.15 and 4.0. Its description variables add the spell power part,
-// $1h=${0.0765*$SPH} to the low end and $2h=${0.12*$SPH} to the high end. The damage spells carry
-// no spell power coefficient, and the judgement dummy's per-rank coefficient (0.058 to 0.2) is not
-// read.
-//
-//	proc = value/100 * speed * hand(speed) + coefficient * (spell power + Judgement of the Crusader)
-//	  two-hander:  hand = 1.2,                                  coefficient 0.12
-//	  one-hander:  hand = 0.85 - 0.17 * max(0, 2.0 - speed),    coefficient 0.1
-//
-// The two-hander line is exact. One-handers sit on 0.85 from 2.0 up and lose 0.017 per tenth of a
-// second below that. The slope is measured from 1.9 down to 1.6 speed, where a straight line and
-// a power law fit equally well, and the line is extended to the faster weapons (EV-0059). The
-// spell power part takes one coefficient per hand type at every speed and rank, outside the
-// fast-weapon penalty, and Judgement of the Crusader counts as spell power at the same
-// coefficient. A crit doubles the unrounded total.
-//
-// The tooltip's 0.0765 fits none of the one-handers, whose coefficient is 0.1 (EV-0059).
+// The seal's second effect names its judgement (the spell has no effect at the game files' index 1).
+// The per-hit value is the judgement dummy's second effect; the tooltip renders it over 87 and over
+// 25, which is value/100 times swing speed at speeds 1.15 and 4.0. The damage spells carry no spell
+// power coefficient and the dummy's is not read. Hand factors and coefficients in EV-0059.
 func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfRighteousness.ByID(int32(rank.EffectN(2).BaseValue()))
 	judgeDamage := judgeRank.DamageEffect()
 	perHit := judgeRank.EffectN(2)
 
-	// The judgement is Ranged in SpellCategories and carries No Active Defense: it rolls hit and
-	// crit on the ranged table with the paladin's ranged hit chance, cannot be blocked, and is a
-	// ranged attack to every proc that listens for one.
+	// Ranged in SpellCategories with No Active Defense: the judgement rolls hit and crit on the ranged
+	// table with the paladin's ranged hit chance, is never blocked, and is a ranged attack to every proc
+	// that listens for one.
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfRighteousness
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
@@ -66,7 +49,7 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		DefenseType: core.DefenseTypeMelee,
 		ProcMask:    core.ProcMaskMeleeMHSpecial,
 		// The damage spells are procs, so auras without Can Proc From Procs never hear them. They
-		// carry no Suppress Weapon Procs, unlike their TBC rows: a "Chance on hit" weapon effect
+		// carry no Suppress Weapon Procs, unlike their TBC spells: a "Chance on hit" weapon effect
 		// rolls on the seal's hit as well as on the swing, and the game shows both procs landing.
 		Flags:          core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagProc,
 		ClassSpellMask: SpellMaskSealOfRighteousnessProc,
@@ -74,9 +57,8 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
 
-		// No BonusCoefficient: the coefficient depends on the hand, and Judgement of the Crusader
-		// sits inside the base with the spell power, under the done multipliers, so the proc adds
-		// both by hand.
+		// No BonusCoefficient: the coefficient depends on the hand, and Judgement of the Crusader sits in
+		// the base with the spell power, under the done multipliers.
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			mh := paladin.MainHand()
 			hand, coefficient := sealOfRighteousnessHand(mh)
@@ -116,8 +98,7 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 	})
 }
 
-// The measured weapon multiplier and spell power coefficient of a Seal of Righteousness hit for the
-// weapon in the main hand: see registerSealOfRighteousness.
+// The measured hand factor and spell power coefficient of the main-hand weapon (registerSealOfRighteousness).
 func sealOfRighteousnessHand(mh *core.Item) (hand float64, coefficient float64) {
 	if mh.HandType == proto.HandType_HandTypeTwoHand {
 		return 1.2, 0.12

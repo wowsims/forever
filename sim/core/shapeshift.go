@@ -16,7 +16,7 @@ type CastRequirement struct {
 	Shield                        bool             // SpellEquippedItems of armor naming the shield subclass: the off hand holds a shield
 	NotInCombat                   bool             // castable only before the encounter starts
 	TargetMobTypes                uint32           // mob types the target must be one of, bit 1 << proto.MobType; zero allows any
-	NotUnderHigherRank            bool             // a ranked row whose only effect besides a dummy or script effect is the periodic: refused while a higher rank of its dot (DotConfig.RankGroup) from the caster is up on the unit
+	NotUnderHigherRank            bool             // a ranked spell whose only effect besides a dummy or script effect is the periodic: refused while a higher rank of its dot (DotConfig.RankGroup) from the caster is up on the unit
 }
 
 func (r CastRequirement) allowsForm(form dbcenums.ShapeshiftForm) bool {

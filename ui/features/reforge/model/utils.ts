@@ -3,7 +3,7 @@ import { StatCap, Stats, UnitStat } from '@sim/proto/stats';
 
 /**
  * Trims every breakpoint above its stat's limit. Only the first config declaring the limit as one
- * of its breakpoints is trimmed, matching the vanilla `softCapsConfigWithLimits` getter.
+ * of its breakpoints is trimmed.
  */
 export const applyBreakpointLimits = (softCaps: StatCap[], breakpointLimits: Stats): StatCap[] => {
 	const limited = StatCap.cloneSoftCaps(softCaps);
@@ -26,8 +26,7 @@ export const clearSoftCappedStats = (statCaps: Stats, softCaps: StatCap[]): Stat
 /**
  * Re-expresses each breakpoint as the gap between the current stats and that breakpoint, which is
  * what the solver's soft caps are measured in. Thresholds are evaluated largest-first and share a
- * single post-cap EP -- the residual value just past the discontinuity -- so the largest reachable
- * threshold is the one targeted.
+ * single post-cap EP, so the largest reachable threshold is the one targeted.
  */
 export const toRelativeSoftCaps = (softCaps: StatCap[], baseStats: Stats): StatCap[] =>
 	softCaps.map(config => {

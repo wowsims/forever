@@ -16,8 +16,7 @@ type DelayedActionOptions struct {
 
 // Use this only when your code requires persistent access to the returned
 // *PendingAction pointer. For "fire and forget" delayed actions, use
-// sim.GetConsumedPendingActionFromPool() instead, so that the PendingAction
-// struct will be re-used rather than re-allocated on each call.
+// sim.GetConsumedPendingActionFromPool() instead.
 func NewDelayedAction(options DelayedActionOptions) *PendingAction {
 	if options.OnAction == nil {
 		panic("NewDelayedAction: OnAction must not be nil")

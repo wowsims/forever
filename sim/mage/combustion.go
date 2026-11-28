@@ -15,8 +15,7 @@ var combustionBuffRank = spellData.CombustionTriggered.Highest()
 // strike chance with Fire damage spells by 10%. This effect lasts until you have caused 3
 // non-periodic critical strikes with Fire spells."
 //
-// Two auras: 11129 counts the crits left in its stacks (its ProcCharges), and 28682 carries the
-// crit, a SPELLMOD_CRITICAL_CHANCE per stack on its own class mask, up to 10 stacks.
+// Two auras: 11129 counts the crits left in its stacks, and 28682 carries the crit.
 func (mage *Mage) registerCombustionSpell() {
 	buffAura := mage.RegisterAura(spelldata.AuraConfig(combustionBuffRank, spelldata.Label("Combustion Crit")))
 	spelldata.ParseEffects(&mage.Character, buffAura, combustionBuffRank)
@@ -32,18 +31,16 @@ func (mage *Mage) registerCombustionSpell() {
 		buffAura.SetStacks(sim, 1)
 	}
 
-	// The row is Disabled While Active (Attr0 0x2000000): the cooldown starts when the effect ends.
+	// The spell is Disabled While Active (Attr0 0x2000000): the cooldown starts when the effect ends.
 	chargesConfig.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
 		buffAura.Deactivate(sim)
 		combustionSpell.CD.Use(sim)
 		mage.UpdateMajorCooldowns()
 	}
 
-	// Each landed Fire spell hit adds a stack, a crit included; a crit then spends one of the charges.
-	// An area spell's hits count one by one, Flamestrike's ground ticks among them: each enemy a tick
-	// lands on adds a stack, and each crit spends a charge (EV-0197). Periodic damage never reaches
-	// OnSpellHitDealt, so DoT ticks and Ignite neither stack nor spend, and a Fire wand's shots are
-	// ranged autos, not spells. The row cannot proc from procs, so an item's Fire proc does neither.
+	// Area hits in EV-0197. Periodic damage never reaches OnSpellHitDealt, so DoT ticks and Ignite
+	// neither add a stack nor use a charge. The spell cannot proc from procs, so an item's Fire proc
+	// does neither.
 	chargesConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if !spell.ProcMask.Matches(core.ProcMaskSpellDamage) || !spell.SpellSchool.Matches(core.SpellSchoolFire) || !result.Landed() ||
 			spell.Flags.Matches(core.SpellFlagProc) {

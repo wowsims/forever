@@ -11,9 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/core/testagent"
 )
 
-// The relic stand-ins' heals, under the class flags the store files the real heals under: Healing
-// Touch 5185, which Idol of Longevity's 28847 names, and Regrowth 8936, which it does not; Lesser
-// Healing Wave 8004, which Totem of Flowing Water's 28849 names, and Healing Wave 331.
+// The relic stand-ins' heals, under the class flags the store files the real heals under.
 var (
 	stubHealingTouch      = core.ActionID{SpellID: 993105}
 	stubRegrowth          = core.ActionID{SpellID: 993106}
@@ -38,7 +36,7 @@ func init() {
 	})
 }
 
-// A heal of 100 under the class flags of the row it stands in for, costing nothing so the refund
+// A heal of 100 under the class flags of the spell it stands in for, costing nothing so the refund
 // alone moves the mana.
 func flatHeal(id core.ActionID, rowID int32) core.SpellConfig {
 	return core.SpellConfig{
@@ -57,8 +55,8 @@ func flatHeal(id core.ActionID, rowID int32) core.SpellConfig {
 
 // Idol of Longevity 23004 refunds 28848's mana on each Healing Touch cast and nothing on a Regrowth;
 // Totem of Flowing Water 23005 refunds 28850's on each Lesser Healing Wave cast and nothing on a
-// Healing Wave. Each trigger carries its class's mask, read as the relic's lock on the spell it
-// names, the totem's through the override that moves it onto Lesser Healing Wave's bit.
+// Healing Wave. Each trigger carries its class's mask, the totem's through the override that moves it
+// onto Lesser Healing Wave's bit.
 func TestRelicsRefundManaOnTheCastTheyName(t *testing.T) {
 	for _, tc := range []struct {
 		name           string

@@ -58,7 +58,7 @@ func (unit *Unit) EnableWand(shoot *Spell, swingSpeed func() time.Duration, shot
 		}
 		wand.slot.Cancel(sim)
 		// The rotation acts at the slot with no clip delay, or when the GCD ends: a wake-up that came
-		// while it was held is spent.
+		// while it was held is used.
 		if unit.GCD.IsReady(sim) {
 			unit.WaitUntil(sim, sim.CurrentTime)
 		} else if unit.rotationAction.IsConsumed() || unit.NextRotationActionAt() > unit.GCD.ReadyAt() {

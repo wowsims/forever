@@ -13,10 +13,9 @@ const carryUuids = (from: any, to: any) => {
 };
 
 /**
- * `upstream`, passed on only when this row's content moved: with every picker on the rotation
- * itself, loading a rotation re-rendered all of them for a one-row difference. A load clones, so rows
- * compare by content, and a skipped row inherits the replaced row's uuids and list keys because only a
- * render mints them: the list groups its pickers handed down name the new objects too.
+ * `upstream`, passed on only when this row's content moved. A load clones, so rows compare by content,
+ * and a skipped row inherits the replaced row's uuids and list keys because only a render mints them:
+ * the list groups its pickers handed down name the new objects too.
  */
 export const rowSource = (upstream: StoreSubscribe, readRow: () => unknown): StoreSubscribe => {
 	const listeners = new Set<() => void>();

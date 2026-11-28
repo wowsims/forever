@@ -146,10 +146,8 @@ describe('SavedGear', () => {
 			expect(trackEvent).toHaveBeenCalledWith({ action: 'settings', category: 'load', label: 'Gear Set' });
 		});
 
-		// This is the one thing a JSON-string diff of the two writes can't see: whether they land as
-		// one store notification or two. Deleting `batch()` around setGear/setBonusStats in
-		// `loadGearSet` (utils.ts) makes this fail with `notified` = 2, because setGear's own write fires the
-		// gated listener before setBonusStats runs.
+		// Deleting `batch()` around setGear/setBonusStats in `loadGearSet` (utils.ts) makes this fail,
+		// because setGear's own write fires the gated listener before setBonusStats runs.
 		it('fires the store subscriber once for the combined gear+bonusStats write, not twice', async () => {
 			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ Raiding: storedJson(4) }));
 			await renderPanel();

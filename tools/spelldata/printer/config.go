@@ -154,9 +154,8 @@ func evalDeclaredExpr(expr ast.Expr, declarations map[string]declaration, pkg st
 	}
 
 	if virtual != nil {
-		// Preserve the virtual parameter as the root of the expression.
-		// This matters not only for "rank" itself, but also for aliases such
-		// as "holyFireHit" whose declaration eventually resolves through rank.
+		// Preserve the virtual parameter as the root of the expression, both for "rank"
+		// itself and for aliases whose declaration eventually resolves through rank.
 		resolved, err := resolveToVirtual(c, declarations, virtual.parameter, trace)
 		if err != nil {
 			return nil, nil, err
@@ -327,7 +326,6 @@ func missingConfigFields(config *core.SpellConfig) []string {
 }
 
 // These are SpellConfig fields that SpellData intentionally does not populate.
-// They are normally supplied by the caller when the spell is registered.
 var configMissingFields = []string{
 	"ApplyEffects",
 	"ExpectedInitialDamage",
@@ -527,8 +525,6 @@ func configAssignments(file *ast.File, tok *token.File, call *ast.CallExpr, name
 		}
 	}
 
-	// Find the function containing the SpellConfig call. We only inspect
-	// assignments in that function, and do not descend into nested functions.
 	var body *ast.BlockStmt
 	ast.Inspect(file, func(node ast.Node) bool {
 		switch node := node.(type) {

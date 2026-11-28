@@ -3,8 +3,7 @@ package dbcenums
 // Spell attribute flags, named after the Attributes column they live in: ATTR_EX_3 is a flag
 // in Attributes[3]. Read them through the Spell helpers rather than indexing Attributes.
 const (
-	// The spell goes off in place of the next main-hand swing: Heroic Strike, Cleave, Maul, Raptor
-	// Strike.
+	// The spell goes off in place of the next main-hand swing: Heroic Strike.
 	ATTR_ON_NEXT_SWING uint32 = 0x4
 
 	// The spell is never cast: a stance's passive, a talent that only modifies other spells.
@@ -22,7 +21,7 @@ const (
 	ATTR_EX_1_IS_SELF_CHANNELLED uint32 = 0x40
 
 	// The server refunds 80% of the power cost when the spell misses: every rage special that
-	// costs rage up front, Heroic Strike and Rend among them. Cleave and Whirlwind lack it.
+	// costs rage up front. Cleave and Whirlwind lack it.
 	ATTR_EX_1_DISCOUNT_POWER_ON_MISS uint32 = 0x8000000
 
 	ATTR_EX_2_CANT_CRIT uint32 = 0x20000000
@@ -35,31 +34,24 @@ const (
 	ATTR_EX_2_CASTABLE_IN_CASTER_FORM uint32 = 0x80000
 
 	// Only a player can carry the aura: a target that is not a player, such as a pet, is invalid.
-	// Strength of Earth and Grace of Air Totem carry it at every rank.
 	ATTR_EX_3_ONLY_ON_PLAYER uint32 = 0x100
 
-	// On a triggered spell: aura listeners treat its hits like a normal ability hit. Seal of
-	// Command damage, every Judgement, Stormstrike's bonus hits and Sweeping Strikes carry it.
+	// On a triggered spell: aura listeners treat its hits like a normal ability hit.
 	ATTR_EX_3_NOT_A_PROC          uint32 = 0x200
 	ATTR_EX_3_CAN_PROC_FROM_PROCS uint32 = 0x4000000
 
 	// Weapon procs (Player::CastItemCombatSpell) ignore hits of this spell, as do auras marked
-	// ATTR_EX_6_AURA_IS_WEAPON_PROC. In TBC that is the Seal of Blood, Righteousness and Martyr
-	// damage spells plus Gouge, Sap, Scatter Shot and Maim.
+	// ATTR_EX_6_AURA_IS_WEAPON_PROC.
 	ATTR_EX_4_SUPPRESS_WEAPON_PROCS uint32 = 0x800000
 
-	// An aura proc that honours ATTR_EX_4_SUPPRESS_WEAPON_PROCS anyway: Black Bow of the Betrayer
-	// and the Sunwell melee neck.
+	// An aura proc that honours ATTR_EX_4_SUPPRESS_WEAPON_PROCS anyway.
 	ATTR_EX_6_AURA_IS_WEAPON_PROC uint32 = 0x80
 
-	// A periodic effect whose ticks roll a critical strike: Rend, Corruption, Rupture and the
-	// other bleeds and DoTs the game files mark, 225 spells in this build.
+	// A periodic effect whose ticks roll a critical strike.
 	ATTR_EX_8_PERIODIC_CAN_CRIT uint32 = 0x200
 
-	// Two bits that decide how much armor a spell's periodic physical damage meets in the logs, though
-	// neither name says so: with the second the ticks ignore armor, with only the first they meet a
-	// tenth of it, with neither all of it (EV-0194). Spelldata's TicksIgnoreArmor and
-	// TicksMeetATenthOfArmor read them.
+	// Two bits that decide how much armor a spell's periodic physical damage meets, though neither
+	// name says so (EV-0194).
 	ATTR_DO_NOT_SHEATHE uint32 = 0x40000
 	ATTR_EX_6_BIT_21    uint32 = 0x200000
 

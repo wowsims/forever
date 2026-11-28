@@ -88,8 +88,7 @@ export interface SpellStats {
 
 /**
  * Drops the rank from every id no other entry shares at another rank, so only a spell the sim
- * registers at several ranks reads "(Rank N)" and gets a rank submenu. Entries are the same spell
- * when they share the base name and the tag.
+ * registers at several ranks reads "(Rank N)" and gets a rank submenu.
  */
 const dropLoneRanks = <T extends { id: ActionId }>(entries: Array<T>): Array<T> => {
 	const keyOf = (id: ActionId) => `${id.baseName}|${id.tag}`;
@@ -135,7 +134,7 @@ const sourceTicked = (itemSrc: ItemSource, filters: DatabaseFilters, untickedRai
 export class UnitMetadata {
 	private name: string;
 	private auras: Array<AuraStats>;
-	// Internal cooldown triggers with no aura of their own; only icd_is_ready finds them.
+	// ICD triggers with no aura of their own; only icd_is_ready finds them.
 	private icdAuras: Array<AuraStats>;
 	private spells: Array<SpellStats>;
 	private talents: Array<ActionId>;
@@ -273,8 +272,7 @@ export interface PlayerConfig<SpecType extends Spec> {
 }
 
 // The subset of the per-spec UI config (IndividualSimUIConfig) that the domain
-// layer consumes. Spec configs registered via registerSpecConfig satisfy this
-// structurally; the full UI config type stays in individual_sim_ui.
+// layer consumes.
 export interface SpecConfigData<SpecType extends Spec> extends PlayerConfig<SpecType> {
 	// Override for required talent rows. If unset, all rows [0..5] are required.
 	requiredTalentRows?: number[];
@@ -359,8 +357,7 @@ export class Player<SpecType extends Spec> {
 
 	// Writes `patch` and bumps the given version counters in one store write.
 	// The bump is what subscribers watch, so a setter notifies exactly when it
-	// calls write() — guard logic stays in the setters. Counter-only fields
-	// (rotation, itemSwap, epRefStat) are bumped with an empty patch.
+	// calls write(); guard logic stays in the setters.
 	private write(patch: Partial<Omit<PlayerSlice, 'v'>>, bumps: ReadonlyArray<PlayerField>) {
 		patchKeyed(this.sim.store, 'players', this.storeKey, patch, bumps);
 	}
@@ -451,15 +448,13 @@ export class Player<SpecType extends Spec> {
 	}
 
 	// Releases this instance's store subscriptions and slices. Only call when
-	// the Player is genuinely discarded (replaced by a different instance and
-	// referenced nowhere else) — a player moved between parties is NOT discarded.
+	// the Player is genuinely discarded; a player moved between parties is NOT discarded.
 	dispose() {
 		if (this.disposed) return;
 		this.disposed = true;
 		this.unsubscribers.splice(0).forEach(u => u());
 		// Drop the slices on the next tick: pickers bound to this player are
-		// replaced by the UI's own (gated) composition subscribers first, so they
-		// are already off the DOM — and self-dispose — when their selectors see
+		// replaced first, so they are already off the DOM when their selectors see
 		// the slice disappear.
 		setTimeout(() => deleteKeyed(this.sim.store, this.storeKey), 0);
 	}
@@ -830,8 +825,7 @@ export class Player<SpecType extends Spec> {
 		if (newGear.equals(this.getGear()) && !forceUpdate) return;
 
 		// Weapon stone imbues are corrected in the same write as the gear, so that a subscriber
-		// (including pickers that auto-clear a now-invalid selection) never sees the pair
-		// disagree.
+		// never sees the pair disagree.
 		const adjustedConsumes = newGear.adjustImbues(this.slice().consumables);
 		if (adjustedConsumes !== this.slice().consumables) {
 			this.write({ gear: newGear, consumables: adjustedConsumes }, ['gear', 'consumables']);
@@ -871,9 +865,8 @@ export class Player<SpecType extends Spec> {
 		let debuffStats = new Stats();
 		const debuffs = this.sim.raid.getDebuffs();
 
-		// Spell 14325, the top rank the buff generator resolves, which HuntersMarkValue
-		// in sim/core/debuffs_auto_gen.go states. Nothing exports it to TypeScript, so
-		// the sheet repeats the number and this is the second place to change;
+		// The value is spell 14325's, which HuntersMarkValue in sim/core/debuffs_auto_gen.go states.
+		// Nothing exports that value to TypeScript, so this is the second place to change;
 		// TestHuntersMarkOnTheCharacterSheetMatchesTheSim holds the two together.
 		if (debuffs.huntersMark) {
 			debuffStats = debuffStats.addStat(Stat.StatRangedAttackPower, 143);
@@ -1033,8 +1026,7 @@ export class Player<SpecType extends Spec> {
 	}
 
 	// The rotation for simming `rotation` with `talentsString` and `gear` in place of the player's own. The
-	// generators run on a view whose slice reports those talents and that gear, whose rotation is the given one
-	// and whose parsed-talents cache starts empty, so the player itself is never written.
+	// generators run on a view, so the player itself is never written.
 	getResolvedAplRotationForBuild({ talentsString, gear, rotation }: { talentsString: string; gear: Gear; rotation: APLRotation }): APLRotation {
 		const view: Player<SpecType> = Object.create(this, {
 			slice: { value: () => ({ ...this.slice(), talentsString, gear }) },
@@ -1307,8 +1299,7 @@ export class Player<SpecType extends Spec> {
 		return ep;
 	}
 
-	// The weapon skill of the main hand's and the off hand's weapon with the item in the slot. In a hand's own slot
-	// the item is that hand's weapon, and a two-hander there leaves the off hand empty; elsewhere it is the equipped one.
+	// The weapon skill of the main hand's and the off hand's weapon with the item in the slot.
 	private handWeaponSkills(item: Item, slot: ItemSlot): Array<WeaponSkill | undefined> {
 		const equipped = (handSlot: ItemSlot) => this.getEquippedItem(handSlot)?.item;
 		const mainHand = slot === ItemSlot.ItemSlotMainHand ? item : equipped(ItemSlot.ItemSlotMainHand);
@@ -1407,7 +1398,6 @@ export class Player<SpecType extends Spec> {
 
 		// An item shows while one of its sources counts as ticked: its kind is ticked and, for a drop in a raid zone, that raid
 		// is ticked too. PvP is a tag rather than a place, so unticking PvP hides every PvP item whatever its other sources.
-		// An item with no sources always shows.
 		const pvpTicked = filters.sources.includes(SourceFilterOption.SourcePvp);
 		const untickedRaidZones = new Set(
 			Object.entries(Player.RAID_IDS)

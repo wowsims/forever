@@ -9,10 +9,8 @@ export const hasBulkSimStageError = (baseline: ConcurrentBulkSimCandidateResult 
 
 export const cleanBulkSimDpsMetrics = (metrics: DistributionMetrics | undefined): DistributionMetrics | undefined => {
 	if (!metrics) return undefined;
-	// allValues is kept: selectBulkSimSurvivors needs the per-iteration values. It is
-	// stripped again in bulkSimCandidateResultToProto, so it never reaches the frontend.
-	// Mutating in place is safe - the input is a freshly decoded worker result with no
-	// other referent - and skips cloning the allValues array (one float per iteration).
+	// allValues is kept: selectBulkSimSurvivors needs the per-iteration values. Mutating
+	// in place is safe: the input is a freshly decoded worker result with no other referent.
 	metrics.hist = [];
 	return metrics;
 };
@@ -53,9 +51,7 @@ const mergeBulkSimDistributionMetrics = (
 		minSeed: metrics.minSeed,
 		hist: { ...metrics.hist },
 		// concat, not slice-then-push: one entry per iteration means this runs to six
-		// figures, so it allocates once at the final size instead of regrowing, and it
-		// takes an array rather than spread call args (which throw RangeError past the
-		// engine's argument limit).
+		// figures, and spread call args throw RangeError past the engine's argument limit.
 		allValues: metrics.allValues.concat(additionalMetrics.allValues),
 		aggregatorData: { n, sumSq },
 	});
