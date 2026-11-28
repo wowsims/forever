@@ -86,7 +86,7 @@ type Warlock struct {
 	SoulShardsAura *core.Aura      // the Soul Shards left this iteration, as its stacks
 	reagentWaivers []reagentWaiver // the effects that lift the reagents of some spells while up
 
-	afflictionDots   []*core.Spell               // Corruption at every rank, Siphon Life and Bane of Agony: what Soul Siphon counts and Wrack speeds up
+	afflictionDots   []*core.Spell               // Corruption at every rank, Siphon Life and Bane of Agony: what Soul Siphon counts and Wrack adds half points to
 	petActiveAuras   []*core.Aura                // the warlock's effects that last while a demon is out
 	sacrificedDemon  proto.WarlockOptions_Summon // the demon whose Demonic Sacrifice effect is up, NoSummon for none
 	lifeTapPetShare  float64                     // Demonic Energies: the share of Life Tap's mana the demon gains
